@@ -1,0 +1,152 @@
+Dataset_Name,SODA_ID,Category,Description,Date_Range_or_Notes
+"Border Crossing Entry Data",keg4-3bc2,"Research and Statistics","Summary statistics for inbound crossings at U.S.-Canada and U.S.-Mexico borders by port. Trucks, trains, containers, buses, personal vehicles, passengers, pedestrians. ~407,374 rows.","Jan 1996 - Jan 2026"
+"Port and Commodity TransBorder Freight Data Year-To-Date",yrut-prtq,"Research and Statistics","North American cross-border freight data by mode, commodity type, and geographic detail for U.S. exports/imports with Canada and Mexico.","Jan 2006 - present"
+"TransBorder Freight Data (Story/Dashboard)",kijm-95mr,"Research and Statistics","Interactive dashboard for $1.6 trillion in annual freight between U.S., Canada, and Mexico. Visual summaries by mode, commodity, and port.",Story/Dashboard
+"TransBorder Freight Data Forecast",h73b-4dgk,"Research and Statistics","Nowcast model providing estimated view of current freight volumes before official numbers are finalized.",Forecast model
+"TransBorder Freight Data Chart",cd4n-nq6m,"Research and Statistics","Visual summary of annual freight moving between the U.S., Canada, and Mexico.",Visualization
+"2021 TransBorder Data State and Port",cs4v-wy2n,"Research and Statistics","TransBorder freight data broken down by state and port for 2021.",2021
+"Monthly Transportation Statistics",crem-w557,"Research and Statistics","Compilation of 50+ national time series from ~24 federal and industry sources covering all transportation modes.",Monthly updated
+"Transportation Services Index and Seasonally-Adjusted Transportation Data",bw6n-ddqk,"Research and Statistics","Measures movement of freight and passengers. Combined index weighting monthly transportation data across modes. ~119,921 downloads.",Monthly updated
+"Combined Transportation Service Index",9xbb-k5pk,"Research and Statistics","Combined (freight + passenger) Transportation Service Index.",Time series
+"Passenger Transportation Service Index",xkwi-7rvx,"Research and Statistics","Passenger component of the Transportation Services Index.",Time series
+"Transportation Services Index - Freight",gutz-h9fp,"Research and Statistics","Monthly measure of volume of services performed by for-hire trucking, freight railroad, inland waterway, pipeline, and air freight.",Time series
+"Daily Mobility Statistics",w96p-f2qv,"Research and Statistics","Mobile device location data tracking population trips by distance category at national, state, and county levels. COVID and post-COVID.",Daily since 2020
+"Trips by Distance (same as Daily Mobility)",w96p-f2qv,"Research and Statistics","Trips by distance categories from anonymized mobile device data. National level.",Daily
+"Trips by Distance - National and State",aksz-j95y,"Research and Statistics","State-level trip distance data from mobile device panels.",Daily
+"Trips by Distance - County",p3sz-y9us,"Research and Statistics","County-level trip distance data from mobile device panels.",Daily
+"Trips by Distance with County Data",gyti-3rm8,"Research and Statistics","Trips by distance with additional county transportation statistics.",Daily
+"Trips by Distance with County Data (variant)",ivp4-5mkt,"Research and Statistics","Trips by distance data with additional county transportation statistics.",Daily
+"Trips by Distance - Daily Average by Month",bnhp-2ktx,"Research and Statistics","Monthly averaged trip distance data.",Monthly aggregation
+"Trips by Distance - Daily Average by Week",e5xt-zdtd,"Research and Statistics","Weekly averaged trip distance data.",Weekly aggregation
+"Trips by Distance - National",6ced-86in,"Research and Statistics","National-level trips by distance.",Daily
+"Number of Trips by Distance in Los Angeles County",253d-8r8a,"Research and Statistics","Trip distance data specific to Los Angeles County.",Example county
+"Stay-at-Home Data (stayhome)",ysyy-v3cu,"Research and Statistics","Population staying at home estimates from mobile device data.",COVID era
+"Daily Passenger Travel",8g57-rqa4,"Research and Statistics","Daily passenger travel statistics.",Daily
+"Supply Chain and Freight Indicators",y5ut-ibwt,"Research and Statistics","U.S. DOT interagency working group data on supply chain activity: port data, freight movement, transportation labor metrics.",Updated Mar 2026
+"Passenger Travel Facts and Figures",f6cu-qb3g,"Research and Statistics","Snapshot of characteristics and trends of personal travel in the U.S.; network, economic, safety, and environmental aspects.",Updated Feb 2026
+"Chapter 1. Sources of Travel (PTFF)",jb4c-66ju,"Research and Statistics","Demographics and economic characteristics contributing to demand for passenger travel.",PTFF chapter
+"PTFF Commuting Public Transportation in Metro Areas",ex2n-fgi7,"Public Transit","Commuting public transportation data in metropolitan areas from Passenger Travel Facts and Figures.",Metro areas
+"PTFF - Cities With Bike-Share Systems",nh5j-8gwq,"Bicycles and Pedestrians","Data on cities with operational bike-sharing programs.",Updated Feb 2026
+"State-Level Transportation Public Finance Tables",fz36-xnyc,"Research and Statistics","State-level transportation revenue and expenditure data across modes at state/local government levels.",Updated Feb 2026
+"State-Level Transportation Public Finance Statistics (TPFS)",kdtd-3e96,"Research and Statistics","Transportation revenue and expenditures across modes at state/local levels. Replaces older GTFS dataset.",Updated Feb 2026
+"Government Transportation Financial Statistics (GTFS) Data",nu8j-7gmn,"Research and Statistics","Government transportation financial statistics (older version, replaced by TPFS).",Legacy
+"Airports",kfcv-nyy3,"Aviation","All official/operational aerodromes as of July 2020. Part of NTAD. Includes enplanements, operations, congestion levels.",NTAD geospatial
+"U.S. Airport On-Time Performance",rns4-gpqn,"Aviation","Airport-level on-time performance metrics for U.S. airports.",Ongoing
+"U.S. Marketing Air Carriers On-Time Performance",56fa-sf82,"Research and Statistics","Percentage of flights arriving on-time (within 15 min). Last 25 months for current reporters.",Monthly
+"T100 - Preliminary Estimates",3xj5-daif,"Aviation","Preliminary estimates from the T-100 Air Carrier Statistics database.",Monthly preliminary
+"AFF - T100 Segment Summary",bu82-4pwz,"Aviation","T-100 segment-level summary data from Aviation Facts and Figures.",Segment level
+"AFF - T100 Segment Summary By Country",56rv-9p75,"Aviation","T-100 segment summary broken down by country.",By country
+"AFF - T100 Segment Summary By Carrier",q4tb-tbff,"Aviation","T-100 segment summary broken down by carrier.",By carrier
+"Commercial Aviation Departures",bpqk-hyst,"Aviation","Number of commercial aviation departures, domestic and international.",Time series
+"AFF - Passenger by Carrier",6hrh-id4y,"Aviation","Commercial air passengers by air carrier summary.",By carrier
+"AFF - Departures by Carrier",8miy-4fts,"Aviation","Commercial air departures by air carrier summary.",By carrier
+"AFF - Load Factors by Carrier",bmsm-e9d8,"Aviation","Airline load factors (seats filled percentage) by carrier.",By carrier
+"AFF - Freight by Carrier",wqyu-573z,"Aviation","Air freight tonnage by carrier.",By carrier
+"AFF - Freight By Airport",xb4z-t72k,"Aviation","Air freight data by airport.",By airport
+"AFF - Freight by Year",ud6x-jnpq,"Aviation","Air freight tonnage by year.",Annual
+"AFF - Mail by Carrier",wr26-p9nw,"Aviation","Air mail data by carrier.",By carrier
+"AFF - Aircraft Fleet Age by Carrier (v1)",7pak-tah2,"Aviation","Aircraft fleet age data by carrier.",By carrier
+"AFF - Aircraft Fleet Age by Carrier by Year",ss99-eqva,"Aviation","Aircraft age trends by carrier and year.",By carrier/year
+"AFF - Aircraft Fleet Age by Carrier (v2)",hinw-eisy,"Aviation","Aviation Facts & Figures aircraft fleet age by carrier.",Updated Mar 2026
+"AFF - Air Carrier Average Fleet Age",tnsn-hhen,"Aviation","Industry average aircraft fleet age metrics.",Time series
+"AFF - Air Carrier Aircraft Fleet Age",xrt2-b7j8,"Aviation","Air carrier aircraft fleet age data.",Updated Feb 2026
+"Fleet Mix",fd9d-t7sq,"Aviation","Aircraft seating capacity and average fleet age.",By aircraft type
+"AFF - Air Carrier Payload Fuel Efficiency by Year",3hr6-ubv9,"Aviation","Annual aircraft payload fuel efficiency trends.",Annual
+"AFF - P12a - Air Carrier Fuel Efficiency by Year",w8ea-nba4,"Aviation","Air carrier fuel efficiency by year.",Annual
+"AFF - Air Carrier Average Fuel Cost by Year",2tpc-vjjy,"Aviation","Annual carrier fuel cost trends.",Annual
+"AFF - P12a - Average Fuel Cost by Carrier Group",jtvy-isaj,"Aviation","Average fuel cost by carrier group classification.",By carrier group
+"AFF - Air Carrier Fuel Cost by Year",cnr6-rcjd,"Aviation","Historical aircraft fuel cost data.",Annual
+"AFF - P12a - Fuel Cost by Carrier Group",navd-gpqa,"Aviation","Fuel expenditure comparison across carrier categories.",By carrier group
+"AFF - Air Carrier Fuel Consumption by Year",txt7-23tj,"Aviation","Annual aircraft fuel consumption metrics.",Annual
+"Fuel Consumption (Aviation)",bwcv-dxgx,"Aviation","Fuel consumption and cost; fuel efficiency of the air carrier fleet.",Summary
+"U.S. Air Carrier Passenger Travel (Seasonally Adjusted)",pi4b-6n97,"Research and Statistics","Seasonal-adjusted airline passenger travel index based on historical trends.",Monthly SA
+"U.S. Air Carrier Passenger Travel (Not Seasonally Adjusted)",brip-mkqk,"Research and Statistics","Non-seasonally adjusted air traffic data from commercial U.S. air carriers.",Monthly NSA
+"Air Travel - Total",6vnx-7g89,"Research and Statistics","Total U.S. air travel data (domestic + international).",Monthly
+"Air Travel - Domestic",em4z-nqt3,"Research and Statistics","Domestic-only U.S. air travel data.",Monthly
+"Air Travel - International",rdsi-pmvz,"Research and Statistics","International U.S. air travel data.",Monthly
+"General Aviation Fatalities",digq-7e2f,"Research and Statistics","General aviation fatality statistics.",Annual
+"Port Data",5rpz-kgm9,"Maritime and Waterways","Information related to port statistics and performance.",Port-level
+"Bridge Air Draft Restrictions 2025",dasz-28ip,"Maritime and Waterways","Air draft of bridges at top container ports.",2025
+"Monthly TEU Data",rd72-aq8r,"Maritime and Waterways","Monthly Twenty-foot Equivalent Unit (container) data for ports.",Monthly
+"Top 25 Ports by Dry Bulk Tonnage",c7tj-sc2j,"Water Transportation","Critical hubs for non-liquid unpackaged commodities: grain, coal, iron ore, fertilizer.",Rankings
+"Top 10 Containerized Export Commodities Shipping Weight by Coast 2023",yirh-jy8u,"Maritime and Waterways","Export commodity data by U.S. coast regions from Census Bureau trade data.",2023
+"Top 10 Containerized Import Commodities by Value and Coast 2023",n4xv-8upm,"Maritime and Waterways","Import commodity values by U.S. coastal region.",2023
+"Top 10 Containerized Non-Durable Import Commodities by Value and Coast 2023",kett-pmdy,"Maritime and Waterways","Non-durable import commodity values by coastal region.",2023
+"Top 10 Containerized Export Commodities in Short Tons by Coast 2023",5g3r-xnzv,"Maritime and Waterways","Export tonnage by commodity and coastal region.",2023
+"Tanker/Liquid Bulk Vessel Dwell Times at Top U.S. Ports",abu9-jbyq,"Water Transportation","Port dwell time metrics for liquid bulk vessels at top U.S. ports.",Jan 2019 - Jun 2023
+"Great Lakes St. Lawrence Seaway Performance",swpm-impx,"Maritime and Waterways","Monthly performance statistics: commercial tonnage, vessel transits, seaway reliability.",Monthly
+"Great Lakes St. Lawrence Seaway - U.S. Sector Reliability Rate",6it8-mz4h,"Maritime and Waterways","U.S. sector reliability rate for the Great Lakes-St. Lawrence Seaway.",Time series
+"Containerized Imports at US Ports (Story)",p3bt-a5up,"Maritime and Waterways","Type of containerized imports by U.S. port. Interactive visualization.",Story
+"Cruise Ship Calls and Passenger Counts",ucnj-kcz7,"Maritime and Waterways","Data on cruise ship calls and passenger counts for U.S. ports.",Story
+"Ferry Vessels",57sz-yj2t,"Maritime and Waterways","Facts and figures related to individual vessels used in ferry operations.",Story
+"National Census of Ferry Operators (NCFO) 2022 - Terminals and Segments",eevn-mgvi,"Maritime and Waterways","Ferry terminal information from the 2022 NCFO.",2022 survey
+"National Census of Ferry Operators (NCFO) 2022 - Operators File",63me-zi7c,"Maritime and Waterways","Responses to the 2022 National Census of Ferry Operators.",2022 survey
+"National Census of Ferry Operators (NCFO) 2020 Landing Page",5dqg-uz62,"Maritime and Waterways","Landing page for data relating to the 2020 NCFO.",2020 survey
+"National Census of Ferry Operators (NCFO) 2018 - Vessel Data",pydt-j7kj,"Ferry Operations","2017 calendar year ferry vessel data from the 2018 NCFO.",2018 survey
+"National Census of Ferry Operators (NCFO) 2018 - Operator Data",xxtv-94gu,"Ferry Operations","Responding 2018 NCFO ferry operators.",2018 survey
+"CFS Area File 2012-2022",j246-y2rf,"Research and Statistics","Commodity Flow Survey: geographic movements of all commodities by mode, NAICS, commodity, distance, weight.",2012-2022
+"CFS Export File 2012-2022",qq62-cjjy,"Research and Statistics","CFS data on geographic movements of exported commodities by mode, NAICS, commodity, distance, weight.",2012-2022
+"CFS Hazmat File 2012-2022",dkgi-gbeh,"Research and Statistics","CFS data on hazardous materials movements by mode and distance.",2012-2022
+"CFS Temperature Control File 2012-2022",f3sb-gw7h,"Research and Statistics","CFS data on temperature-controlled commodity movements.",2012-2022
+"Freight Shipments within the U.S. by Mode",c44g-ntqk,"Research and Statistics","Freight shipments by transportation mode within the U.S.",Multiple years
+"Freight Shipments within the U.S. by Mode - Value of Shipments",2y68-7azu,"Research and Statistics","Dollar value of freight shipments by mode.",Multiple years
+"Freight Shipments within the U.S. by Mode - Ton Miles of Shipments",5us5-z4px,"Research and Statistics","Ton-miles of freight shipments by mode.",Multiple years
+"BTS ATRI Freight Mobility: County-to-County Truck Travel Times (2024)",uta5-4eu5,"Trucking and Motorcoaches","Experimental truck travel time estimates between all U.S. county pairs from GPS data.",2024
+"BTS ATRI Freight Mobility: County-to-County Truck Travel Times (2023)",ez58-m3b4,"Trucking and Motorcoaches","Experimental truck travel time estimates between all U.S. county pairs from GPS data.",2023
+"BTS ATRI Freight Mobility: County-to-County Truck Travel Times (2022)",d7b8-pmxm,"Trucking and Motorcoaches","Experimental truck travel time estimates from ~300,000 trucks GPS data.",2022
+"BTS ATRI Freight Mobility: County-to-County Truck Travel Times (2021)",mayv-2qfz,"Trucking and Motorcoaches","Experimental truck travel time estimates between U.S. county pairs.",2021
+"BTS ATRI Freight Mobility: County-to-County Truck Travel Times (2020)",dggd-bg3y,"Trucking and Motorcoaches","County-to-county truck travel time data from GPS-tracked sample.",2020
+"BTS ATRI Freight Mobility: County-to-County Truck Travel Times (2019)",sn4k-eiea,"Trucking and Motorcoaches","Experimental travel time estimates for freight trucks between U.S. counties.",2019
+"BTS ATRI Freight Mobility: County-to-County Truck Travel Times (2018)",xx4g-5dg2,"Trucking and Motorcoaches","Experimental truck travel time estimates. Oct-Dec 2018 (3 months).",Oct-Dec 2018
+"Highway Fatalities",nixb-9brz,"Research and Statistics","Highway fatality counts from FARS (Fatality Analysis Reporting System).",Annual
+"Highway Fatalities Per 100 Million Vehicle Miles Traveled",vf2d-wcyz,"Research and Statistics","Highway fatality rate per 100 million VMT.",Annual
+"Highway Travel - All Systems",qeh3-a6ec,"Research and Statistics","Vehicle miles traveled on all roads and streets by month.",Monthly
+"Highway Passenger Travel (Seasonally Adjusted)",9frm-w8cv,"Research and Statistics","Seasonally adjusted highway passenger travel data.",Monthly SA
+"Truck Tonnage Index - Seasonally Adjusted",fdsx-2s48,"Research and Statistics","BTS-calculated index of seasonally adjusted truck tonnage.",Monthly
+"Heavy Truck Sales",2iwc-fgn4,"Research and Statistics","Heavy trucks (>14,000 lbs GVW) sales data.",Monthly
+"State and Local Government Construction Spending - Highway and Street",2mc2-ud7r,"Research and Statistics","Monthly estimates of total dollar value of highway/street construction spending.",Monthly
+"Fuel Prices - Regular Gasoline",x5f7-q5tn,"Research and Statistics","Average retail price for regular gasoline.",Monthly
+"Tank Car Data 2017-2021",gbe2-48iq,"Research and Statistics","Fleet composition of rail tank cars carrying flammable liquids. Annual DOT/BTS report data.",2017-2021
+"Rail Freight Carloads (Not Seasonally Adjusted)",mnpx-bf56,"Research and Statistics","Rail freight carload data, not seasonally adjusted.",Monthly NSA
+"Rail Freight Carloads (Seasonally Adjusted)",8vn3-9jqm,"Research and Statistics","Rail freight carload data, seasonally adjusted.",Monthly SA
+"Rail Freight Intermodal (Not Seasonally Adjusted)",6bwj-8zdt,"Research and Statistics","Rail freight intermodal data, not seasonally adjusted.",Monthly NSA
+"Rail Freight Intermodal (Seasonally Adjusted)",6zew-796b,"Research and Statistics","Rail freight intermodal data, seasonally adjusted.",Monthly SA
+"Amtrak Ridership",4mdc-2kn7,"Research and Statistics","Amtrak passenger ridership data.",Updated Sep 2022
+"Intercity Passenger Rail Travel - Passengers",n8yb-nfqs,"Research and Statistics","Passengers transported on Amtrak and Alaska Railroad operations.",Monthly
+"Intercity Passenger Rail Travel - Passenger-Miles",mmn6-892i,"Research and Statistics","Passenger-miles on Amtrak and Alaska Railroad.",Monthly
+"Transit Ridership - Urban Rail",rw9i-mdin,"Research and Statistics","Urban rail ridership: heavy rail, commuter rail, light rail, streetcar, hybrid rail.",Monthly
+"Access to Intercity Air, Bus, and Rail Transportation in Rural Areas",m2bh-93w3,"Research and Statistics","Rural area accessibility to intercity transportation modes.",Geographic
+"Bikeshare (Docked and Dockless) and E-scooter Systems by Year and City",cqdc-cm7d,"Bicycles and Pedestrians","Cities served by bikeshare/e-scooter systems 2015-2020: docking stations, dockless, e-scooter counts.",2015-2020
+"Bikeshare (Docked/Dockless) and E-scooter Systems 2020 by Month and Status",8cjz-h8bz,"Bicycles and Pedestrians","Monthly count of docking stations, dockless bikeshare, e-scooter systems and status in 2020.",2020 monthly
+"Locations of Docked Bikeshare Stations by System and Year",7m5x-ubud,"Bicycles and Pedestrians","Latitude/longitude for docked bikeshare stations by system and year.",Geospatial
+"Docked Bikeshare Ridership",6cfa-ipzd,"Research and Statistics","Bikeshare ridership by system, year, month, and hour. Starting Jan 2019.",Jan 2019+
+"Docked Bikeshare Trips: Largest 6 Systems",59f3-d4qy,"Research and Statistics","BTS-calculated bikeshare trip counts for the 6 largest systems.",Time series
+"Bikeshare (dataset)",kpmf-3tn2,"Bicycles and Pedestrians","Bikeshare dataset.",Summary
+"2021 Border Crossings with Michigan & New York",stxu-mztf,"Automobiles","Bridge crossing data reported by each bridge management authority, both directions combined.",2021
+"2024 Passenger Border Crossings with Michigan and New York",rzpb-s33w,"Automobiles","Bridge crossing passenger data for 2024.",2024
+"Yearly Passenger Crossings with Michigan and New York by Bridge",rx5s-stiv,"Automobiles","Annual passenger crossing data for Michigan and New York bridges.",Annual
+"Annual Border Crossings with Michigan and New York",jkcu-p3pf,"Automobiles","Annual commercial vehicle crossing counts at MI/NY bridges.",Annual
+"Annual Passenger Border Crossings with Michigan & New York",3jux-kwvh,"Automobiles","Multi-year passenger crossing statistics for Michigan and New York.",Annual
+"Border Crossing Heatmap",g4wc-3cwy,"Research and Statistics","Heatmap visualization of border crossing data.",Visualization
+"Border Crossings by Mode, Border, and State",erjk-mneb,"Research and Statistics","Border crossings broken down by mode, border (Canada/Mexico), and state.",Summary
+"Incoming Truck Border Crossings",wpr4-evxn,"Research and Statistics","Inbound truck crossing statistics at border ports.",Time series
+"Inbound Truck Crossings by Border",txk8-8akf,"Research and Statistics","Truck crossings by border (Canada vs Mexico).",Time series
+"Crossings by Mode and Border",jj7n-ixr7,"Research and Statistics","Inbound crossings by transportation mode and border.",Time series
+"Passenger Vehicles from Canada and Mexico",7bhf-qbbb,"Research and Statistics","Passenger vehicle border crossing data from Canada and Mexico.",Time series
+"Population Potentially Exposed to Combined Aviation, Road and Rail Noise 2016/2018",k3id-nynu,"Environment/Transportation","Noise exposure population estimates across aviation, road, and rail modes.",2016/2018
+"Population Potentially Exposed to Combined Aviation and Road Noise 2016/2018",ecnj-b3e2,"Environment/Transportation","Combined aviation-road noise exposure population estimates.",2016/2018
+"Population Potentially Exposed to Passenger Rail Noise 2018",dkbd-kjgw,"Environment/Transportation","Passenger rail noise exposure population estimates.",2018
+"Pocket Guide - Transportation Services Index (TSI)",3w2s-iysp,"Public Transit","Transportation Services Index from Pocket Guide to Transportation.",Annual summary
+"Pocket Guide - Passenger Transportation Service Index",4h5v-s7mv,"Public Transit","Passenger TSI from Pocket Guide series.",Annual summary
+"Pocket Guide - Freight Transportation Service Index",6zn8-4eyz,"Public Transit","Freight TSI from Pocket Guide series.",Annual summary
+"Pocket Guide - Combined Transportation Service Index",erq7-v5ry,"Public Transit","Combined TSI from Pocket Guide series.",Annual summary
+"Pocket Guide - US-Mexico Ports of Entry",tf5k-fhu2,"Public Transit","US-Mexico border crossing info from Pocket Guide.",Summary
+"Pocket Guide - US-Canada Ports of Entry",u6iw-gzjf,"Public Transit","US-Canada border crossing info from Pocket Guide.",Summary
+"National Transportation Library (NTL) Repository / ROSA P",nzdh-y7rr,"Administrative","National/international access to transportation information and DOT reference services.",Repository
+"Citizen Connect - County Data (live)",t3kh-5nek,"Research and Statistics","County-specific transportation statistics for Citizen Connect dashboard.",Live dashboard data
+"Citizen Connect - Congressional District Data (live)",4bf2-3jcw,"Research and Statistics","Congressional district transportation statistics (118th Congress 2023-2024).",Live dashboard data
+"Incorporating Travel Time Reliability into Highway Capacity Manual",vgwp-6ysf,"Research and Statistics","Supporting datasets for highway capacity research on travel time reliability.",Research
+"American Travel Survey (ATS) 1995",762v-n95h,"Research and Statistics","Historical 1995 American Travel Survey data.",1995
+"Passenger Travel Facts and Figures (various chapter stories)","multiple","Research and Statistics","Multiple story pages for PTFF chapters covering travel sources, passenger travel, safety.",Multiple stories
+"Infrastructure Investment and Jobs Act (IIJA) Transportation Funding by Mode",7fjw-dp4g,"Research and Statistics","IIJA funding allocations by transportation mode.",Story/reference
+"vius2test (Vehicle Inventory and Use Survey test)",2vuh-bi35,"Research and Statistics","Vehicle Inventory and Use Survey test dataset.",Test data

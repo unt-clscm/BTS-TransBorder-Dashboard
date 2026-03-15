@@ -1,0 +1,13 @@
+# Claude Code
+.claude/
+
+# Large files (auto-managed by pre-commit hook for files >99MB)
+
+# OS files
+Thumbs.db
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.venv/

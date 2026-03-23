@@ -1,430 +1,2507 @@
 {
-  "0101": {"port": "Portland", "district": "Portland, ME", "state": "ME"},
-  "0102": {"port": "Bangor", "district": "Portland, ME", "state": "ME"},
-  "0103": {"port": "Eastport", "district": "Portland, ME", "state": "ME"},
-  "0104": {"port": "Jackman", "district": "Portland, ME", "state": "ME"},
-  "0105": {"port": "Vanceboro", "district": "Portland, ME", "state": "ME"},
-  "0106": {"port": "Houlton", "district": "Portland, ME", "state": "ME"},
-  "0107": {"port": "Fort Fairfield", "district": "Portland, ME", "state": "ME"},
-  "0108": {"port": "Van Buren", "district": "Portland, ME", "state": "ME"},
-  "0109": {"port": "Madawaska", "district": "Portland, ME", "state": "ME"},
-  "0110": {"port": "Fort Kent", "district": "Portland, ME", "state": "ME"},
-  "0111": {"port": "Bath", "district": "Portland, ME", "state": "ME"},
-  "0112": {"port": "Bar Harbor", "district": "Portland, ME", "state": "ME"},
-  "0115": {"port": "Calais", "district": "Portland, ME", "state": "ME"},
-  "0118": {"port": "Limestone", "district": "Portland, ME", "state": "ME"},
-  "0121": {"port": "Rockland", "district": "Portland, ME", "state": "ME"},
-  "0122": {"port": "Jonesport", "district": "Portland, ME", "state": "ME"},
-  "0127": {"port": "Bridgewater", "district": "Portland, ME", "state": "ME"},
-  "0131": {"port": "Portsmouth", "district": "Portland, ME", "state": "NH"},
-  "0152": {"port": "Searsport", "district": "Portland, ME", "state": "ME"},
-  "0182": {"port": "Manchester User Fee Airport", "district": "Portland, ME", "state": "NH"},
-  "0201": {"port": "St. Albans", "district": "St. Albans, VT", "state": "VT"},
-  "0203": {"port": "Richford", "district": "St. Albans, VT", "state": "VT"},
-  "0206": {"port": "Beecher Falls", "district": "St. Albans, VT", "state": "VT"},
-  "0207": {"port": "Burlington", "district": "St. Albans, VT", "state": "VT"},
-  "0209": {"port": "Derby Line", "district": "St. Albans, VT", "state": "VT"},
-  "0211": {"port": "Norton", "district": "St. Albans, VT", "state": "VT"},
-  "0212": {"port": "Highgate Springs/Alburg", "district": "St. Albans, VT", "state": "VT"},
-  "0401": {"port": "Boston", "district": "Boston, MA", "state": "MA"},
-  "0402": {"port": "Springfield", "district": "Boston, MA", "state": "MA"},
-  "0403": {"port": "Worcester", "district": "Boston, MA", "state": "MA"},
-  "0404": {"port": "Gloucester", "district": "Boston, MA", "state": "MA"},
-  "0405": {"port": "New Bedford", "district": "Boston, MA", "state": "MA"},
-  "0406": {"port": "Plymouth", "district": "Boston, MA", "state": "MA"},
-  "0407": {"port": "Fall River", "district": "Boston, MA", "state": "MA"},
-  "0408": {"port": "Salem", "district": "Boston, MA", "state": "MA"},
-  "0410": {"port": "Bridgeport", "district": "Boston, MA", "state": "CT"},
-  "0411": {"port": "Hartford", "district": "Boston, MA", "state": "CT"},
-  "0412": {"port": "New Haven", "district": "Boston, MA", "state": "CT"},
-  "0413": {"port": "New London", "district": "Boston, MA", "state": "CT"},
-  "0416": {"port": "Lawrence", "district": "Boston, MA", "state": "MA"},
-  "0417": {"port": "Logan Airport", "district": "Boston, MA", "state": "MA"},
-  "0481": {"port": "L.G. Hanscom Field", "district": "Boston, MA", "state": "MA"},
-  "0501": {"port": "Newport", "district": "Providence, RI", "state": "RI"},
-  "0502": {"port": "Providence", "district": "Providence, RI", "state": "RI"},
-  "0503": {"port": "Mellville", "district": "Providence, RI", "state": "RI"},
-  "0701": {"port": "Ogdensburg", "district": "Ogdensburg, NY", "state": "NY"},
-  "0704": {"port": "Massena", "district": "Ogdensburg, NY", "state": "NY"},
-  "0706": {"port": "Cape Vincent", "district": "Ogdensburg, NY", "state": "NY"},
-  "0708": {"port": "Alexandria Bay", "district": "Ogdensburg, NY", "state": "NY"},
-  "0712": {"port": "Champlain-Rouses Point", "district": "Ogdensburg, NY", "state": "NY"},
-  "0714": {"port": "Clayton", "district": "Ogdensburg, NY", "state": "NY"},
-  "0715": {"port": "Trout River", "district": "Ogdensburg, NY", "state": "NY"},
-  "0901": {"port": "Buffalo-Niagara Falls", "district": "Buffalo, NY", "state": "NY"},
-  "0903": {"port": "Rochester", "district": "Buffalo, NY", "state": "NY"},
-  "0904": {"port": "Oswego", "district": "Buffalo, NY", "state": "NY"},
-  "0905": {"port": "Sodus Point", "district": "Buffalo, NY", "state": "NY"},
-  "0906": {"port": "Syracuse", "district": "Buffalo, NY", "state": "NY"},
-  "0981": {"port": "Binghamton Regional Airport", "district": "Buffalo, NY", "state": "NY"},
-  "0983": {"port": "Ithica Tompkins Intl Air", "district": "Buffalo, NY", "state": "NY"},
-  "1001": {"port": "New York", "district": "New York City, NY", "state": "NY"},
-  "1002": {"port": "Albany", "district": "New York City, NY", "state": "NY"},
-  "1003": {"port": "Newark", "district": "New York City, NY", "state": "NJ"},
-  "1004": {"port": "Perth Amboy", "district": "New York City, NY", "state": "NJ"},
-  "1012": {"port": "John F Kennedy Intl Airport", "district": "New York City, NY", "state": "NY"},
-  "1068": {"port": "Newark FedEx ECCF", "district": "New York City, NY", "state": "NJ"},
-  "1069": {"port": "UPS Newark", "district": "New York City, NY", "state": "NJ"},
-  "1071": {"port": "NYACC Jamaica", "district": "New York City, NY", "state": "NY"},
-  "1072": {"port": "DHL Jamaica", "district": "New York City, NY", "state": "NY"},
-  "1073": {"port": "Emery Worldwide Jamaica", "district": "New York City, NY", "state": "NY"},
-  "1074": {"port": "Air France (Mach Plus) Jamaica", "district": "New York City, NY", "state": "NY"},
-  "1078": {"port": "TNT Skypak Jamaica", "district": "New York City, NY", "state": "NY"},
-  "1081": {"port": "Morristown Airport", "district": "New York City, NY", "state": "NJ"},
-  "1101": {"port": "Philadelphia", "district": "Philadelphia, PA", "state": "PA"},
-  "1102": {"port": "Chester", "district": "Philadelphia, PA", "state": "PA"},
-  "1103": {"port": "Wilmington", "district": "Philadelphia, PA", "state": "DE"},
-  "1104": {"port": "Pittsburgh", "district": "Philadelphia, PA", "state": "PA"},
-  "1106": {"port": "Wilkes-Barre/Scranton", "district": "Philadelphia, PA", "state": "PA"},
-  "1108": {"port": "Phila. Intl. Airport", "district": "Philadelphia, PA", "state": "PA"},
-  "1109": {"port": "Harrisburg", "district": "Philadelphia, PA", "state": "PA"},
-  "1113": {"port": "Gloucester City", "district": "Philadelphia, PA", "state": "NJ"},
-  "1119": {"port": "Allentown", "district": "Philadelphia, PA", "state": "PA"},
-  "1182": {"port": "Atlantic City Regional Airport", "district": "Philadelphia, PA", "state": "NJ"},
-  "1183": {"port": "Trenton/Mercer County Airport", "district": "Philadelphia, PA", "state": "NJ"},
-  "1195": {"port": "UPS Philadelphia", "district": "Philadelphia, PA", "state": "PA"},
-  "1301": {"port": "Annapolis", "district": "Baltimore, MD", "state": "MD"},
-  "1302": {"port": "Cambridge", "district": "Baltimore, MD", "state": "MD"},
-  "1303": {"port": "Baltimore", "district": "Baltimore, MD", "state": "MD"},
-  "1304": {"port": "Crisfield", "district": "Baltimore, MD", "state": "MD"},
-  "1305": {"port": "Baltimore-Washington Intl Airport", "district": "Baltimore, MD", "state": "MD"},
-  "1401": {"port": "Norfolk-Newport News", "district": "Norfolk, VA", "state": "VA"},
-  "1404": {"port": "Richmond-Petersburg", "district": "Norfolk, VA", "state": "VA"},
-  "1409": {"port": "Charleston", "district": "Norfolk, VA", "state": "WV"},
-  "1410": {"port": "Front Royal", "district": "Norfolk, VA", "state": "VA"},
-  "1412": {"port": "New River Valley Airport", "district": "Norfolk, VA", "state": "VA"},
-  "1501": {"port": "Wilmington", "district": "Wilmington, NC", "state": "NC"},
-  "1502": {"port": "Winston-Salem", "district": "Wilmington, NC", "state": "NC"},
-  "1503": {"port": "Durham", "district": "Wilmington, NC", "state": "NC"},
-  "1511": {"port": "Beaufort-Morehead City", "district": "Wilmington, NC", "state": "NC"},
-  "1512": {"port": "Charlotte", "district": "Wilmington, NC", "state": "NC"},
-  "1601": {"port": "Charleston", "district": "Charleston, SC", "state": "SC"},
-  "1602": {"port": "Georgetown", "district": "Charleston, SC", "state": "SC"},
-  "1603": {"port": "Greenville-Spartanbrg", "district": "Charleston, SC", "state": "SC"},
-  "1604": {"port": "Columbia", "district": "Charleston, SC", "state": "SC"},
-  "1681": {"port": "Myrtle Beach Intl Airport", "district": "Charleston, SC", "state": "SC"},
-  "1701": {"port": "Brunswick", "district": "Savannah, GA", "state": "GA"},
-  "1703": {"port": "Savannah", "district": "Savannah, GA", "state": "GA"},
-  "1704": {"port": "Atlanta", "district": "Savannah, GA", "state": "GA"},
-  "1801": {"port": "Tampa", "district": "Tampa, FL", "state": "FL"},
-  "1803": {"port": "Jacksonville", "district": "Tampa, FL", "state": "FL"},
-  "1805": {"port": "Fernandina Beach", "district": "Tampa, FL", "state": "FL"},
-  "1807": {"port": "Boca Grande", "district": "Tampa, FL", "state": "FL"},
-  "1808": {"port": "Orlando", "district": "Tampa, FL", "state": "FL"},
-  "1809": {"port": "Orlando-Sanford Airport", "district": "Tampa, FL", "state": "FL"},
-  "1814": {"port": "St. Petersburg", "district": "Tampa, FL", "state": "FL"},
-  "1816": {"port": "Port Canaveral", "district": "Tampa, FL", "state": "FL"},
-  "1818": {"port": "Panama City", "district": "Tampa, FL", "state": "FL"},
-  "1819": {"port": "Pensacola", "district": "Tampa, FL", "state": "FL"},
-  "1821": {"port": "Port Manatee", "district": "Tampa, FL", "state": "FL"},
-  "1822": {"port": "Fort Myers Airport", "district": "Tampa, FL", "state": "FL"},
-  "1880": {"port": "Naples Municipal User Fee Airp", "district": "Tampa, FL", "state": "FL"},
-  "1883": {"port": "Sarasota Bradenton Arpt", "district": "Tampa, FL", "state": "FL"},
-  "1884": {"port": "Daytona Beach Int'l Arpt", "district": "Tampa, FL", "state": "FL"},
-  "1885": {"port": "Melbourne Regional Airport", "district": "Tampa, FL", "state": "FL"},
-  "1887": {"port": "Leesburg Regional Airp", "district": "Tampa, FL", "state": "FL"},
-  "1888": {"port": "Orlando Executive Airport", "district": "Tampa, FL", "state": "FL"},
-  "1889": {"port": "St. Augustine Airport", "district": "Tampa, FL", "state": "FL"},
-  "1901": {"port": "Mobile", "district": "Mobile, AL", "state": "AL"},
-  "1902": {"port": "Gulfport", "district": "Mobile, AL", "state": "MS"},
-  "1903": {"port": "Pascagoula", "district": "Mobile, AL", "state": "MS"},
-  "1904": {"port": "Birmingham", "district": "Mobile, AL", "state": "AL"},
-  "1910": {"port": "Huntsville", "district": "Mobile, AL", "state": "AL"},
-  "2001": {"port": "Morgan City", "district": "New Orleans, LA", "state": "LA"},
-  "2002": {"port": "New Orleans", "district": "New Orleans, LA", "state": "LA"},
-  "2003": {"port": "Little Rock", "district": "New Orleans, LA", "state": "AR"},
-  "2004": {"port": "Baton Rouge", "district": "New Orleans, LA", "state": "LA"},
-  "2006": {"port": "Memphis", "district": "New Orleans, LA", "state": "TN"},
-  "2007": {"port": "Nashville", "district": "New Orleans, LA", "state": "TN"},
-  "2008": {"port": "Chattanooga", "district": "New Orleans, LA", "state": "TN"},
-  "2010": {"port": "Gramercy", "district": "New Orleans, LA", "state": "LA"},
-  "2011": {"port": "Greenville", "district": "New Orleans, LA", "state": "MS"},
-  "2015": {"port": "Vicksburg", "district": "New Orleans, LA", "state": "MS"},
-  "2016": {"port": "Knoxville", "district": "New Orleans, LA", "state": "TN"},
-  "2017": {"port": "Lake Charles", "district": "New Orleans, LA", "state": "LA"},
-  "2018": {"port": "Shreveport/Bossier City", "district": "New Orleans, LA", "state": "LA"},
-  "2027": {"port": "Tri-Cities Airport", "district": "New Orleans, LA", "state": "TN"},
-  "2095": {"port": "FedEx Memphis", "district": "New Orleans, LA", "state": "TN"},
-  "2101": {"port": "Port Arthur", "district": "Port Arthur, TX", "state": "TX"},
-  "2102": {"port": "Sabine", "district": "Port Arthur, TX", "state": "TX"},
-  "2103": {"port": "Orange", "district": "Port Arthur, TX", "state": "TX"},
-  "2104": {"port": "Beaumont", "district": "Port Arthur, TX", "state": "TX"},
-  "2301": {"port": "Brownsville", "district": "Laredo, TX", "state": "TX"},
-  "2302": {"port": "Del Rio", "district": "Laredo, TX", "state": "TX"},
-  "2303": {"port": "Eagle Pass", "district": "Laredo, TX", "state": "TX"},
-  "2304": {"port": "Laredo", "district": "Laredo, TX", "state": "TX"},
-  "2305": {"port": "Hidalgo/Pharr", "district": "Laredo, TX", "state": "TX"},
-  "2307": {"port": "Rio Grande City", "district": "Laredo, TX", "state": "TX"},
-  "2309": {"port": "Progreso", "district": "Laredo, TX", "state": "TX"},
-  "2310": {"port": "Roma", "district": "Laredo, TX", "state": "TX"},
-  "2383": {"port": "Valley Intl Airport Harlingen", "district": "Laredo, TX", "state": "TX"},
-  "2401": {"port": "Ysleta", "district": "El Paso, TX", "state": "TX"},
-  "2402": {"port": "El Paso", "district": "El Paso, TX", "state": "TX"},
-  "2403": {"port": "Presidio", "district": "El Paso, TX", "state": "TX"},
-  "2404": {"port": "Fabens", "district": "El Paso, TX", "state": "TX"},
-  "2406": {"port": "Columbus", "district": "El Paso, TX", "state": "NM"},
-  "2407": {"port": "Albuquerque", "district": "El Paso, TX", "state": "NM"},
-  "2408": {"port": "Santa Teresa", "district": "El Paso, TX", "state": "NM"},
-  "2481": {"port": "Santa Teresa Airport", "district": "El Paso, TX", "state": "NM"},
-  "2501": {"port": "San Diego", "district": "San Diego, CA", "state": "CA"},
-  "2502": {"port": "Andrade", "district": "San Diego, CA", "state": "CA"},
-  "2503": {"port": "Calexico", "district": "San Diego, CA", "state": "CA"},
-  "2504": {"port": "San Ysidro", "district": "San Diego, CA", "state": "CA"},
-  "2505": {"port": "Tecate", "district": "San Diego, CA", "state": "CA"},
-  "2506": {"port": "Otay Mesa", "district": "San Diego, CA", "state": "CA"},
-  "2507": {"port": "Calexico-East", "district": "San Diego, CA", "state": "CA"},
-  "2601": {"port": "Douglas", "district": "Nogales, AZ", "state": "AZ"},
-  "2602": {"port": "Lukeville", "district": "Nogales, AZ", "state": "AZ"},
-  "2603": {"port": "Naco", "district": "Nogales, AZ", "state": "AZ"},
-  "2604": {"port": "Nogales", "district": "Nogales, AZ", "state": "AZ"},
-  "2605": {"port": "Phoenix", "district": "Nogales, AZ", "state": "AZ"},
-  "2606": {"port": "Sasabe", "district": "Nogales, AZ", "state": "AZ"},
-  "2608": {"port": "San Luis", "district": "Nogales, AZ", "state": "AZ"},
-  "2609": {"port": "Tucson", "district": "Nogales, AZ", "state": "AZ"},
-  "2704": {"port": "Los Angeles", "district": "Los Angeles, CA", "state": "CA"},
-  "2709": {"port": "Long Beach", "district": "Los Angeles, CA", "state": "CA"},
-  "2712": {"port": "Ventura", "district": "Los Angeles, CA", "state": "CA"},
-  "2713": {"port": "Port Hueneme", "district": "Los Angeles, CA", "state": "CA"},
-  "2715": {"port": "Capitan", "district": "Los Angeles, CA", "state": "CA"},
-  "2719": {"port": "Morro Bay", "district": "Los Angeles, CA", "state": "CA"},
-  "2720": {"port": "Los Angeles Intl Airport", "district": "Los Angeles, CA", "state": "CA"},
-  "2721": {"port": "Ontario Intl Airport", "district": "Los Angeles, CA", "state": "CA"},
-  "2722": {"port": "Las Vegas", "district": "Los Angeles, CA", "state": "NV"},
-  "2775": {"port": "TNT Express LAX", "district": "Los Angeles, CA", "state": "CA"},
-  "2776": {"port": "IBC Pacific", "district": "Los Angeles, CA", "state": "CA"},
-  "2786": {"port": "Meadows Field Airport", "district": "Los Angeles, CA", "state": "CA"},
-  "2791": {"port": "DHL-Hub Los Angeles", "district": "Los Angeles, CA", "state": "CA"},
-  "2795": {"port": "UPS-Ontario", "district": "Los Angeles, CA", "state": "CA"},
-  "2801": {"port": "San Francisco Intl Arpt", "district": "San Francisco, CA", "state": "CA"},
-  "2802": {"port": "Eureka", "district": "San Francisco, CA", "state": "CA"},
-  "2803": {"port": "Fresno", "district": "San Francisco, CA", "state": "CA"},
-  "2805": {"port": "Monterey", "district": "San Francisco, CA", "state": "CA"},
-  "2809": {"port": "San Francisco", "district": "San Francisco, CA", "state": "CA"},
-  "2810": {"port": "Stockton", "district": "San Francisco, CA", "state": "CA"},
-  "2811": {"port": "Oakland", "district": "San Francisco, CA", "state": "CA"},
-  "2812": {"port": "Richmond", "district": "San Francisco, CA", "state": "CA"},
-  "2815": {"port": "Crockett", "district": "San Francisco, CA", "state": "CA"},
-  "2820": {"port": "Martinez", "district": "San Francisco, CA", "state": "CA"},
-  "2821": {"port": "Redwood City", "district": "San Francisco, CA", "state": "CA"},
-  "2827": {"port": "Selby", "district": "San Francisco, CA", "state": "CA"},
-  "2828": {"port": "San Juaquin River", "district": "San Francisco, CA", "state": "CA"},
-  "2829": {"port": "San Pablo Bay", "district": "San Francisco, CA", "state": "CA"},
-  "2830": {"port": "Carquinez Strait", "district": "San Francisco, CA", "state": "CA"},
-  "2833": {"port": "Reno", "district": "San Francisco, CA", "state": "NV"},
-  "2834": {"port": "San Jose Intl Airport", "district": "San Francisco, CA", "state": "CA"},
-  "2835": {"port": "Sacramento Int'l Airport", "district": "San Francisco, CA", "state": "CA"},
-  "2895": {"port": "FedEx Oakland", "district": "San Francisco, CA", "state": "CA"},
-  "2901": {"port": "Astoria", "district": "Columbia-Snake, OR", "state": "OR"},
-  "2902": {"port": "Newport", "district": "Columbia-Snake, OR", "state": "OR"},
-  "2903": {"port": "Coos Bay", "district": "Columbia-Snake, OR", "state": "OR"},
-  "2904": {"port": "Portland", "district": "Columbia-Snake, OR", "state": "OR"},
-  "2905": {"port": "Longview", "district": "Columbia-Snake, OR", "state": "WA"},
-  "2907": {"port": "Boise", "district": "Columbia-Snake, OR", "state": "ID"},
-  "2908": {"port": "Vancouver", "district": "Columbia-Snake, OR", "state": "WA"},
-  "2909": {"port": "Kalama", "district": "Columbia-Snake, OR", "state": "WA"},
-  "2910": {"port": "Portland Intl Airport", "district": "Columbia-Snake, OR", "state": "OR"},
-  "3001": {"port": "Seattle", "district": "Seattle, WA", "state": "WA"},
-  "3002": {"port": "Tacoma", "district": "Seattle, WA", "state": "WA"},
-  "3003": {"port": "Aberdeen-Hoquiam", "district": "Seattle, WA", "state": "WA"},
-  "3004": {"port": "Blaine", "district": "Seattle, WA", "state": "WA"},
-  "3005": {"port": "Bellingham", "district": "Seattle, WA", "state": "WA"},
-  "3006": {"port": "Everett", "district": "Seattle, WA", "state": "WA"},
-  "3007": {"port": "Port Angeles", "district": "Seattle, WA", "state": "WA"},
-  "3008": {"port": "Port Townsend", "district": "Seattle, WA", "state": "WA"},
-  "3009": {"port": "Sumas", "district": "Seattle, WA", "state": "WA"},
-  "3010": {"port": "Anacortes", "district": "Seattle, WA", "state": "WA"},
-  "3011": {"port": "Nighthawk", "district": "Seattle, WA", "state": "WA"},
-  "3012": {"port": "Danville", "district": "Seattle, WA", "state": "WA"},
-  "3013": {"port": "Ferry", "district": "Seattle, WA", "state": "WA"},
-  "3014": {"port": "Friday Harbor", "district": "Seattle, WA", "state": "WA"},
-  "3015": {"port": "Boundary", "district": "Seattle, WA", "state": "WA"},
-  "3016": {"port": "Laurier", "district": "Seattle, WA", "state": "WA"},
-  "3017": {"port": "Point Roberts", "district": "Seattle, WA", "state": "WA"},
-  "3018": {"port": "Kenmore Air Harbor", "district": "Seattle, WA", "state": "WA"},
-  "3019": {"port": "Oroville", "district": "Seattle, WA", "state": "WA"},
-  "3020": {"port": "Frontier", "district": "Seattle, WA", "state": "WA"},
-  "3022": {"port": "Spokane", "district": "Seattle, WA", "state": "WA"},
-  "3023": {"port": "Lynden", "district": "Seattle, WA", "state": "WA"},
-  "3025": {"port": "Metaline Falls", "district": "Seattle, WA", "state": "WA"},
-  "3026": {"port": "Olympia", "district": "Seattle, WA", "state": "WA"},
-  "3029": {"port": "Seattle-Tacoma Intl Arpt", "district": "Seattle, WA", "state": "WA"},
-  "3071": {"port": "UPS Seattle", "district": "Seattle, WA", "state": "WA"},
-  "3072": {"port": "Avion Brokers Seattle", "district": "Seattle, WA", "state": "WA"},
-  "3073": {"port": "DHL Seattle", "district": "Seattle, WA", "state": "WA"},
-  "3074": {"port": "Airborne Express Seattle", "district": "Seattle, WA", "state": "WA"},
-  "3082": {"port": "Grant County Airport", "district": "Seattle, WA", "state": "WA"},
-  "3095": {"port": "UPS Seattle", "district": "Seattle, WA", "state": "WA"},
-  "3101": {"port": "Juneau", "district": "Anchorage, AK", "state": "AK"},
-  "3102": {"port": "Ketchikan", "district": "Anchorage, AK", "state": "AK"},
-  "3103": {"port": "Skagway", "district": "Anchorage, AK", "state": "AK"},
-  "3104": {"port": "Alcan", "district": "Anchorage, AK", "state": "AK"},
-  "3105": {"port": "Wrangell", "district": "Anchorage, AK", "state": "AK"},
-  "3106": {"port": "Dalton Cache", "district": "Anchorage, AK", "state": "AK"},
-  "3111": {"port": "Fairbanks", "district": "Anchorage, AK", "state": "AK"},
-  "3115": {"port": "Sitka", "district": "Anchorage, AK", "state": "AK"},
-  "3126": {"port": "Anchorage", "district": "Anchorage, AK", "state": "AK"},
-  "3195": {"port": "FedEx Anchorage", "district": "Anchorage, AK", "state": "AK"},
-  "3196": {"port": "UPS Anchorage", "district": "Anchorage, AK", "state": "AK"},
-  "3201": {"port": "Honolulu", "district": "Honolulu, HI", "state": "HI"},
-  "3202": {"port": "Hilo", "district": "Honolulu, HI", "state": "HI"},
-  "3203": {"port": "Kahului", "district": "Honolulu, HI", "state": "HI"},
-  "3204": {"port": "Nawiliwili-Port Allen", "district": "Honolulu, HI", "state": "HI"},
-  "3205": {"port": "Honolulu Intl Airprt", "district": "Honolulu, HI", "state": "HI"},
-  "3206": {"port": "Kona", "district": "Honolulu, HI", "state": "HI"},
-  "3301": {"port": "Raymond", "district": "Great Falls, MT", "state": "MT"},
-  "3302": {"port": "Eastport", "district": "Great Falls, MT", "state": "ID"},
-  "3303": {"port": "Salt Lake City", "district": "Great Falls, MT", "state": "UT"},
-  "3304": {"port": "Great Falls", "district": "Great Falls, MT", "state": "MT"},
-  "3305": {"port": "Butte", "district": "Great Falls, MT", "state": "MT"},
-  "3306": {"port": "Turner", "district": "Great Falls, MT", "state": "MT"},
-  "3307": {"port": "Denver", "district": "Great Falls, MT", "state": "CO"},
-  "3308": {"port": "Porthill", "district": "Great Falls, MT", "state": "ID"},
-  "3309": {"port": "Scoby", "district": "Great Falls, MT", "state": "MT"},
-  "3310": {"port": "Sweetgrass", "district": "Great Falls, MT", "state": "MT"},
-  "3316": {"port": "Piegan", "district": "Great Falls, MT", "state": "MT"},
-  "3317": {"port": "Opheim", "district": "Great Falls, MT", "state": "MT"},
-  "3318": {"port": "Roosville", "district": "Great Falls, MT", "state": "MT"},
-  "3319": {"port": "Morgan", "district": "Great Falls, MT", "state": "MT"},
-  "3321": {"port": "Whitlash", "district": "Great Falls, MT", "state": "MT"},
-  "3322": {"port": "Del Bonita", "district": "Great Falls, MT", "state": "MT"},
-  "3323": {"port": "Wildhorse", "district": "Great Falls, MT", "state": "MT"},
-  "3324": {"port": "Kalispell Airport", "district": "Great Falls, MT", "state": "MT"},
-  "3325": {"port": "Havre", "district": "Great Falls, MT", "state": "MT"},
-  "3384": {"port": "Centennial Airport", "district": "Great Falls, MT", "state": "CO"},
-  "3385": {"port": "Eagle County Regional Airport", "district": "Great Falls, MT", "state": "CO"},
-  "3386": {"port": "Bozeman Yellowstone User Fee Airport", "district": "Great Falls, MT", "state": "MT"},
-  "3401": {"port": "Pembina", "district": "Pembina, ND", "state": "ND"},
-  "3403": {"port": "Portal", "district": "Pembina, ND", "state": "ND"},
-  "3404": {"port": "Neche", "district": "Pembina, ND", "state": "ND"},
-  "3405": {"port": "St John", "district": "Pembina, ND", "state": "ND"},
-  "3406": {"port": "Northgate", "district": "Pembina, ND", "state": "ND"},
-  "3407": {"port": "Walhalla", "district": "Pembina, ND", "state": "ND"},
-  "3408": {"port": "Hannah", "district": "Pembina, ND", "state": "ND"},
-  "3409": {"port": "Sarles", "district": "Pembina, ND", "state": "ND"},
-  "3410": {"port": "Ambrose", "district": "Pembina, ND", "state": "ND"},
-  "3411": {"port": "Fargo", "district": "Pembina, ND", "state": "ND"},
-  "3413": {"port": "Antler", "district": "Pembina, ND", "state": "ND"},
-  "3414": {"port": "Sherwood", "district": "Pembina, ND", "state": "ND"},
-  "3415": {"port": "Hansboro", "district": "Pembina, ND", "state": "ND"},
-  "3416": {"port": "Maida", "district": "Pembina, ND", "state": "ND"},
-  "3417": {"port": "Fortuna", "district": "Pembina, ND", "state": "ND"},
-  "3419": {"port": "Westhope", "district": "Pembina, ND", "state": "ND"},
-  "3420": {"port": "Noonan", "district": "Pembina, ND", "state": "ND"},
-  "3421": {"port": "Carbury", "district": "Pembina, ND", "state": "ND"},
-  "3422": {"port": "Dunseith", "district": "Pembina, ND", "state": "ND"},
-  "3423": {"port": "Warroad", "district": "Pembina, ND", "state": "MN"},
-  "3424": {"port": "Baudette", "district": "Pembina, ND", "state": "MN"},
-  "3425": {"port": "Pinecreek", "district": "Pembina, ND", "state": "MN"},
-  "3426": {"port": "Roseau", "district": "Pembina, ND", "state": "MN"},
-  "3427": {"port": "Grand Forks", "district": "Pembina, ND", "state": "ND"},
-  "3430": {"port": "Lancaster", "district": "Pembina, ND", "state": "MN"},
-  "3433": {"port": "Williston Airport", "district": "Pembina, ND", "state": "ND"},
-  "3434": {"port": "Minot Airport", "district": "Pembina, ND", "state": "ND"},
-  "3501": {"port": "Minneapolis-St. Paul", "district": "Minneapolis, MN", "state": "MN"},
-  "3502": {"port": "Sioux Falls", "district": "Minneapolis, MN", "state": "SD"},
-  "3510": {"port": "Duluth", "district": "Minneapolis, MN", "state": "MN"},
-  "3511": {"port": "Ashland", "district": "Minneapolis, MN", "state": "WI"},
-  "3512": {"port": "Omaha", "district": "Minneapolis, MN", "state": "NE"},
-  "3513": {"port": "Des Moines", "district": "Minneapolis, MN", "state": "IA"},
-  "3581": {"port": "Rochester User Fee Airp", "district": "Minneapolis, MN", "state": "MN"},
-  "3604": {"port": "International Falls-Ranier", "district": "Duluth, MN", "state": "MN"},
-  "3613": {"port": "Grand Portage", "district": "Duluth, MN", "state": "MN"},
-  "3701": {"port": "Milwaukee", "district": "Milwaukee, WI", "state": "WI"},
-  "3702": {"port": "Marinette", "district": "Milwaukee, WI", "state": "WI"},
-  "3703": {"port": "Green Bay", "district": "Milwaukee, WI", "state": "WI"},
-  "3706": {"port": "Manitowoc", "district": "Milwaukee, WI", "state": "WI"},
-  "3708": {"port": "Racine", "district": "Milwaukee, WI", "state": "WI"},
-  "3801": {"port": "Detroit", "district": "Detroit, MI", "state": "MI"},
-  "3802": {"port": "Port Huron", "district": "Detroit, MI", "state": "MI"},
-  "3803": {"port": "Sault Ste. Marie", "district": "Detroit, MI", "state": "MI"},
-  "3804": {"port": "Saginaw/Bay City", "district": "Detroit, MI", "state": "MI"},
-  "3805": {"port": "Battle Creek", "district": "Detroit, MI", "state": "MI"},
-  "3806": {"port": "Grand Rapids", "district": "Detroit, MI", "state": "MI"},
-  "3807": {"port": "Detroit Metro Airport", "district": "Detroit, MI", "state": "MI"},
-  "3808": {"port": "Escanaba", "district": "Detroit, MI", "state": "MI"},
-  "3809": {"port": "Marquette", "district": "Detroit, MI", "state": "MI"},
-  "3814": {"port": "Algonac", "district": "Detroit, MI", "state": "MI"},
-  "3815": {"port": "Muskegon", "district": "Detroit, MI", "state": "MI"},
-  "3816": {"port": "Grand Haven", "district": "Detroit, MI", "state": "MI"},
-  "3818": {"port": "Rogers City", "district": "Detroit, MI", "state": "MI"},
-  "3819": {"port": "Detour", "district": "Detroit, MI", "state": "MI"},
-  "3842": {"port": "Presque Isle", "district": "Detroit, MI", "state": "MI"},
-  "3843": {"port": "Alpena", "district": "Detroit, MI", "state": "MI"},
-  "3881": {"port": "Oakland/Pontiac Airport", "district": "Detroit, MI", "state": "MI"},
-  "3882": {"port": "Willow Run Airport", "district": "Detroit, MI", "state": "MI"},
-  "3883": {"port": "Capital Region Intl Airport", "district": "Detroit, MI", "state": "MI"},
-  "3901": {"port": "Chicago", "district": "Chicago, IL", "state": "IL"},
-  "3902": {"port": "Peoria", "district": "Chicago, IL", "state": "IL"},
-  "3905": {"port": "Gary", "district": "Chicago, IL", "state": "IN"},
-  "3908": {"port": "Davenport", "district": "Chicago, IL", "state": "IA"},
-  "3909": {"port": "Rockford Airport", "district": "Chicago, IL", "state": "IL"},
-  "3910": {"port": "Chicago Midway Int'l Airport", "district": "Chicago, IL", "state": "IL"},
-  "3971": {"port": "TNT Express Consignment Chicago", "district": "Chicago, IL", "state": "IL"},
-  "3983": {"port": "Chicago Executive Airport", "district": "Chicago, IL", "state": "IL"},
-  "3987": {"port": "UFA UI Willard Airport", "district": "Chicago, IL", "state": "IL"},
-  "4101": {"port": "Cleveland", "district": "Cleveland, OH", "state": "OH"},
-  "4102": {"port": "Cincinnati", "district": "Cleveland, OH", "state": "OH"},
-  "4103": {"port": "Columbus", "district": "Cleveland, OH", "state": "OH"},
-  "4104": {"port": "Dayton", "district": "Cleveland, OH", "state": "OH"},
-  "4105": {"port": "Toledo-Sandusky", "district": "Cleveland, OH", "state": "OH"},
-  "4106": {"port": "Erie", "district": "Cleveland, OH", "state": "PA"},
-  "4110": {"port": "Indianapolis", "district": "Cleveland, OH", "state": "IN"},
-  "4115": {"port": "Louisville", "district": "Cleveland, OH", "state": "KY"},
-  "4116": {"port": "Owensboro-Evansville", "district": "Cleveland, OH", "state": "KY"},
-  "4121": {"port": "Lorain", "district": "Cleveland, OH", "state": "OH"},
-  "4122": {"port": "Ashtabula/Conneaut", "district": "Cleveland, OH", "state": "OH"},
-  "4183": {"port": "Fort Wayne Airport", "district": "Cleveland, OH", "state": "IN"},
-  "4184": {"port": "Blue Grass Airport", "district": "Cleveland, OH", "state": "KY"},
-  "4196": {"port": "UPS Courier", "district": "Cleveland, OH", "state": "OH"},
-  "4197": {"port": "DHL Cincinnati", "district": "Cleveland, OH", "state": "OH"},
-  "4198": {"port": "FedEx Indianapolis", "district": "Cleveland, OH", "state": "IN"},
-  "4501": {"port": "Kansas City", "district": "St Louis, MO", "state": "MO"},
-  "4502": {"port": "St Joseph", "district": "St Louis, MO", "state": "MO"},
-  "4503": {"port": "St Louis", "district": "St Louis, MO", "state": "MO"},
-  "4504": {"port": "Wichita", "district": "St Louis, MO", "state": "KS"},
-  "4505": {"port": "Springfield", "district": "St Louis, MO", "state": "MO"},
-  "4581": {"port": "Midamerican Airport", "district": "St Louis, MO", "state": "IL"},
-  "4901": {"port": "Aguadilla", "district": "San Juan, PR", "state": "PR"},
-  "4904": {"port": "Fajardo", "district": "San Juan, PR", "state": "PR"},
-  "4907": {"port": "Mayaguez", "district": "San Juan, PR", "state": "PR"},
-  "4908": {"port": "Ponce", "district": "San Juan, PR", "state": "PR"},
-  "4909": {"port": "San Juan", "district": "San Juan, PR", "state": "PR"},
-  "4913": {"port": "San Juan Intl Airport", "district": "San Juan, PR", "state": "PR"},
-  "5101": {"port": "Charlotte Amalie", "district": "Virgin Islands", "state": "VI"},
-  "5102": {"port": "Cruz Bay", "district": "Virgin Islands", "state": "VI"},
-  "5104": {"port": "Christiansted", "district": "Virgin Islands", "state": "VI"},
-  "5105": {"port": "Frederiksted", "district": "Virgin Islands", "state": "VI"},
-  "5201": {"port": "Miami", "district": "Miami, FL", "state": "FL"},
-  "5202": {"port": "Key West", "district": "Miami, FL", "state": "FL"},
-  "5203": {"port": "Port Everglades", "district": "Miami, FL", "state": "FL"},
-  "5204": {"port": "West Palm Beach", "district": "Miami, FL", "state": "FL"},
-  "5205": {"port": "Fort Pierce", "district": "Miami, FL", "state": "FL"},
-  "5206": {"port": "Miami Intl Airport", "district": "Miami, FL", "state": "FL"},
-  "5210": {"port": "Ft. Lauderdale Intl Airp", "district": "Miami, FL", "state": "FL"},
-  "5295": {"port": "UPS Miami", "district": "Miami, FL", "state": "FL"},
-  "5296": {"port": "DHL Miami", "district": "Miami, FL", "state": "FL"},
-  "5297": {"port": "FedEx Miami", "district": "Miami, FL", "state": "FL"},
-  "5298": {"port": "IBC Courier Hub", "district": "Miami, FL", "state": "FL"},
-  "5301": {"port": "Houston", "district": "Houston-Galveston, TX", "state": "TX"},
-  "5306": {"port": "Texas City", "district": "Houston-Galveston, TX", "state": "TX"},
-  "5309": {"port": "Houston Intercontl Airp", "district": "Houston-Galveston, TX", "state": "TX"},
-  "5310": {"port": "Galveston", "district": "Houston-Galveston, TX", "state": "TX"},
-  "5311": {"port": "Freeport", "district": "Houston-Galveston, TX", "state": "TX"},
-  "5312": {"port": "Corpus Christi", "district": "Houston-Galveston, TX", "state": "TX"},
-  "5313": {"port": "Port Lavaca", "district": "Houston-Galveston, TX", "state": "TX"},
-  "5381": {"port": "Sugar Land Reg Airp", "district": "Houston-Galveston, TX", "state": "TX"},
-  "5401": {"port": "Washington", "district": "Washington, DC", "state": "DC"},
-  "5402": {"port": "Alexandria", "district": "Washington, DC", "state": "VA"},
-  "5501": {"port": "Dallas/Ft. Worth", "district": "Dallas/Ft. Worth, TX", "state": "TX"},
-  "5502": {"port": "Amarillo", "district": "Dallas/Ft. Worth, TX", "state": "TX"},
-  "5503": {"port": "Lubbock", "district": "Dallas/Ft. Worth, TX", "state": "TX"},
-  "5504": {"port": "Oklahoma City", "district": "Dallas/Ft. Worth, TX", "state": "OK"},
-  "5505": {"port": "Tulsa", "district": "Dallas/Ft. Worth, TX", "state": "OK"},
-  "5506": {"port": "Austin", "district": "Dallas/Ft. Worth, TX", "state": "TX"},
-  "5507": {"port": "San Antonio", "district": "Dallas/Ft. Worth, TX", "state": "TX"},
-  "5582": {"port": "Midland Intl Airport", "district": "Dallas/Ft. Worth, TX", "state": "TX"},
-  "5583": {"port": "Fort Worth Alliance Airp", "district": "Dallas/Ft. Worth, TX", "state": "TX"},
-  "5584": {"port": "Addison Airport", "district": "Dallas/Ft. Worth, TX", "state": "TX"},
-  "7000": {"port": "Low Value", "district": "Low Value", "state": null},
-  "7010": {"port": "Canadian Late Receipts Estimate", "district": "Low Value", "state": null}
+  "0101": {
+    "port": "Portland",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0102": {
+    "port": "Bangor",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0103": {
+    "port": "Eastport",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0104": {
+    "port": "Jackman",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0105": {
+    "port": "Vanceboro",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0106": {
+    "port": "Houlton",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0107": {
+    "port": "Fort Fairfield",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0108": {
+    "port": "Van Buren",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0109": {
+    "port": "Madawaska",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0110": {
+    "port": "Fort Kent",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0111": {
+    "port": "Bath",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0112": {
+    "port": "Bar Harbor",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0115": {
+    "port": "Calais",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0118": {
+    "port": "Limestone",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0121": {
+    "port": "Rockland",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0122": {
+    "port": "Jonesport",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0127": {
+    "port": "Bridgewater",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0131": {
+    "port": "Portsmouth",
+    "district": "Portland, ME",
+    "state": "NH"
+  },
+  "0132": {
+    "port": "Belfast",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0152": {
+    "port": "Searsport",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0181": {
+    "port": "Lebanon Airport",
+    "district": "Portland, ME",
+    "state": "NH"
+  },
+  "0182": {
+    "port": "Manchester User Fee Airport",
+    "district": "Portland, ME",
+    "state": "NH"
+  },
+  "01XX": {
+    "port": "Portland Customs District n.e.c.",
+    "district": "Portland, ME",
+    "state": "ME"
+  },
+  "0201": {
+    "port": "St. Albans",
+    "district": "St. Albans, VT",
+    "state": "VT"
+  },
+  "0203": {
+    "port": "Richford",
+    "district": "St. Albans, VT",
+    "state": "VT"
+  },
+  "0206": {
+    "port": "Beecher Falls",
+    "district": "St. Albans, VT",
+    "state": "VT"
+  },
+  "0207": {
+    "port": "Burlington",
+    "district": "St. Albans, VT",
+    "state": "VT"
+  },
+  "0209": {
+    "port": "Derby Line",
+    "district": "St. Albans, VT",
+    "state": "VT"
+  },
+  "0211": {
+    "port": "Norton",
+    "district": "St. Albans, VT",
+    "state": "VT"
+  },
+  "0212": {
+    "port": "Highgate Springs/Alburg",
+    "district": "St. Albans, VT",
+    "state": "VT"
+  },
+  "02XX": {
+    "port": "St. Albans Customs District n.e.c.",
+    "district": "St. Albans, VT",
+    "state": "VT"
+  },
+  "0401": {
+    "port": "Boston",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0402": {
+    "port": "Springfield",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0403": {
+    "port": "Worcester",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0404": {
+    "port": "Gloucester",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0405": {
+    "port": "New Bedford",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0406": {
+    "port": "Plymouth",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0407": {
+    "port": "Fall River",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0408": {
+    "port": "Salem",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0410": {
+    "port": "Bridgeport",
+    "district": "Boston, MA",
+    "state": "CT"
+  },
+  "0411": {
+    "port": "Hartford",
+    "district": "Boston, MA",
+    "state": "CT"
+  },
+  "0412": {
+    "port": "New Haven",
+    "district": "Boston, MA",
+    "state": "CT"
+  },
+  "0413": {
+    "port": "New London",
+    "district": "Boston, MA",
+    "state": "CT"
+  },
+  "0416": {
+    "port": "Lawrence",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0417": {
+    "port": "Logan Airport",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0481": {
+    "port": "L.G. Hanscom Field",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "04XX": {
+    "port": "Boston Customs District n.e.c.",
+    "district": "Boston, MA",
+    "state": "MA"
+  },
+  "0501": {
+    "port": "Newport",
+    "district": "Providence, RI",
+    "state": "RI"
+  },
+  "0502": {
+    "port": "Providence",
+    "district": "Providence, RI",
+    "state": "RI"
+  },
+  "0503": {
+    "port": "Mellville",
+    "district": "Providence, RI",
+    "state": "RI"
+  },
+  "05XX": {
+    "port": "Providence Customs District n.e.c.",
+    "district": "Providence, RI",
+    "state": "RI"
+  },
+  "0701": {
+    "port": "Ogdensburg",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0704": {
+    "port": "Massena",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0705": {
+    "port": "Fort Covington",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0706": {
+    "port": "Cape Vincent",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0708": {
+    "port": "Alexandria Bay",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0711": {
+    "port": "Chateaugay",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0712": {
+    "port": "Champlain-Rouses Point",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0714": {
+    "port": "Clayton",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0715": {
+    "port": "Trout River",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "07XX": {
+    "port": "Ogdensburg Customs District n.e.c.",
+    "district": "Ogdensburg, NY",
+    "state": "NY"
+  },
+  "0901": {
+    "port": "Buffalo-Niagara Falls",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "0903": {
+    "port": "Rochester",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "0904": {
+    "port": "Oswego",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "0905": {
+    "port": "Sodus Point",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "0906": {
+    "port": "Syracuse",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "0907": {
+    "port": "Utica",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "0971": {
+    "port": "TNT Skypak",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "0981": {
+    "port": "Binghamton Regional Airport",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "0983": {
+    "port": "Ithica Tompkins Intl Air",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "09XX": {
+    "port": "Buffalo Customs District n.e.c.",
+    "district": "Buffalo, NY",
+    "state": "NY"
+  },
+  "1001": {
+    "port": "New York",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1002": {
+    "port": "Albany",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1003": {
+    "port": "Newark",
+    "district": "New York City, NY",
+    "state": "NJ"
+  },
+  "1004": {
+    "port": "Perth Amboy",
+    "district": "New York City, NY",
+    "state": "NJ"
+  },
+  "1012": {
+    "port": "John F Kennedy Intl Airport",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1068": {
+    "port": "Newark FedEx ECCF",
+    "district": "New York City, NY",
+    "state": "NJ"
+  },
+  "1069": {
+    "port": "UPS Newark",
+    "district": "New York City, NY",
+    "state": "NJ"
+  },
+  "1071": {
+    "port": "NYACC Jamaica",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1072": {
+    "port": "DHL Jamaica",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1073": {
+    "port": "Emery Worldwide Jamaica",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1074": {
+    "port": "Air France (Mach Plus) Jamaica",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1078": {
+    "port": "TNT Skypak Jamaica",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1081": {
+    "port": "Morristown Airport",
+    "district": "New York City, NY",
+    "state": "NJ"
+  },
+  "10XX": {
+    "port": "New York City Customs District n.e.c.",
+    "district": "New York City, NY",
+    "state": "NY"
+  },
+  "1101": {
+    "port": "Philadelphia",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "1102": {
+    "port": "Chester",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "1103": {
+    "port": "Wilmington",
+    "district": "Philadelphia, PA",
+    "state": "DE"
+  },
+  "1104": {
+    "port": "Pittsburgh",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "1106": {
+    "port": "Wilkes-Barre/Scranton",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "1108": {
+    "port": "Phila. Intl. Airport",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "1109": {
+    "port": "Harrisburg",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "1113": {
+    "port": "Gloucester City",
+    "district": "Philadelphia, PA",
+    "state": "NJ"
+  },
+  "1119": {
+    "port": "Allentown",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "1182": {
+    "port": "Atlantic City Regional Airport",
+    "district": "Philadelphia, PA",
+    "state": "NJ"
+  },
+  "1183": {
+    "port": "Trenton/Mercer County Airport",
+    "district": "Philadelphia, PA",
+    "state": "NJ"
+  },
+  "1195": {
+    "port": "UPS Philadelphia",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "11XX": {
+    "port": "Philadelphia Customs District n.e.c.",
+    "district": "Philadelphia, PA",
+    "state": "PA"
+  },
+  "1301": {
+    "port": "Annapolis",
+    "district": "Baltimore, MD",
+    "state": "MD"
+  },
+  "1302": {
+    "port": "Cambridge",
+    "district": "Baltimore, MD",
+    "state": "MD"
+  },
+  "1303": {
+    "port": "Baltimore",
+    "district": "Baltimore, MD",
+    "state": "MD"
+  },
+  "1304": {
+    "port": "Crisfield",
+    "district": "Baltimore, MD",
+    "state": "MD"
+  },
+  "1305": {
+    "port": "Baltimore-Washington Intl Airport",
+    "district": "Baltimore, MD",
+    "state": "MD"
+  },
+  "13XX": {
+    "port": "Baltimore Customs District n.e.c.",
+    "district": "Baltimore, MD",
+    "state": "MD"
+  },
+  "1401": {
+    "port": "Norfolk-Newport News",
+    "district": "Norfolk, VA",
+    "state": "VA"
+  },
+  "1404": {
+    "port": "Richmond-Petersburg",
+    "district": "Norfolk, VA",
+    "state": "VA"
+  },
+  "1409": {
+    "port": "Charleston",
+    "district": "Norfolk, VA",
+    "state": "WV"
+  },
+  "1410": {
+    "port": "Front Royal",
+    "district": "Norfolk, VA",
+    "state": "VA"
+  },
+  "1412": {
+    "port": "New River Valley Airport",
+    "district": "Norfolk, VA",
+    "state": "VA"
+  },
+  "14XX": {
+    "port": "Norfolk Customs District n.e.c.",
+    "district": "Norfolk, VA",
+    "state": "VA"
+  },
+  "1501": {
+    "port": "Wilmington",
+    "district": "Wilmington, NC",
+    "state": "NC"
+  },
+  "1502": {
+    "port": "Winston-Salem",
+    "district": "Wilmington, NC",
+    "state": "NC"
+  },
+  "1503": {
+    "port": "Durham",
+    "district": "Wilmington, NC",
+    "state": "NC"
+  },
+  "1511": {
+    "port": "Beaufort-Morehead City",
+    "district": "Wilmington, NC",
+    "state": "NC"
+  },
+  "1512": {
+    "port": "Charlotte",
+    "district": "Wilmington, NC",
+    "state": "NC"
+  },
+  "15XX": {
+    "port": "Wilmington Customs District n.e.c.",
+    "district": "Wilmington, NC",
+    "state": "NC"
+  },
+  "1601": {
+    "port": "Charleston",
+    "district": "Charleston, SC",
+    "state": "SC"
+  },
+  "1602": {
+    "port": "Georgetown",
+    "district": "Charleston, SC",
+    "state": "SC"
+  },
+  "1603": {
+    "port": "Greenville-Spartanbrg",
+    "district": "Charleston, SC",
+    "state": "SC"
+  },
+  "1604": {
+    "port": "Columbia",
+    "district": "Charleston, SC",
+    "state": "SC"
+  },
+  "1681": {
+    "port": "Myrtle Beach Intl Airport",
+    "district": "Charleston, SC",
+    "state": "SC"
+  },
+  "16XX": {
+    "port": "Charleston Customs District n.e.c.",
+    "district": "Charleston, SC",
+    "state": "SC"
+  },
+  "1701": {
+    "port": "Brunswick",
+    "district": "Savannah, GA",
+    "state": "GA"
+  },
+  "1703": {
+    "port": "Savannah",
+    "district": "Savannah, GA",
+    "state": "GA"
+  },
+  "1704": {
+    "port": "Atlanta",
+    "district": "Savannah, GA",
+    "state": "GA"
+  },
+  "17XX": {
+    "port": "Savannah Customs District n.e.c.",
+    "district": "Savannah, GA",
+    "state": "GA"
+  },
+  "1801": {
+    "port": "Tampa",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1803": {
+    "port": "Jacksonville",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1805": {
+    "port": "Fernandina Beach",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1807": {
+    "port": "Boca Grande",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1808": {
+    "port": "Orlando",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1809": {
+    "port": "Orlando-Sanford Airport",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1814": {
+    "port": "St. Petersburg",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1816": {
+    "port": "Port Canaveral",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1818": {
+    "port": "Panama City",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1819": {
+    "port": "Pensacola",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1821": {
+    "port": "Port Manatee",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1822": {
+    "port": "Fort Myers Airport",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1880": {
+    "port": "Naples Municipal User Fee Airp",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1883": {
+    "port": "Sarasota Bradenton Arpt",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1884": {
+    "port": "Daytona Beach Int'l Arpt",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1885": {
+    "port": "Melbourne Regional Airport",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1887": {
+    "port": "Leesburg Regional Airp",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1888": {
+    "port": "Orlando Executive Airport",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1889": {
+    "port": "St. Augustine Airport",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "18XX": {
+    "port": "Tampa Customs District n.e.c.",
+    "district": "Tampa, FL",
+    "state": "FL"
+  },
+  "1901": {
+    "port": "Mobile",
+    "district": "Mobile, AL",
+    "state": "AL"
+  },
+  "1902": {
+    "port": "Gulfport",
+    "district": "Mobile, AL",
+    "state": "MS"
+  },
+  "1903": {
+    "port": "Pascagoula",
+    "district": "Mobile, AL",
+    "state": "MS"
+  },
+  "1904": {
+    "port": "Birmingham",
+    "district": "Mobile, AL",
+    "state": "AL"
+  },
+  "1910": {
+    "port": "Huntsville",
+    "district": "Mobile, AL",
+    "state": "AL"
+  },
+  "19XX": {
+    "port": "Mobile Customs District n.e.c.",
+    "district": "Mobile, AL",
+    "state": "AL"
+  },
+  "2001": {
+    "port": "Morgan City",
+    "district": "New Orleans, LA",
+    "state": "LA"
+  },
+  "2002": {
+    "port": "New Orleans",
+    "district": "New Orleans, LA",
+    "state": "LA"
+  },
+  "2003": {
+    "port": "Little Rock",
+    "district": "New Orleans, LA",
+    "state": "AR"
+  },
+  "2004": {
+    "port": "Baton Rouge",
+    "district": "New Orleans, LA",
+    "state": "LA"
+  },
+  "2006": {
+    "port": "Memphis",
+    "district": "New Orleans, LA",
+    "state": "TN"
+  },
+  "2007": {
+    "port": "Nashville",
+    "district": "New Orleans, LA",
+    "state": "TN"
+  },
+  "2008": {
+    "port": "Chattanooga",
+    "district": "New Orleans, LA",
+    "state": "TN"
+  },
+  "2010": {
+    "port": "Gramercy",
+    "district": "New Orleans, LA",
+    "state": "LA"
+  },
+  "2011": {
+    "port": "Greenville",
+    "district": "New Orleans, LA",
+    "state": "MS"
+  },
+  "2015": {
+    "port": "Vicksburg",
+    "district": "New Orleans, LA",
+    "state": "MS"
+  },
+  "2016": {
+    "port": "Knoxville",
+    "district": "New Orleans, LA",
+    "state": "TN"
+  },
+  "2017": {
+    "port": "Lake Charles",
+    "district": "New Orleans, LA",
+    "state": "LA"
+  },
+  "2018": {
+    "port": "Shreveport/Bossier City",
+    "district": "New Orleans, LA",
+    "state": "LA"
+  },
+  "2027": {
+    "port": "Tri-Cities Airport",
+    "district": "New Orleans, LA",
+    "state": "TN"
+  },
+  "2095": {
+    "port": "FedEx Memphis",
+    "district": "New Orleans, LA",
+    "state": "TN"
+  },
+  "20XX": {
+    "port": "New Orleans Customs District n.e.c.",
+    "district": "New Orleans, LA",
+    "state": "LA"
+  },
+  "2101": {
+    "port": "Port Arthur",
+    "district": "Port Arthur, TX",
+    "state": "TX"
+  },
+  "2102": {
+    "port": "Sabine",
+    "district": "Port Arthur, TX",
+    "state": "TX"
+  },
+  "2103": {
+    "port": "Orange",
+    "district": "Port Arthur, TX",
+    "state": "TX"
+  },
+  "2104": {
+    "port": "Beaumont",
+    "district": "Port Arthur, TX",
+    "state": "TX"
+  },
+  "21XX": {
+    "port": "Port Arthur Customs District n.e.c.",
+    "district": "Port Arthur, TX",
+    "state": "TX"
+  },
+  "2301": {
+    "port": "Brownsville",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2302": {
+    "port": "Del Rio",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2303": {
+    "port": "Eagle Pass",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2304": {
+    "port": "Laredo",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2305": {
+    "port": "Hidalgo/Pharr",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2307": {
+    "port": "Rio Grande City",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2309": {
+    "port": "Progreso",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2310": {
+    "port": "Roma",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2381": {
+    "port": "Edinburg Intl Airport",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2383": {
+    "port": "Valley Intl Airport Harlingen",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "23XX": {
+    "port": "Laredo Customs District n.e.c.",
+    "district": "Laredo, TX",
+    "state": "TX"
+  },
+  "2401": {
+    "port": "Ysleta",
+    "district": "El Paso, TX",
+    "state": "TX"
+  },
+  "2402": {
+    "port": "El Paso",
+    "district": "El Paso, TX",
+    "state": "TX"
+  },
+  "2403": {
+    "port": "Presidio",
+    "district": "El Paso, TX",
+    "state": "TX"
+  },
+  "2404": {
+    "port": "Fabens",
+    "district": "El Paso, TX",
+    "state": "TX"
+  },
+  "2406": {
+    "port": "Columbus",
+    "district": "El Paso, TX",
+    "state": "NM"
+  },
+  "2407": {
+    "port": "Albuquerque",
+    "district": "El Paso, TX",
+    "state": "NM"
+  },
+  "2408": {
+    "port": "Santa Teresa",
+    "district": "El Paso, TX",
+    "state": "NM"
+  },
+  "2481": {
+    "port": "Santa Teresa Airport",
+    "district": "El Paso, TX",
+    "state": "NM"
+  },
+  "24XX": {
+    "port": "El Paso Customs District n.e.c.",
+    "district": "El Paso, TX",
+    "state": "TX"
+  },
+  "2501": {
+    "port": "San Diego",
+    "district": "San Diego, CA",
+    "state": "CA"
+  },
+  "2502": {
+    "port": "Andrade",
+    "district": "San Diego, CA",
+    "state": "CA"
+  },
+  "2503": {
+    "port": "Calexico",
+    "district": "San Diego, CA",
+    "state": "CA"
+  },
+  "2504": {
+    "port": "San Ysidro",
+    "district": "San Diego, CA",
+    "state": "CA"
+  },
+  "2505": {
+    "port": "Tecate",
+    "district": "San Diego, CA",
+    "state": "CA"
+  },
+  "2506": {
+    "port": "Otay Mesa",
+    "district": "San Diego, CA",
+    "state": "CA"
+  },
+  "2507": {
+    "port": "Calexico-East",
+    "district": "San Diego, CA",
+    "state": "CA"
+  },
+  "25XX": {
+    "port": "San Diego Customs District n.e.c.",
+    "district": "San Diego, CA",
+    "state": "CA"
+  },
+  "2601": {
+    "port": "Douglas",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "2602": {
+    "port": "Lukeville",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "2603": {
+    "port": "Naco",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "2604": {
+    "port": "Nogales",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "2605": {
+    "port": "Phoenix",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "2606": {
+    "port": "Sasabe",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "2608": {
+    "port": "San Luis",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "2609": {
+    "port": "Tucson",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "26XX": {
+    "port": "Nogales Customs District n.e.c.",
+    "district": "Nogales, AZ",
+    "state": "AZ"
+  },
+  "2704": {
+    "port": "Los Angeles",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2709": {
+    "port": "Long Beach",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2712": {
+    "port": "Ventura",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2713": {
+    "port": "Port Hueneme",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2715": {
+    "port": "Capitan",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2719": {
+    "port": "Morro Bay",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2720": {
+    "port": "Los Angeles Intl Airport",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2721": {
+    "port": "Ontario Intl Airport",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2722": {
+    "port": "Las Vegas",
+    "district": "Los Angeles, CA",
+    "state": "NV"
+  },
+  "2775": {
+    "port": "TNT Express LAX",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2776": {
+    "port": "IBC Pacific",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2786": {
+    "port": "Meadows Field Airport",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2791": {
+    "port": "DHL-Hub Los Angeles",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2795": {
+    "port": "UPS-Ontario",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "27XX": {
+    "port": "Los Angeles Customs District n.e.c.",
+    "district": "Los Angeles, CA",
+    "state": "CA"
+  },
+  "2801": {
+    "port": "San Francisco Intl Arpt",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2802": {
+    "port": "Eureka",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2803": {
+    "port": "Fresno",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2805": {
+    "port": "Monterey",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2809": {
+    "port": "San Francisco",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2810": {
+    "port": "Stockton",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2811": {
+    "port": "Oakland",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2812": {
+    "port": "Richmond",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2815": {
+    "port": "Crockett",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2820": {
+    "port": "Martinez",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2821": {
+    "port": "Redwood City",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2827": {
+    "port": "Selby",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2828": {
+    "port": "San Juaquin River",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2829": {
+    "port": "San Pablo Bay",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2830": {
+    "port": "Carquinez Strait",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2833": {
+    "port": "Reno",
+    "district": "San Francisco, CA",
+    "state": "NV"
+  },
+  "2834": {
+    "port": "San Jose Intl Airport",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2835": {
+    "port": "Sacramento Int'l Airport",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2895": {
+    "port": "FedEx Oakland",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "28XX": {
+    "port": "San Francisco Customs District n.e.c.",
+    "district": "San Francisco, CA",
+    "state": "CA"
+  },
+  "2901": {
+    "port": "Astoria",
+    "district": "Columbia-Snake, OR",
+    "state": "OR"
+  },
+  "2902": {
+    "port": "Newport",
+    "district": "Columbia-Snake, OR",
+    "state": "OR"
+  },
+  "2903": {
+    "port": "Coos Bay",
+    "district": "Columbia-Snake, OR",
+    "state": "OR"
+  },
+  "2904": {
+    "port": "Portland",
+    "district": "Columbia-Snake, OR",
+    "state": "OR"
+  },
+  "2905": {
+    "port": "Longview",
+    "district": "Columbia-Snake, OR",
+    "state": "WA"
+  },
+  "2907": {
+    "port": "Boise",
+    "district": "Columbia-Snake, OR",
+    "state": "ID"
+  },
+  "2908": {
+    "port": "Vancouver",
+    "district": "Columbia-Snake, OR",
+    "state": "WA"
+  },
+  "2909": {
+    "port": "Kalama",
+    "district": "Columbia-Snake, OR",
+    "state": "WA"
+  },
+  "2910": {
+    "port": "Portland Intl Airport",
+    "district": "Columbia-Snake, OR",
+    "state": "OR"
+  },
+  "29XX": {
+    "port": "Columbia-Snake Customs District n.e.c.",
+    "district": "Columbia-Snake, OR",
+    "state": "OR"
+  },
+  "3001": {
+    "port": "Seattle",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3002": {
+    "port": "Tacoma",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3003": {
+    "port": "Aberdeen-Hoquiam",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3004": {
+    "port": "Blaine",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3005": {
+    "port": "Bellingham",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3006": {
+    "port": "Everett",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3007": {
+    "port": "Port Angeles",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3008": {
+    "port": "Port Townsend",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3009": {
+    "port": "Sumas",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3010": {
+    "port": "Anacortes",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3011": {
+    "port": "Nighthawk",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3012": {
+    "port": "Danville",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3013": {
+    "port": "Ferry",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3014": {
+    "port": "Friday Harbor",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3015": {
+    "port": "Boundary",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3016": {
+    "port": "Laurier",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3017": {
+    "port": "Point Roberts",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3018": {
+    "port": "Kenmore Air Harbor",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3019": {
+    "port": "Oroville",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3020": {
+    "port": "Frontier",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3022": {
+    "port": "Spokane",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3023": {
+    "port": "Lynden",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3025": {
+    "port": "Metaline Falls",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3026": {
+    "port": "Olympia",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3027": {
+    "port": "Neah Bay",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3029": {
+    "port": "Seattle-Tacoma Intl Arpt",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3071": {
+    "port": "UPS Seattle",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3072": {
+    "port": "Avion Brokers Seattle",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3073": {
+    "port": "DHL Seattle",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3074": {
+    "port": "Airborne Express Seattle",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3081": {
+    "port": "Yakima Air Terminal",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3082": {
+    "port": "Grant County Airport",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3095": {
+    "port": "UPS Seattle",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "30XX": {
+    "port": "Seattle Customs District n.e.c.",
+    "district": "Seattle, WA",
+    "state": "WA"
+  },
+  "3101": {
+    "port": "Juneau",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3102": {
+    "port": "Ketchikan",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3103": {
+    "port": "Skagway",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3104": {
+    "port": "Alcan",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3105": {
+    "port": "Wrangell",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3106": {
+    "port": "Dalton Cache",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3107": {
+    "port": "Valdez",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3111": {
+    "port": "Fairbanks",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3112": {
+    "port": "Petersburg",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3115": {
+    "port": "Sitka",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3124": {
+    "port": "Pelican",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3125": {
+    "port": "Sand Point",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3126": {
+    "port": "Anchorage",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3127": {
+    "port": "Kodiak",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3181": {
+    "port": "St Paul Airport",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3195": {
+    "port": "FedEx Anchorage",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3196": {
+    "port": "UPS Anchorage",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "31XX": {
+    "port": "Anchorage Customs District n.e.c.",
+    "district": "Anchorage, AK",
+    "state": "AK"
+  },
+  "3201": {
+    "port": "Honolulu",
+    "district": "Honolulu, HI",
+    "state": "HI"
+  },
+  "3202": {
+    "port": "Hilo",
+    "district": "Honolulu, HI",
+    "state": "HI"
+  },
+  "3203": {
+    "port": "Kahului",
+    "district": "Honolulu, HI",
+    "state": "HI"
+  },
+  "3204": {
+    "port": "Nawiliwili-Port Allen",
+    "district": "Honolulu, HI",
+    "state": "HI"
+  },
+  "3205": {
+    "port": "Honolulu Intl Airprt",
+    "district": "Honolulu, HI",
+    "state": "HI"
+  },
+  "3206": {
+    "port": "Kona",
+    "district": "Honolulu, HI",
+    "state": "HI"
+  },
+  "32XX": {
+    "port": "Honolulu Customs District n.e.c.",
+    "district": "Honolulu, HI",
+    "state": "HI"
+  },
+  "3301": {
+    "port": "Raymond",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3302": {
+    "port": "Eastport",
+    "district": "Great Falls, MT",
+    "state": "ID"
+  },
+  "3303": {
+    "port": "Salt Lake City",
+    "district": "Great Falls, MT",
+    "state": "UT"
+  },
+  "3304": {
+    "port": "Great Falls",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3305": {
+    "port": "Butte",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3306": {
+    "port": "Turner",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3307": {
+    "port": "Denver",
+    "district": "Great Falls, MT",
+    "state": "CO"
+  },
+  "3308": {
+    "port": "Porthill",
+    "district": "Great Falls, MT",
+    "state": "ID"
+  },
+  "3309": {
+    "port": "Scoby",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3310": {
+    "port": "Sweetgrass",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3312": {
+    "port": "Whitetail",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3316": {
+    "port": "Piegan",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3317": {
+    "port": "Opheim",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3318": {
+    "port": "Roosville",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3319": {
+    "port": "Morgan",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3321": {
+    "port": "Whitlash",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3322": {
+    "port": "Del Bonita",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3323": {
+    "port": "Wildhorse",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3324": {
+    "port": "Kalispell Airport",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3325": {
+    "port": "Havre",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3382": {
+    "port": "Natrona County Intl Airport",
+    "district": "Great Falls, MT",
+    "state": "WY"
+  },
+  "3384": {
+    "port": "Centennial Airport",
+    "district": "Great Falls, MT",
+    "state": "CO"
+  },
+  "3385": {
+    "port": "Eagle County Regional Airport",
+    "district": "Great Falls, MT",
+    "state": "CO"
+  },
+  "3386": {
+    "port": "Bozeman Yellowstone User Fee Airport",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "33XX": {
+    "port": "Great Falls Customs District n.e.c.",
+    "district": "Great Falls, MT",
+    "state": "MT"
+  },
+  "3401": {
+    "port": "Pembina",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3402": {
+    "port": "Noyes",
+    "district": "Pembina, ND",
+    "state": "MN"
+  },
+  "3403": {
+    "port": "Portal",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3404": {
+    "port": "Neche",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3405": {
+    "port": "St John",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3406": {
+    "port": "Northgate",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3407": {
+    "port": "Walhalla",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3408": {
+    "port": "Hannah",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3409": {
+    "port": "Sarles",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3410": {
+    "port": "Ambrose",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3411": {
+    "port": "Fargo",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3413": {
+    "port": "Antler",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3414": {
+    "port": "Sherwood",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3415": {
+    "port": "Hansboro",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3416": {
+    "port": "Maida",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3417": {
+    "port": "Fortuna",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3419": {
+    "port": "Westhope",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3420": {
+    "port": "Noonan",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3421": {
+    "port": "Carbury",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3422": {
+    "port": "Dunseith",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3423": {
+    "port": "Warroad",
+    "district": "Pembina, ND",
+    "state": "MN"
+  },
+  "3424": {
+    "port": "Baudette",
+    "district": "Pembina, ND",
+    "state": "MN"
+  },
+  "3425": {
+    "port": "Pinecreek",
+    "district": "Pembina, ND",
+    "state": "MN"
+  },
+  "3426": {
+    "port": "Roseau",
+    "district": "Pembina, ND",
+    "state": "MN"
+  },
+  "3427": {
+    "port": "Grand Forks",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3430": {
+    "port": "Lancaster",
+    "district": "Pembina, ND",
+    "state": "MN"
+  },
+  "3433": {
+    "port": "Williston Airport",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3434": {
+    "port": "Minot Airport",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3481": {
+    "port": "Hector Intl Airport",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "34XX": {
+    "port": "Pembina Customs District n.e.c.",
+    "district": "Pembina, ND",
+    "state": "ND"
+  },
+  "3501": {
+    "port": "Minneapolis-St. Paul",
+    "district": "Minneapolis, MN",
+    "state": "MN"
+  },
+  "3502": {
+    "port": "Sioux Falls",
+    "district": "Minneapolis, MN",
+    "state": "SD"
+  },
+  "3510": {
+    "port": "Duluth",
+    "district": "Minneapolis, MN",
+    "state": "MN"
+  },
+  "3511": {
+    "port": "Ashland",
+    "district": "Minneapolis, MN",
+    "state": "WI"
+  },
+  "3512": {
+    "port": "Omaha",
+    "district": "Minneapolis, MN",
+    "state": "NE"
+  },
+  "3513": {
+    "port": "Des Moines",
+    "district": "Minneapolis, MN",
+    "state": "IA"
+  },
+  "3581": {
+    "port": "Rochester User Fee Airp",
+    "district": "Minneapolis, MN",
+    "state": "MN"
+  },
+  "35XX": {
+    "port": "Minneapolis Customs District n.e.c.",
+    "district": "Minneapolis, MN",
+    "state": "MN"
+  },
+  "3601": {
+    "port": "Duluth",
+    "district": "Duluth, MN",
+    "state": "MN"
+  },
+  "3602": {
+    "port": "Ashland",
+    "district": "Duluth, MN",
+    "state": "WI"
+  },
+  "3604": {
+    "port": "International Falls-Ranier",
+    "district": "Duluth, MN",
+    "state": "MN"
+  },
+  "3608": {
+    "port": "Superior",
+    "district": "Duluth, MN",
+    "state": "WI"
+  },
+  "3613": {
+    "port": "Grand Portage",
+    "district": "Duluth, MN",
+    "state": "MN"
+  },
+  "3614": {
+    "port": "Silver Bay",
+    "district": "Duluth, MN",
+    "state": "MN"
+  },
+  "36XX": {
+    "port": "Duluth Customs District n.e.c.",
+    "district": "Duluth, MN",
+    "state": "MN"
+  },
+  "3701": {
+    "port": "Milwaukee",
+    "district": "Milwaukee, WI",
+    "state": "WI"
+  },
+  "3702": {
+    "port": "Marinette",
+    "district": "Milwaukee, WI",
+    "state": "WI"
+  },
+  "3703": {
+    "port": "Green Bay",
+    "district": "Milwaukee, WI",
+    "state": "WI"
+  },
+  "3706": {
+    "port": "Manitowoc",
+    "district": "Milwaukee, WI",
+    "state": "WI"
+  },
+  "3708": {
+    "port": "Racine",
+    "district": "Milwaukee, WI",
+    "state": "WI"
+  },
+  "37XX": {
+    "port": "Milwaukee Customs District n.e.c.",
+    "district": "Milwaukee, WI",
+    "state": "WI"
+  },
+  "3801": {
+    "port": "Detroit",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3802": {
+    "port": "Port Huron",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3803": {
+    "port": "Sault Ste. Marie",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3804": {
+    "port": "Saginaw/Bay City",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3805": {
+    "port": "Battle Creek",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3806": {
+    "port": "Grand Rapids",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3807": {
+    "port": "Detroit Metro Airport",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3808": {
+    "port": "Escanaba",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3809": {
+    "port": "Marquette",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3814": {
+    "port": "Algonac",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3815": {
+    "port": "Muskegon",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3816": {
+    "port": "Grand Haven",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3818": {
+    "port": "Rogers City",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3819": {
+    "port": "Detour",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3820": {
+    "port": "Mackinac Island",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3842": {
+    "port": "Presque Isle",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3843": {
+    "port": "Alpena",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3844": {
+    "port": "Ferrysburg",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3881": {
+    "port": "Oakland/Pontiac Airport",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3882": {
+    "port": "Willow Run Airport",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3883": {
+    "port": "Capital Region Intl Airport",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "38XX": {
+    "port": "Detroit Customs District n.e.c.",
+    "district": "Detroit, MI",
+    "state": "MI"
+  },
+  "3901": {
+    "port": "Chicago",
+    "district": "Chicago, IL",
+    "state": "IL"
+  },
+  "3902": {
+    "port": "Peoria",
+    "district": "Chicago, IL",
+    "state": "IL"
+  },
+  "3905": {
+    "port": "Gary",
+    "district": "Chicago, IL",
+    "state": "IN"
+  },
+  "3908": {
+    "port": "Davenport",
+    "district": "Chicago, IL",
+    "state": "IA"
+  },
+  "3909": {
+    "port": "Rockford Airport",
+    "district": "Chicago, IL",
+    "state": "IL"
+  },
+  "3910": {
+    "port": "Chicago Midway Int'l Airport",
+    "district": "Chicago, IL",
+    "state": "IL"
+  },
+  "3971": {
+    "port": "TNT Express Consignment Chicago",
+    "district": "Chicago, IL",
+    "state": "IL"
+  },
+  "3983": {
+    "port": "Chicago Executive Airport",
+    "district": "Chicago, IL",
+    "state": "IL"
+  },
+  "3987": {
+    "port": "UFA UI Willard Airport",
+    "district": "Chicago, IL",
+    "state": "IL"
+  },
+  "39XX": {
+    "port": "Chicago Customs District n.e.c.",
+    "district": "Chicago, IL",
+    "state": "IL"
+  },
+  "4101": {
+    "port": "Cleveland",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4102": {
+    "port": "Cincinnati",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4103": {
+    "port": "Columbus",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4104": {
+    "port": "Dayton",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4105": {
+    "port": "Toledo-Sandusky",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4106": {
+    "port": "Erie",
+    "district": "Cleveland, OH",
+    "state": "PA"
+  },
+  "4110": {
+    "port": "Indianapolis",
+    "district": "Cleveland, OH",
+    "state": "IN"
+  },
+  "4115": {
+    "port": "Louisville",
+    "district": "Cleveland, OH",
+    "state": "KY"
+  },
+  "4116": {
+    "port": "Owensboro-Evansville",
+    "district": "Cleveland, OH",
+    "state": "KY"
+  },
+  "4121": {
+    "port": "Lorain",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4122": {
+    "port": "Ashtabula/Conneaut",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4170": {
+    "port": "Burlington Air Express",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4183": {
+    "port": "Fort Wayne Airport",
+    "district": "Cleveland, OH",
+    "state": "IN"
+  },
+  "4184": {
+    "port": "Blue Grass Airport",
+    "district": "Cleveland, OH",
+    "state": "KY"
+  },
+  "4195": {
+    "port": "Emery Courier",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4196": {
+    "port": "UPS Courier",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4197": {
+    "port": "DHL Cincinnati",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4198": {
+    "port": "FedEx Indianapolis",
+    "district": "Cleveland, OH",
+    "state": "IN"
+  },
+  "41XX": {
+    "port": "Cleveland Customs District n.e.c.",
+    "district": "Cleveland, OH",
+    "state": "OH"
+  },
+  "4501": {
+    "port": "Kansas City",
+    "district": "St Louis, MO",
+    "state": "MO"
+  },
+  "4502": {
+    "port": "St Joseph",
+    "district": "St Louis, MO",
+    "state": "MO"
+  },
+  "4503": {
+    "port": "St Louis",
+    "district": "St Louis, MO",
+    "state": "MO"
+  },
+  "4504": {
+    "port": "Wichita",
+    "district": "St Louis, MO",
+    "state": "KS"
+  },
+  "4505": {
+    "port": "Springfield",
+    "district": "St Louis, MO",
+    "state": "MO"
+  },
+  "4581": {
+    "port": "Midamerican Airport",
+    "district": "St Louis, MO",
+    "state": "IL"
+  },
+  "45XX": {
+    "port": "St Louis Customs District n.e.c.",
+    "district": "St Louis, MO",
+    "state": "MO"
+  },
+  "4901": {
+    "port": "Aguadilla",
+    "district": "San Juan, PR",
+    "state": "PR"
+  },
+  "4904": {
+    "port": "Fajardo",
+    "district": "San Juan, PR",
+    "state": "PR"
+  },
+  "4907": {
+    "port": "Mayaguez",
+    "district": "San Juan, PR",
+    "state": "PR"
+  },
+  "4908": {
+    "port": "Ponce",
+    "district": "San Juan, PR",
+    "state": "PR"
+  },
+  "4909": {
+    "port": "San Juan",
+    "district": "San Juan, PR",
+    "state": "PR"
+  },
+  "4913": {
+    "port": "San Juan Intl Airport",
+    "district": "San Juan, PR",
+    "state": "PR"
+  },
+  "49XX": {
+    "port": "San Juan Customs District n.e.c.",
+    "district": "San Juan, PR",
+    "state": "PR"
+  },
+  "5101": {
+    "port": "Charlotte Amalie",
+    "district": "Virgin Islands",
+    "state": "VI"
+  },
+  "5102": {
+    "port": "Cruz Bay",
+    "district": "Virgin Islands",
+    "state": "VI"
+  },
+  "5104": {
+    "port": "Christiansted",
+    "district": "Virgin Islands",
+    "state": "VI"
+  },
+  "5105": {
+    "port": "Frederiksted",
+    "district": "Virgin Islands",
+    "state": "VI"
+  },
+  "51XX": {
+    "port": "Virgin Islands Customs District n.e.c.",
+    "district": "Virgin Islands",
+    "state": "VI"
+  },
+  "5201": {
+    "port": "Miami",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5202": {
+    "port": "Key West",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5203": {
+    "port": "Port Everglades",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5204": {
+    "port": "West Palm Beach",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5205": {
+    "port": "Fort Pierce",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5206": {
+    "port": "Miami Intl Airport",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5210": {
+    "port": "Ft. Lauderdale Intl Airp",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5295": {
+    "port": "UPS Miami",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5296": {
+    "port": "DHL Miami",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5297": {
+    "port": "FedEx Miami",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5298": {
+    "port": "IBC Courier Hub",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "52XX": {
+    "port": "Miami Customs District n.e.c.",
+    "district": "Miami, FL",
+    "state": "FL"
+  },
+  "5301": {
+    "port": "Houston",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "5306": {
+    "port": "Texas City",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "5309": {
+    "port": "Houston Intercontl Airp",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "5310": {
+    "port": "Galveston",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "5311": {
+    "port": "Freeport",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "5312": {
+    "port": "Corpus Christi",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "5313": {
+    "port": "Port Lavaca",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "5381": {
+    "port": "Sugar Land Reg Airp",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "53XX": {
+    "port": "Houston-Galveston Customs District n.e.c.",
+    "district": "Houston-Galveston, TX",
+    "state": "TX"
+  },
+  "5401": {
+    "port": "Washington",
+    "district": "Washington, DC",
+    "state": "DC"
+  },
+  "5402": {
+    "port": "Alexandria",
+    "district": "Washington, DC",
+    "state": "VA"
+  },
+  "54XX": {
+    "port": "Washington Customs District n.e.c.",
+    "district": "Washington, DC",
+    "state": "DC"
+  },
+  "5501": {
+    "port": "Dallas/Ft. Worth",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "5502": {
+    "port": "Amarillo",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "5503": {
+    "port": "Lubbock",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "5504": {
+    "port": "Oklahoma City",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "OK"
+  },
+  "5505": {
+    "port": "Tulsa",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "OK"
+  },
+  "5506": {
+    "port": "Austin",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "5507": {
+    "port": "San Antonio",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "5582": {
+    "port": "Midland Intl Airport",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "5583": {
+    "port": "Fort Worth Alliance Airp",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "5584": {
+    "port": "Addison Airport",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "55XX": {
+    "port": "Dallas/Ft. Worth Customs District n.e.c.",
+    "district": "Dallas/Ft. Worth, TX",
+    "state": "TX"
+  },
+  "59XX": {
+    "port": "Unknown District n.e.c.",
+    "district": "Unknown",
+    "state": null
+  },
+  "60XX": {
+    "port": "Unknown District n.e.c.",
+    "district": "Unknown",
+    "state": null
+  },
+  "7000": {
+    "port": "Low Value",
+    "district": "Low Value",
+    "state": null
+  },
+  "7010": {
+    "port": "Canadian Late Receipts Estimate",
+    "district": "Low Value",
+    "state": null
+  },
+  "70XX": {
+    "port": "Low Value n.e.c.",
+    "district": "Low Value",
+    "state": null
+  },
+  "80XX": {
+    "port": "Unknown District n.e.c.",
+    "district": "Unknown",
+    "state": null
+  }
 }

@@ -125,9 +125,64 @@ export default function USMexico() {
 - Remove `chatStore.js` and AI chat components (unless desired)
 
 **Create new utilities:**
-- `src/lib/portUtils.js` -- Port data helpers (aggregate by port, region grouping, coordinate lookup from `port_coordinates.json`, Mexican crossing lookup)
+- `src/lib/portUtils.js` -- Port data helpers (aggregate by port, region grouping, coordinate lookup from `port_coordinates.json`, Mexican crossing lookup, El Paso/Ysleta combination logic)
 - `src/lib/transborderHelpers.js` -- Domain predicates (`isTexasMexico(d)`, `isUSMexico(d)`), formatters (`formatCurrency`, `formatWeight`)
 - `src/lib/insightEngine.js` -- Data-driven insight generator (see section 3.8)
+
+## 3.2.1 El Paso / Ysleta Port Split Handling
+
+**Background:** CBP separated Ysleta (port code 2401) from El Paso (port code 2402) as a distinct port of entry beginning **March 2020**. Prior to this, all Ysleta trade was reported under El Paso. This creates a discontinuity: El Paso drops from ~$77B (2019) to ~$29B (2020) while Ysleta appears at ~$41B — the total is consistent, but the individual port trends are misleading if shown naively.
+
+**Strategy — combined by default, with optional split:**
+
+The split boundary differs by chart granularity:
+- **Monthly charts** (`monthlyTrends`): March 2020 is the exact split point. Ysleta data begins March 2020.
+- **Annual charts** (all other datasets): 2021 is the effective split year. 2020 annual totals are a hybrid (Jan–Feb at old combined level + Mar–Dec at split level), making 2020 unreliable for port-level comparison. 2021 is the first full calendar year with clean separate data.
+
+| Date Range | Default Display | Split Display |
+|---|---|---|
+| **Before split point only** | "El Paso + Ysleta" (single combined series) | Not available — Ysleta data doesn't exist separately |
+| **After split point only** | "El Paso" and "Ysleta" (separate) | Same as default |
+| **Mixed (spans split point)** | "El Paso + Ysleta" (combined into one series for continuity) | Split: "El Paso" and "Ysleta" shown separately, with a vertical annotation line at the split point explaining the change |
+
+*Split point = March 2020 for monthly charts, 2021 for annual charts.*
+
+**Implementation in `portUtils.js`:**
+
+```js
+/**
+ * Combine El Paso (2402) and Ysleta (2401) into a single "El Paso + Ysleta" entry.
+ * Used as default view to provide consistent trends across the 2020 split.
+ *
+ * @param {Array} data - array of data records with PortCode and Port fields
+ * @param {boolean} combined - true = merge Ysleta into El Paso; false = keep separate
+ * @returns {Array} data with Ysleta records relabeled (combined) or unchanged (split)
+ */
+function combineElPasoYsleta(data, combined = true) {
+  if (!combined) return data
+  return data.map(d => {
+    if (d.PortCode === '2401' || d.PortCode === '2402') {
+      return { ...d, Port: 'El Paso + Ysleta', PortCode: '2402' }
+    }
+    return d
+  })
+}
+```
+
+After relabeling, the calling code aggregates (sums TradeValue/Weight) by the grouped key as usual — the aggregation logic doesn't need to change.
+
+**UI control:**
+- A toggle switch on pages showing El Paso port data: "Show El Paso & Ysleta separately"
+- Default: **off** (combined) — provides continuous trend line
+- When toggled **on** (split mode) and the date range spans the split point:
+  - Monthly trend charts show a vertical dashed line at March 2020 with tooltip: "CBP separated Ysleta from El Paso reporting beginning March 2020"
+  - Annual trend charts show a vertical dashed line at 2021 with tooltip: "2021 is the first full year with El Paso and Ysleta reported separately"
+  - Bar charts and tables show both ports as separate rows
+- When the date range is entirely after the split point, the toggle defaults to **on** (split) since both ports naturally exist
+
+**Affected pages:** US-Mexico Ports, Texas-Mexico (Ports tab, Overview tab), and any chart/table showing port-level data in the El Paso region.
+
+**Map behavior:** In combined mode, the map shows a single marker at El Paso's coordinates labeled "El Paso + Ysleta". In split mode, both markers appear at their respective coordinates (2401 and 2402 from `port_coordinates.json`).
 
 ## 3.3 Update Filters
 
@@ -149,13 +204,20 @@ filters: {
 - Country selection limits available ports and states
 - Region selection limits available ports (Texas pages only)
 
+**Region filter** (Texas-Mexico pages only):
+- Values: El Paso, Laredo, Pharr — these correspond to TxDOT districts along the Texas-Mexico border
+- Port-to-region mapping defined in `01-Raw-Data/Texas_Ports.csv` (authoritative source for which ports belong to which region)
+- Selecting a region filters to only the ports within that TxDOT district
+
 ## 3.4 Adapt Map Component
 
 **Rename**: `AirportMap.jsx` -> `PortMap.jsx`
 
 **Changes:**
 - Replace airport markers with port-of-entry markers sized by trade value
+- **Highlight border POEs**: Ports flagged as `BorderPOE=Yes` in `Texas_Ports.csv` are shown as primary markers. Non-border ports (airports, customs district catch-alls) are shown as smaller, muted markers or excluded from the map
 - **Repurpose flight route arcs as trade flow arcs** (see below)
+- **TxDOT district overlay** (Texas-Mexico pages): Load `02-Data-Staging/config/texas_border_districts.geojson` (17 KB, simplified from TxDOT boundaries) to render the 3 border district regions (El Paso, Laredo, Pharr) as semi-transparent polygon overlays on the map. Each district uses a distinct fill color at low opacity (~0.1) with a labeled centroid. When the Region filter is active, the selected district is highlighted (higher opacity) and non-selected districts are dimmed. This layer is togglable via a map control button.
 - Update marker colors: U.S. ports `#0056a9`, Mexican ports `#df5c16`
 - Update popups: port name, total trade value, exports/imports breakdown, top modes
 - Default bounds: Texas-Mexico border region for Texas pages, full US-Mexico border for national view
@@ -452,16 +514,29 @@ export default function SomePage() {
 **Layout**: Single column, no filter sidebar
 
 **Content:**
-- Data source description and BTS TransBorder program overview
-- Data coverage: April 1993 - 2025 (monthly)
-- Schema documentation: Legacy vs Modern format differences
-- Known limitations:
-  - Weight data only for imports (except air/vessel)
-  - Legacy period (1993-2006) has reduced commodity detail
-  - Port name variations across years (normalized in processing)
-- Methodology: How raw data was processed and aggregated
-- Links to BTS source data, documentation, and codes reference
-- Download section: Links to download the processed CSVs
+
+- **Data source**: BTS TransBorder program overview, link to BTS source data
+- **Data coverage**: April 1993 - 2025 (monthly, ~39.5M records across 3 cross-tabulation tables)
+- **Schema documentation**: Legacy (1993-2006, up to 24 tables) vs Modern (2007+, 3 tables) format differences
+- **BTS Terminology** (must match BTS definitions exactly):
+  - Port State: The U.S. state where the Port of Entry is located
+  - Port Coast: The U.S. coast where the Port of Entry is located
+  - Port Border: The border (Canadian or Mexican) where the Port of Entry is located
+  - HS Codes: Harmonized Schedule 2-digit commodity codes (NOT SCTG)
+- **Known data limitations** (confirmed from actual data, see Phase 2 section 2.3.1):
+  - Shipment weight for exports is only available for Air and Vessel modes. For Truck, Rail, Pipeline, Mail, and Other/Unknown exports, weight is zero/unavailable. Import weight is available for all modes.
+  - Freight charges are partially available for exports (~50%) but near-complete for imports.
+  - Port x Commodity cross-tabulation (DOT3) only exists from January 2007 onward.
+  - Legacy air/vessel records (1993-2006, ~3.6M rows) have unknown trade direction (Export vs Import).
+  - DF (Domestic/Foreign) indicator is only meaningful for exports (1=domestic origin, 2=re-export).
+- **Port history changes**:
+  - CBP separated the Ysleta Port of Entry (code 2401) from El Paso (code 2402) beginning with March 2020 data. Pre-March 2020, Ysleta activity is included under El Paso. Time-series comparisons for these ports must account for this split.
+  - Document any other port renames/splits discovered during processing.
+- **Methodology**: How raw data was processed and aggregated (link to Phase 2 plan)
+- **Links**: BTS source data, BTS data dictionary, Census Schedule D port codes
+- **Download section**: Links to download the processed CSVs
+
+**Dashboard footnotes requirement**: Every chart or table in the dashboard that displays weight, freight charges, or port-level data must include a contextual footnote or info-tooltip referencing the relevant caveat above. These notes are NOT optional -- they match what BTS shows on their own dashboard and are critical for correct interpretation.
 
 ---
 
@@ -612,7 +687,7 @@ WebApp/src/
     About/index.jsx              (new)
   components/
     charts/                      (all 9 reused as-is from Airport)
-    maps/PortMap.jsx             (adapted from AirportMap, with trade flow arcs)
+    maps/PortMap.jsx             (adapted from AirportMap, with trade flow arcs + district overlay)
     layout/                      (reused: DashboardLayout, SiteHeader, MainNav, Footer)
     filters/                     (reused: FilterSidebar, FilterBar, FilterSelect, FilterMultiSelect)
     ui/                          (reused: ChartCard, DataTable, StatCard, InsightCallout, etc.)

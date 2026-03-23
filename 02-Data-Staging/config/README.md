@@ -25,6 +25,68 @@ After initial creation, all files were validated against the official BTS codes 
 | `mexican_state_codes.json` | Code `BN` listed instead of `BC` for Baja California; `OT` (State Unknown) was missing | Changed `BN` → `BC`; added `OT` |
 | `mode_codes.json` | Minor label wording differences from official PDF | Updated labels to match PDF exactly |
 
+## Additions from Raw Data Audit (2026-03-22)
+
+Phase 2 normalization (`03_normalize.py` step 13) audited every code value in the raw data against the config files and produced `02-Data-Staging/docs/unknown_codes_report.txt`. This revealed **73 port codes** and **4 non-port codes** present in the raw data but missing from config. The original configs were transcribed from the *current* BTS PDF and Census Schedule D, which omit retired ports, district-level catch-alls, and some historical codes.
+
+### Port codes: 73 codes added to `schedule_d_port_codes.json`
+
+**46 `XX` n.e.c. (not elsewhere classified) codes:**
+Every customs district uses an `XX`-suffix code (e.g., `23XX`, `55XX`) as a catch-all for trade not assigned to a specific port within that district. These are a BTS convention not listed in the Census Schedule D. Port names were inferred from existing ports in the same district (e.g., `23XX` → "Laredo Customs District n.e.c." based on existing `23xx` ports being in the Laredo, TX district).
+
+**1 code identified from the data + BTS Border Crossing dataset:**
+- `2381` — Edinburg Intl Airport (Laredo, TX district). Low-volume (6 records total). Not in current Schedule D or BTS PDF.
+
+**18 codes found in legacy reference file:**
+Source: `01-Raw-Data/data_dictionary/legacy-reference/codes_all.xls` (Port sheet, 536 entries). This file was bundled by BTS inside the legacy raw data ZIPs and contains a more complete historical port listing than the current PDF. Ports identified:
+
+| Code | Port | District |
+|---|---|---|
+| 0132 | Belfast | Portland, ME |
+| 0181 | Lebanon Airport | Portland, ME |
+| 0907 | Utica | Buffalo, NY |
+| 0971 | TNT Skypak | Buffalo, NY |
+| 3027 | Neah Bay | Seattle, WA |
+| 3081 | Yakima Air Terminal | Seattle, WA |
+| 3107 | Valdez | Anchorage, AK |
+| 3112 | Petersburg | Anchorage, AK |
+| 3124 | Pelican | Anchorage, AK |
+| 3127 | Kodiak | Anchorage, AK |
+| 3181 | St Paul Airport | Anchorage, AK |
+| 3312 | Whitetail | Great Falls, MT |
+| 3382 | Natrona County Intl Airport | Great Falls, MT |
+| 3481 | Hector Intl Airport | Pembina, ND |
+| 3614 | Silver Bay | Duluth, MN |
+| 3820 | Mackinac Island | Detroit, MI |
+| 3844 | Ferrysburg | Detroit, MI |
+| 4195 | Emery Courier | Cleveland, OH |
+
+**8 codes found via Census Schedule D online:**
+These were not in our legacy reference file either. Resolved using the Census Bureau Schedule D (https://www.census.gov/foreign-trade/schedules/d/distcode.html) and the Canadian government's mirror of CBP Schedule D data (https://www.international.gc.ca/controls-controles/systems-systemes/prd-dpe/appendix-b_4-annexe.aspx?lang=eng).
+
+| Code | Port | District | Notes |
+|---|---|---|---|
+| 0705 | Fort Covington | Ogdensburg, NY | |
+| 0711 | Chateaugay | Ogdensburg, NY | |
+| 3125 | Sand Point | Anchorage, AK | Remote Aleutian Islands port |
+| 3402 | Noyes | Pembina, ND | Port is in MN, not ND; decommissioned ~2006 |
+| 3601 | Duluth | Duluth, MN | |
+| 3602 | Ashland | Duluth, MN | Port is in WI, not MN |
+| 3608 | Superior | Duluth, MN | Port is in WI, not MN |
+| 4170 | Burlington Air Express | Cleveland, OH | Historical air cargo facility |
+
+### Non-port codes: 4 codes added
+
+| File | Code | Value | Source |
+|---|---|---|---|
+| `state_codes.json` | `DU` | Unknown | Legacy `codes_all.xls` (US State sheet) |
+| `canadian_province_codes.json` | `DU` | Unknown | By analogy with US state `DU`; used in same records |
+| `mexican_state_codes.json` | `XX` | Unknown | Catch-all for unknown Mexican state (analogous to `OT` already in config) |
+
+**Not config issues** (handled by normalization code):
+- `nan` in USASTATE — null values in legacy data, handled via pandas null detection
+- `nan` in TRDTYPE — null trade type in legacy data, handled via pandas null detection
+
 ## File Reference
 
 ### Code Lookup Tables
@@ -37,10 +99,10 @@ These decode the numeric/alpha codes in the raw BTS data into human-readable val
 | `commodity_codes.json` | `COMMODITY2` | 99 | `{"code": "description"}` | HS (Harmonized Schedule) 2-digit codes (01–99). NOT SCTG. |
 | `country_codes.json` | `COUNTRY` | 2 | `{"code": "name"}` | 1220=Canada, 2010=Mexico. |
 | `trade_type_codes.json` | `TRDTYPE` | 2 | `{"code": "name"}` | 1=Export, 2=Import. |
-| `state_codes.json` | `USASTATE` | 57 | `{"code": "name"}` | 50 states + DC + 6 territories. Standard USPS 2-letter codes. |
-| `canadian_province_codes.json` | `CANPROV` | 15 | `{"code": "name"}` | X-prefix codes (XA=Alberta, XC=British Columbia, etc.) + OT=Unknown. |
-| `mexican_state_codes.json` | `MEXSTATE` | 32 | `{"code": "name"}` | 2-letter codes for 31 states + OT=Unknown. Note: raw data from Apr 1994–May 1998 uses erroneous code `BN` for Baja California — `03_normalize.py` must remap BN→BC. |
-| `schedule_d_port_codes.json` | `DEPE` | ~300 | `{"code": {"port", "district", "state"}}` | 4-digit Census Schedule D port codes. Each entry includes port name, customs district, and state. |
+| `state_codes.json` | `USASTATE` | 57 | `{"code": "name"}` | 50 states + DC + 6 territories + `DU` (Unknown). Standard USPS 2-letter codes. |
+| `canadian_province_codes.json` | `CANPROV` | 15 | `{"code": "name"}` | X-prefix codes (XA=Alberta, XC=British Columbia, etc.) + OT=Unknown + DU=Unknown. |
+| `mexican_state_codes.json` | `MEXSTATE` | 35 | `{"code": "name"}` | 2-letter codes for 31 states + OT=Unknown + XX=Unknown + BN (legacy alias for BC). Note: raw data from Apr 1994–May 1998 uses erroneous code `BN` for Baja California — `03_normalize.py` must remap BN→BC. |
+| `schedule_d_port_codes.json` | `DEPE` | 501 | `{"code": {"port", "district", "state"}}` | 4-digit Census Schedule D port codes + 46 `XX` n.e.c. catch-all codes + 26 historical/retired ports found in raw data. See "Additions from Raw Data Audit" section above for full provenance. |
 | `port_coordinates.json` | `DEPE` | 28 | `{"code": {"port", "state", "lat", "lon"}}` | Lat/lon coordinates for all 28 US-Mexico land border ports of entry. See below for source details. |
 
 ### Geographic Data
@@ -48,6 +110,7 @@ These decode the numeric/alpha codes in the raw BTS data into human-readable val
 | File | Purpose | Source | Notes |
 |---|---|---|---|
 | `port_coordinates.json` | Provides lat/lon coordinates for US-Mexico border ports of entry, used by the dashboard map (Phase 3 `PortMap.jsx`) | **BTS Border Crossing Entry Data** — Socrata dataset `keg4-3bc2`, queried via `https://data.bts.gov/resource/keg4-3bc2.json` | Retrieved 2026-03-22. Contains all 28 US-Mexico land border POEs. Port names may differ slightly from `schedule_d_port_codes.json` (e.g., `Tornillo` vs `Fabens` for code 2404, `Hidalgo` vs `Hidalgo/Pharr` for code 2305). Join on `port_code`, not port name. Does NOT cover interior/air ports (e.g., 2407 Albuquerque, 2605 Phoenix) — those have no border crossing coordinates. |
+| `texas_border_districts.geojson` | Simplified TxDOT district boundaries for the 3 Texas-Mexico border regions (El Paso, Laredo, Pharr). Used as a map overlay on Texas-Mexico dashboard pages. | **TxDOT District Boundaries** — extracted and simplified from `01-Raw-Data/Texas_District_Boundaries.geojson` | 17 KB (simplified from 13 MB original using Ramer-Douglas-Peucker, coordinates rounded to 4 decimal places). Properties reduced to `District`, `DIST_NBR`, `DIST_ABRVN_NM`. |
 
 ### Schema & Mapping Files
 

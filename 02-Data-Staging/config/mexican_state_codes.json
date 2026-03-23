@@ -20,6 +20,7 @@
   "NA": "Nayarit",
   "NL": "Nuevo Leon",
   "OA": "Oaxaca",
+  "OT": "State Unknown",
   "PU": "Puebla",
   "QR": "Quintana Roo",
   "QT": "Queretaro",
@@ -30,7 +31,7 @@
   "TL": "Tlaxcala",
   "TM": "Tamaulipas",
   "VE": "Veracruz",
+  "XX": "Unknown",
   "YU": "Yucatan",
-  "ZA": "Zacatecas",
-  "OT": "State Unknown"
+  "ZA": "Zacatecas"
 }

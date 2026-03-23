@@ -9,7 +9,7 @@ Living document tracking known issues, missing pieces, and open questions across
 | Phase | Planning | Implementation |
 |---|---|---|
 | Phase 1 — Data Acquisition | Complete | **Complete** |
-| Phase 2 — Data Processing | Complete | In progress |
+| Phase 2 — Data Processing | Complete | **In progress** (normalize + DB done, outputs pending) |
 | Phase 3 — WebApp & Pages | Complete | Not started |
 | Phase 4 — Design & Testing | Complete | Not started |
 
@@ -40,6 +40,12 @@ Living document tracking known issues, missing pieces, and open questions across
 | Legacy-to-modern mapping documentation | 2026-03-22 (in `01-Raw-Data/data_dictionary/legacy-to-modern-mapping.md`) |
 | Data dictionary provenance documentation | 2026-03-22 (in `01-Raw-Data/data_dictionary/README.md`) |
 | `02-Data-Staging/config/port_coordinates.json` | 2026-03-22 (28 US-Mexico border POEs with lat/lon, from BTS Border Crossing Entry Data, Socrata dataset `keg4-3bc2`) |
+| `02-Data-Staging/config/texas_border_districts.geojson` | 2026-03-22 (simplified TxDOT district boundaries for El Paso, Laredo, Pharr — 17 KB, from `01-Raw-Data/Texas_District_Boundaries.geojson`) |
+| `01-Raw-Data/Texas_Ports.csv` cleaned | 2026-03-22 (port names matched to `schedule_d_port_codes.json`, port codes added, region assignments for 13 border POEs) |
+| `schedule_d_port_codes.json` updated | 2026-03-22 (added 73 missing port codes: 46 `XX` n.e.c. catch-alls, 1 Edinburg, 18 from legacy `codes_all.xls`, 8 from Census Schedule D online. Now 501 entries, zero unknowns.) |
+| `state_codes.json` updated | 2026-03-22 (added `DU`=Unknown, found in raw data via `unknown_codes_report.txt`) |
+| `canadian_province_codes.json` updated | 2026-03-22 (added `DU`=Unknown) |
+| `mexican_state_codes.json` updated | 2026-03-22 (added `XX`=Unknown) |
 
 ### Phase 1 — Complete
 
@@ -75,26 +81,30 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 | Item | Date |
 |---|---|
-| `04_create_db.py` | 2026-03-15 |
-| `transborder.db` (modern era 2007-2025) | 2026-03-15 — 25.1M rows across 3 tables |
+| `04_create_db.py` | 2026-03-15 (rewritten 2026-03-22 to read from cleaned CSVs) |
+| `03_normalize.py` | 2026-03-22 — handles modern (2007-2025) + legacy (1993-2006), Oct 2020 derivation, unknown code tracking |
+| 3 cleaned CSVs in `02-Data-Staging/cleaned/` | 2026-03-22 — DOT1: 10.3M rows (906 MB), DOT2: 25.4M rows (4.4 GB), DOT3: 3.9M rows (656 MB) |
+| `transborder.db` (full 1993-2025) | 2026-03-22 — 39.6M rows across 3 tables, 10.1 GB |
+| Legacy data (1993-2006) loaded | 2026-03-22 — via `03_normalize.py` legacy DBF/CSV parsing |
+| Oct 2020 derived (all 3 tables) | 2026-03-22 — subtraction method, zero negative values verified (DOT1: 26,790, DOT2: 74,243, DOT3: 17,259 rows) |
+| `unknown_codes_report.txt` | 2026-03-22 — 73 unknown port codes, DU state, XX MexState, nan trade type documented |
+| Data caveats documented | 2026-03-22 — weight/freight availability, Ysleta/El Paso split, port terminology in Phase 2 and Phase 3 plans |
 
 ### Missing Deliverables
 
 | Item | Priority | Blocked By |
 |---|---|---|
-| `03_normalize.py` | High | Phase 1 raw data + schema mappings |
-| `05_build_dashboard_csvs.py` | High | SQLite database from `04_create_db.py` |
-| `06_validate.py` | High | Dashboard CSVs |
-| 6 dashboard CSVs in `03-Processed-Data/` | High | Full pipeline completion |
-| Legacy data (1993-2006) loaded into DB | Medium | `03_normalize.py` for legacy DBF/CSV parsing |
-| Recover Oct 2020 (all 3 tables) | Low | **Recoverable via subtraction** during normalization. Raw monthly file still missing but computable. |
+| `05_build_outputs.py` | High | Output strategy decision (dataset definitions, aggregation approach) |
+| `06_validate.py` | High | Output files |
+| 6 output datasets in `03-Processed-Data/` (JSON + CSV) | High | `05_build_outputs.py` |
 
 ### Open Questions
 
 - [x] ~~Legacy-to-modern schema reconciliation~~ — Documented in `01-Raw-Data/data_dictionary/legacy-to-modern-mapping.md`. Key finding: DOT3 (Port×Commodity) has no legacy equivalent. Legacy tables map to DOT1/DOT2 via column renaming + filename-derived fields (TRDTYPE, COUNTRY, MONTH, YEAR).
-- [ ] Weight data gaps: Weight is only available for imports (except air/vessel). How should missing weight values be handled — NULL, zero, or excluded?
+- [x] ~~Weight data gaps~~ — Resolved: weight kept as NULL where unavailable. Documented in Phase 2 plan section 2.3.1: export weight only for air/vessel modes; import weight available for all modes. Dashboard must show footnotes.
 - [x] ~~Commodity code changes~~ — TransBorder uses **HS 2-digit codes** throughout (1993–2025). SCTG is a different system (Commodity Flow Survey) and is NOT used here. No crosswalk needed.
-- [ ] CSV size budget: Phase 2 plan mentions a ~10MB budget per CSV. Has this been validated against expected row counts?
+- [x] ~~CSV size budget~~ — Removed. No size cap on output files per user decision. Both JSON and CSV carry full HS-code detail.
+- [ ] **Output dataset structure**: The 6 planned datasets have a structural issue — `us_mexico` and `texas_mexico` datasets want port + commodity in the same row, but no single BTS table has state + port + commodity. DOT1 has state+port (no commodity), DOT3 has port+commodity (no state). Need to decide how to handle this.
 
 ---
 
@@ -158,7 +168,14 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 | 2026-03-22 | Legacy-to-modern mapping documented in `01-Raw-Data/data_dictionary/legacy-to-modern-mapping.md`. |
 | 2026-03-22 | Data dictionary organized in `01-Raw-Data/data_dictionary/` with provenance README. |
 | 2026-03-22 | Port coordinates obtained: `port_coordinates.json` created with lat/lon for all 28 US-Mexico border POEs from BTS Border Crossing Entry Data (Socrata `keg4-3bc2`). Phase 3 map question resolved. |
+| 2026-03-22 | `schedule_d_port_codes.json` updated: added 46 `XX` n.e.c. catch-all codes and code 2381 (Edinburg Intl Airport) — all found in raw data but missing from config. |
+| 2026-03-22 | `Texas_Ports.csv` cleaned: port names matched to `schedule_d_port_codes.json` canonical names, port codes added, region assignments preserved. |
+| 2026-03-22 | `texas_border_districts.geojson` extracted: simplified TxDOT district boundaries (El Paso, Laredo, Pharr) for dashboard map overlay, 17 KB. |
 | 2026-03-22 | Phase 2 plan updated with unknown code validation step (step 13). |
+| 2026-03-22 | `03_normalize.py` created and run: full 1993-2025 normalization including legacy DBF/CSV, Oct 2020 derivation, unknown code tracking. |
+| 2026-03-22 | 3 cleaned CSVs generated: DOT1 (10.3M rows), DOT2 (25.4M rows), DOT3 (3.9M rows). |
+| 2026-03-22 | `04_create_db.py` rewritten to read from cleaned CSVs. `transborder.db` rebuilt: 39.6M rows, 10.1 GB, full 1993-2025. |
+| 2026-03-22 | Data caveats documented in Phase 2 plan (section 2.3.1) and Phase 3 plan (About Data page): weight availability, Ysleta/El Paso split, port terminology. |
 | 2026-03-15 | BTS raw data page reconnaissance completed. |
 | 2026-03-15 | Historical format comparison Excel (now in `01-Raw-Data/data_dictionary/`). |
 
@@ -168,6 +185,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 | Date | Update |
 |---|---|
+| 2026-03-22 | Phase 2 major progress: `03_normalize.py` + `04_create_db.py` complete. Full 1993-2025 database built (39.6M rows). Data caveats documented. Output strategy discussion pending before `05_build_outputs.py`. |
 | 2026-03-14 | Initial gap tracker created. Full inventory of missing deliverables across all 4 phases. |
 | 2026-03-15 | Phase 2 started: `04_create_db.py` created, `transborder.db` built with 25.1M rows (modern era 2007–2025). Discovered additional data gaps: 2023 Sep–Dec missing from BTS, 2009 DOT2 partial. 2020 DOT3 recovered from archives (XLSX). Phase 2 plan updated with YTD strategy, DOT1/DOT2/DOT3 table definitions, and 2020 handling. |
 | 2026-03-15 | Major Phase 1 progress: raw data downloaded, config files created, gap tracker updated. Identified Oct–Dec 2020 data gap on BTS website. |

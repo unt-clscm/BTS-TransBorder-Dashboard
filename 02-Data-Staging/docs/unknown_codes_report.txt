@@ -1,0 +1,93 @@
+Unknown Codes Report
+============================================================
+Codes found in raw data but not in config lookup files.
+These records are kept with the raw code value.
+
+
+CAN_PROV (1 unknown codes):
+  DU
+
+MEX_STATE (1 unknown codes):
+  XX
+
+PORT (73 unknown codes):
+  0132
+  0181
+  01XX
+  02XX
+  04XX
+  05XX
+  0705
+  0711
+  07XX
+  0907
+  0971
+  09XX
+  10XX
+  11XX
+  13XX
+  14XX
+  15XX
+  16XX
+  17XX
+  18XX
+  19XX
+  20XX
+  21XX
+  2381
+  23XX
+  24XX
+  25XX
+  26XX
+  27XX
+  28XX
+  29XX
+  3027
+  3081
+  30XX
+  3107
+  3112
+  3124
+  3125
+  3127
+  3181
+  31XX
+  32XX
+  3312
+  3382
+  33XX
+  3402
+  3481
+  34XX
+  35XX
+  3601
+  3602
+  3608
+  3614
+  36XX
+  37XX
+  3820
+  3844
+  38XX
+  39XX
+  4170
+  4195
+  41XX
+  45XX
+  49XX
+  51XX
+  52XX
+  53XX
+  54XX
+  55XX
+  59XX
+  60XX
+  70XX
+  80XX
+
+STATE (2 unknown codes):
+  DU
+  nan
+
+TRADE_TYPE (1 unknown codes):
+  nan

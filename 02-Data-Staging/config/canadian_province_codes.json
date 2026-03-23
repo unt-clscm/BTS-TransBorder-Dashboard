@@ -1,16 +1,17 @@
 {
+  "DU": "Unknown",
+  "OT": "Province Unknown",
   "XA": "Alberta",
+  "XB": "New Brunswick",
   "XC": "British Columbia",
   "XM": "Manitoba",
-  "XB": "New Brunswick",
-  "XW": "Newfoundland",
-  "XT": "Northwest Territories",
   "XN": "Nova Scotia",
   "XO": "Ontario",
   "XP": "Prince Edward Island",
   "XQ": "Quebec",
   "XS": "Saskatchewan",
+  "XT": "Northwest Territories",
   "XV": "Nunavut",
-  "XY": "Yukon Territory",
-  "OT": "Province Unknown"
+  "XW": "Newfoundland",
+  "XY": "Yukon Territory"
 }

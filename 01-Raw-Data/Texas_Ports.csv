@@ -1,0 +1,20 @@
+PortCode,Port,State,BorderPOE,Region
+2402,El Paso,TX,Yes,El Paso
+2401,Ysleta,TX,Yes,El Paso
+2404,Fabens,TX,Yes,El Paso
+2403,Presidio,TX,Yes,El Paso
+2302,Del Rio,TX,Yes,Laredo
+2303,Eagle Pass,TX,Yes,Laredo
+2304,Laredo,TX,Yes,Laredo
+2310,Roma,TX,Yes,Pharr
+2307,Rio Grande City,TX,Yes,Pharr
+2305,Hidalgo/Pharr,TX,Yes,Pharr
+2309,Progreso,TX,Yes,Pharr
+2301,Brownsville,TX,Yes,Pharr
+5501,Dallas/Ft. Worth,TX,No,
+5309,Houston Intercontl Airp,TX,No,
+2381,Edinburg Intl Airport,TX,No,
+2383,Valley Intl Airport Harlingen,TX,No,
+53XX,Houston-Galveston Customs District n.e.c.,TX,No,
+55XX,Dallas/Ft. Worth Customs District n.e.c.,TX,No,
+21XX,Port Arthur Customs District n.e.c.,TX,No,

@@ -50,20 +50,6 @@ CONFIG_DIR = STAGING_DIR / "config"
 # Overview (us_transborder) uses all years for the full 33-year story.
 MODERN_START_YEAR = 2007
 
-# Texas border POE port codes (from Texas_Ports.csv, BorderPOE=Yes)
-TX_BORDER_PORTS = {
-    "2301", "2302", "2303", "2304", "2305", "2307", "2309", "2310",
-    "2401", "2402", "2403", "2404",
-}
-
-# Port code -> region mapping (from Texas_Ports.csv)
-PORT_REGION = {
-    "2402": "El Paso", "2401": "El Paso", "2404": "El Paso", "2403": "El Paso",
-    "2302": "Laredo", "2303": "Laredo", "2304": "Laredo",
-    "2310": "Pharr", "2307": "Pharr", "2305": "Pharr", "2309": "Pharr",
-    "2301": "Pharr",
-}
-
 
 def load_port_coordinates():
     """Load port coordinates from config JSON."""
@@ -72,6 +58,22 @@ def load_port_coordinates():
         data = json.load(f)
     # Skip metadata keys starting with _
     return {k: v for k, v in data.items() if not k.startswith("_")}
+
+
+def load_texas_border_ports():
+    """Load Texas border port codes and region mappings from config JSON.
+
+    Returns (port_set, region_map) where port_set is a set of port code strings
+    and region_map is {port_code: region_name}.
+    """
+    path = CONFIG_DIR / "texas_border_ports.json"
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    # Skip metadata keys starting with _
+    ports = {k: v for k, v in data.items() if not k.startswith("_")}
+    port_set = set(ports.keys())
+    region_map = {k: v["region"] for k, v in ports.items()}
+    return port_set, region_map
 
 
 def run_query(conn, sql):
@@ -86,7 +88,11 @@ def run_query(conn, sql):
 def write_outputs(name, records, json_dir, csv_dir):
     """Write records as JSON and CSV."""
     if not records:
-        print(f"  WARNING: {name} has 0 records, skipping")
+        print(f"  WARNING: {name} has 0 records, removing stale outputs")
+        for d, ext in [(json_dir, "json"), (csv_dir, "csv")]:
+            stale = d / f"{name}.{ext}"
+            if stale.exists():
+                stale.unlink()
         return
 
     # JSON -- compact, no pretty-print
@@ -160,14 +166,14 @@ def build_us_mexico_ports(conn):
     return run_query(conn, sql)
 
 
-def build_texas_mexico_ports(conn, port_coords):
+def build_texas_mexico_ports(conn, port_coords, tx_ports, port_region):
     """Dataset 3: Texas border port trade with region/coordinates. Source: DOT1, 2007+.
 
     Charts: TX Overview tab (StatCards, LineChart, DonutChart, BarChart).
             TX Ports tab (PortMap, BarChart, LineChart, DataTable).
             TX Modes tab (all mode charts).
     """
-    port_list = ",".join(f"'{p}'" for p in TX_BORDER_PORTS)
+    port_list = ",".join(f"'{p}'" for p in tx_ports)
     sql = f"""
         SELECT
             "Year",
@@ -191,21 +197,21 @@ def build_texas_mexico_ports(conn, port_coords):
     # Enrich with region and coordinates
     for r in records:
         code = r["PortCode"]
-        r["Region"] = PORT_REGION.get(code, "")
+        r["Region"] = port_region.get(code, "")
         coords = port_coords.get(code, {})
         r["Lat"] = coords.get("lat")
         r["Lon"] = coords.get("lon")
     return records
 
 
-def build_texas_mexico_commodities(conn):
+def build_texas_mexico_commodities(conn, tx_ports):
     """Dataset 4: TX border port commodity detail. Source: DOT3, 2007+.
 
     Charts: TX Commodities tab TreemapChart, BarChart, LineChart, DataTable.
     Note: DOT3 surface data doesn't exist before 2007 anyway, but the explicit
     year filter keeps this consistent with other detail datasets.
     """
-    port_list = ",".join(f"'{p}'" for p in TX_BORDER_PORTS)
+    port_list = ",".join(f"'{p}'" for p in tx_ports)
     sql = f"""
         SELECT
             "Year",
@@ -317,6 +323,7 @@ def main():
 
     # Load config
     port_coords = load_port_coordinates()
+    tx_ports, port_region = load_texas_border_ports()
 
     conn = sqlite3.connect(str(DB_PATH))
     conn.execute("PRAGMA cache_size=-200000")
@@ -324,8 +331,8 @@ def main():
     datasets = [
         ("us_transborder", lambda: build_us_transborder(conn)),
         ("us_mexico_ports", lambda: build_us_mexico_ports(conn)),
-        ("texas_mexico_ports", lambda: build_texas_mexico_ports(conn, port_coords)),
-        ("texas_mexico_commodities", lambda: build_texas_mexico_commodities(conn)),
+        ("texas_mexico_ports", lambda: build_texas_mexico_ports(conn, port_coords, tx_ports, port_region)),
+        ("texas_mexico_commodities", lambda: build_texas_mexico_commodities(conn, tx_ports)),
         ("us_state_trade", lambda: build_us_state_trade(conn)),
         ("commodity_detail", lambda: build_commodity_detail(conn)),
         ("monthly_trends", lambda: build_monthly_trends(conn)),

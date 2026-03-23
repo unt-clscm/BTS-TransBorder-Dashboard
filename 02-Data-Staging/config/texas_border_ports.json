@@ -1,0 +1,17 @@
+{
+  "_source": "Texas_Ports.csv (BorderPOE=Yes entries) and TxDOT district boundaries",
+  "_notes": "Texas border ports of entry with region assignments. Region groups follow TxDOT district boundaries: El Paso district (24xx codes), Laredo district (2302-2304), and Pharr district (remaining 23xx codes including Brownsville).",
+
+  "2301": {"region": "Pharr"},
+  "2302": {"region": "Laredo"},
+  "2303": {"region": "Laredo"},
+  "2304": {"region": "Laredo"},
+  "2305": {"region": "Pharr"},
+  "2307": {"region": "Pharr"},
+  "2309": {"region": "Pharr"},
+  "2310": {"region": "Pharr"},
+  "2401": {"region": "El Paso"},
+  "2402": {"region": "El Paso"},
+  "2403": {"region": "El Paso"},
+  "2404": {"region": "El Paso"}
+}

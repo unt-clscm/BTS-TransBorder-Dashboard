@@ -307,11 +307,33 @@ These terms should be used consistently in the dashboard and defined in the Abou
 - Year coverage: all 6 CSVs cover expected year ranges
 - Dimension value validation: only expected values for Country, Mode, TradeType
 
-**Manual Cross-Check (Claude Chrome Extension):**
-- BTS data story page: https://data.bts.gov/stories/s/myhq-rm6q (Socrata-based, no public API available)
-- At the end of Phase 2, generate a **validation prompt** for the Claude Chrome extension that instructs it to open the BTS page, apply specific filter combinations (port, year, mode, trade direction), read the displayed values, and report them back
-- The user will run this prompt in Chrome and bring the results back for comparison against our processed outputs
-- Focus spot-checks on: recent years (2024–2025), high-value ports (Laredo, El Paso), and edge cases (2020)
+### 2.4.1 Cross-Validation Against BTS Tableau Exports
+
+**Script**: `02-Data-Staging/Scripts/07_cross_validate.py`
+
+**Independent sources** (downloaded from the BTS Tableau dashboard, stored outside the pipeline):
+1. `BTS_Tableau_Historical_Trend.csv` (627 MB) — DOT3-like: Port × Commodity, 2006–2025, ~3M rows
+2. `BTS_US_State(2015 - 2024).csv` (805 MB) — DOT2-like: State × Commodity, 2015–2025, ~2.9M rows
+
+**Location**: `../01 - Raw Data/TX-MX Trade (BTS)/` (outside the pipeline directory; not processed by our scripts)
+
+**Comparisons (1,812 total, tolerance: 0.1%):**
+
+| Check | Dimensions | BTS Source | Our Dataset | Rows | Years |
+|---|---|---|---|---|---|
+| A1 | Country × TradeType | Historical Trend [DOT3] | `us_transborder` [DOT2] | 72 | 2007–2024 |
+| B | Country × Mode × TradeType | Historical Trend [DOT3] | `us_transborder` [DOT2] | 360 | 2007–2024 |
+| A2 | Country × TradeType | US State [DOT2] | `us_transborder` [DOT2] | 20 | 2015–2024 |
+| C | State × Country × TradeType | US State [DOT2] | `us_state_trade` [DOT1] | 1,040 | 2015–2024 |
+| D | Country × CommodityGroup × TradeType | US State [DOT2] | `commodity_detail` [DOT2] | 320 | 2015–2024 |
+
+**Why this is strong validation:**
+- Tests across all three DOT table types (DOT1, DOT2, DOT3) — not just the table each output was built from
+- BTS Tableau exports are an independent pre-aggregated source; any error in our normalization, decoding, or aggregation would surface as a mismatch
+- CommodityGroup comparison maps our descriptive names to BTS HS chapter-range codes (many-to-one) for fair grouping
+- Covers multiple dimensions: country, state, mode, commodity group, trade type
+
+**Result (2026-03-23):** 1,812/1,812 comparisons within tolerance. Zero mismatches.
 
 ## Recommended Implementation Order
 
@@ -337,8 +359,12 @@ To reduce rework and avoid validating the wrong intermediate outputs, Phase 2 sh
    - Validate normalized data, database tables, and final outputs.
    - Confirm year coverage, expected dimensions, null-rate behavior, and consistency with BTS annual totals.
 
-6. **Mark Phase 2 complete only after all four stages pass:**
-   - Normalize → Database build → Output generation → Validation
+6. **Implement and run `07_cross_validate.py`**
+   - Cross-validate our outputs against independent BTS Tableau dashboard exports.
+   - Compare annual totals across multiple dimensions (country, state, mode, commodity group, trade type) at 0.1% tolerance.
+
+7. **Mark Phase 2 complete only after all stages pass:**
+   - Normalize → Database build → Output generation → Internal validation → Cross-validation
 
 ## Deliverables Checklist
 
@@ -346,8 +372,11 @@ To reduce rework and avoid validating the wrong intermediate outputs, Phase 2 sh
 - [x] `02-Data-Staging/cleaned/` -- Normalized CSVs: dot1 (10.3M rows, 906 MB), dot2 (25.4M rows, 4.4 GB), dot3 (3.9M rows, 656 MB)
 - [x] `02-Data-Staging/Scripts/04_create_db.py` -- SQLite creation script (completed 2026-03-22)
 - [x] `02-Data-Staging/transborder.db` -- SQLite database (10.1 GB, 3 tables, 1993-2025)
-- [ ] `02-Data-Staging/Scripts/05_build_outputs.py` -- Chart-driven dashboard JSON + reference CSV generator
-- [ ] 7 dashboard-ready JSON files in `03-Processed-Data/json/` (~58 MB raw, ~10 MB gzipped)
-- [ ] 7 reference CSV files in `03-Processed-Data/csv/` (same data, for human review in Excel)
-- [ ] `02-Data-Staging/Scripts/06_validate.py` -- Validation script
-- [ ] Validation report (printed to console or saved to `02-Data-Staging/docs/validation_report.md`)
+- [x] `02-Data-Staging/Scripts/05_build_outputs.py` -- Chart-driven dashboard JSON + reference CSV generator (completed 2026-03-23)
+- [x] 7 dashboard-ready JSON files in `03-Processed-Data/json/` (43.5 MB raw)
+- [x] 7 reference CSV files in `03-Processed-Data/csv/` (20.4 MB, 220,499 total rows)
+- [x] `02-Data-Staging/Scripts/06_validate.py` -- Internal validation script (completed 2026-03-23, 57 passed / 0 failed)
+- [x] `02-Data-Staging/docs/validation_report.md` -- Internal validation report
+- [x] `02-Data-Staging/Scripts/07_cross_validate.py` -- Cross-validation against BTS Tableau exports (completed 2026-03-23, 1,812 passed / 0 mismatches)
+
+**Phase 2 status: COMPLETE** (2026-03-23)

@@ -174,9 +174,11 @@ unknown_codes = defaultdict(set)
 
 def lookup(configs, category, code, field="name"):
     """Look up a code in configs. Track unknowns. Return decoded value or raw code."""
-    if code is None or (isinstance(code, str) and code.strip() == ""):
+    if code is None or (isinstance(code, float) and pd.isna(code)):
         return None
     key = str(code).strip()
+    if key == "" or key.lower() == "nan":
+        return None
     table = configs[category]
     if category == "port":
         entry = table.get(key)

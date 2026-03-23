@@ -3,6 +3,4 @@ Unknown Codes Report
 Codes found in raw data but not in config lookup files.
 These records are kept with the raw code value.
 
-
-STATE (1 unknown codes):
-  nan
+No unknown codes found. All codes matched config lookups.

@@ -171,7 +171,7 @@ All code table configs are in `02-Data-Staging/config/`. These were created manu
   "5": "Truck",
   "6": "Rail",
   "7": "Pipeline",
-  "8": "Other",
+  "8": "Other/Unknown",
   "9": "Foreign Trade Zones (FTZs)"
 }
 ```

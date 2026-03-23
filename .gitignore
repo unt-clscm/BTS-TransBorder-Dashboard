@@ -1,6 +1,11 @@
 # Raw data — ignore bulk data, keep Scripts, docs & READMEs
 01-Raw-Data/download/
 !01-Raw-Data/download/README.md
+!01-Raw-Data/download/modern/
+01-Raw-Data/download/modern/*
+!01-Raw-Data/download/modern/2020/
+01-Raw-Data/download/modern/2020/*
+!01-Raw-Data/download/modern/2020/README.md
 01-Raw-Data/unpacked/
 !01-Raw-Data/unpacked/README.md
 

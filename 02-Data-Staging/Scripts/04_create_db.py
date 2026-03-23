@@ -4,9 +4,9 @@
 Strategy:
   - Modern (2007-2025): Use YTD files from the latest available month per year.
     YTD files contain all months' data in one file, avoiding duplicates.
-    For 2020: DOT1/DOT2 only Jan-Sep (Oct-Dec missing from BTS).
-              DOT3 full year from '2020 dot3.xlsx' annual file.
-    For 2023: Only Jan-Aug available (Sep-Dec ZIPs missing from BTS).
+    For 2020: Sep YTD (months 1-9) + Nov/Dec monthly files recovered from BTS.
+              Oct 2020 raw file missing — derived via subtraction in 03_normalize.py.
+    All other years (including 2009, 2023) verified complete in full audit (2026-03-22).
   - Legacy (1993-2006): Handled separately (see 03_normalize.py, future).
 
 Tables created:
@@ -32,7 +32,7 @@ from pathlib import Path
 # Resolve paths relative to this script
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_ROOT = SCRIPT_DIR.parent.parent
-RAW_MODERN = PROJECT_ROOT / "01-Raw-Data" / "modern"
+RAW_MODERN = PROJECT_ROOT / "01-Raw-Data" / "download" / "modern"
 DB_PATH = SCRIPT_DIR.parent / "transborder.db"
 
 # Column definitions for each table (matching actual BTS CSV headers)
@@ -170,25 +170,6 @@ def read_csv_from_zip(zip_path, csv_name, expected_columns):
             return rows
 
 
-def read_xlsx(xlsx_path, expected_columns):
-    """Read an XLSX file and return rows as dicts."""
-    import openpyxl
-    wb = openpyxl.load_workbook(xlsx_path, read_only=True)
-    ws = wb.active
-    rows_iter = ws.iter_rows(values_only=True)
-    header = [str(h).strip().upper() if h else "" for h in next(rows_iter)]
-
-    rows = []
-    for raw_row in rows_iter:
-        raw_dict = dict(zip(header, raw_row))
-        row = {}
-        for col_name, col_type in expected_columns:
-            row[col_name] = parse_value(raw_dict.get(col_name), col_type)
-        rows.append(row)
-    wb.close()
-    return rows
-
-
 def insert_rows(conn, table_name, columns, rows):
     """Bulk insert rows into a table."""
     if not rows:
@@ -293,13 +274,10 @@ def log_insert(conn, year, source_desc, table_name, rows, is_partial):
 
 def process_year(conn, year_dir, year):
     """Process a single year's data directory."""
-    # Special case: 2020 DOT3 from XLSX
-    xlsx_path = os.path.join(year_dir, "2020 dot3.xlsx")
-
     # Collect all CSVs from all ZIPs (including nested)
     csv_entries = collect_all_csvs(year_dir)
 
-    if not csv_entries and not os.path.exists(xlsx_path):
+    if not csv_entries:
         print(f"  WARNING: No data files found in {year_dir}")
         return
 
@@ -312,13 +290,6 @@ def process_year(conn, year_dir, year):
     try:
         for dot_prefix, table_name in DOT_PREFIX_MAP.items():
             columns = TABLE_DEFS[table_name]
-
-            # Special case: 2020 DOT3 from XLSX (annual file, no monthly breakdown)
-            if year == 2020 and dot_prefix == "dot3" and os.path.exists(xlsx_path):
-                rows = read_xlsx(xlsx_path, columns)
-                log_insert(conn, year, "2020 dot3.xlsx", table_name, rows, False)
-                continue
-
             zip_path, csv_name, is_partial = find_best_source(csv_entries, dot_prefix)
             if zip_path and csv_name:
                 rows = read_csv_from_zip(zip_path, csv_name, columns)

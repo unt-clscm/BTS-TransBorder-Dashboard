@@ -93,13 +93,13 @@ Each monthly ZIP contains:
 | `01c_organize_manual_downloads.py` | `01-Raw-Data/Scripts/` | Organizes manually downloaded files into the year-folder structure |
 | `unpack_raw_data.py` | `01-Raw-Data/Scripts/` | Extracts all ZIPs to `01-Raw-Data/unpacked/` preserving year structure |
 
-### Known Data Gap: October 2020
+### Known Raw-File Gap: October 2020
 
-Oct 2020 is the **only monthly gap** in the entire 1993–2025 dataset.
+Oct 2020 is the **only monthly raw-file gap** in the entire 1993–2025 dataset.
 
 | Year | Tables Affected | Months Missing | Status |
 |---|---|---|---|
-| 2020 | DOT1, DOT2, DOT3 | Oct (month 10 only) | BTS confirmed they do not have it. Nov/Dec 2020 recovered from BTS (Sean Jahanmir) on 2026-03-22. Next fallback: contact Census at https://www.census.gov/foreign-trade/contact.html |
+| 2020 | DOT1, DOT2, DOT3 | Oct (month 10 only) | BTS confirmed they do not have the raw file. Nov/Dec 2020 recovered from BTS (Sean Jahanmir) on 2026-03-22. Phase 2 will analytically derive October from annual aggregates minus Sep YTD, Nov, and Dec. Optional fallback for the original raw file: contact Census at https://www.census.gov/foreign-trade/contact.html |
 
 ## 1.2 Data Dictionary & Code Table Configs
 
@@ -199,7 +199,7 @@ The machine-readable mapping is in `02-Data-Staging/config/schema_mappings.json`
 
 ### Update Policy
 - **Only incorporate a new year when all 12 months are available** — no partial years
-- Current build: 1993–2025 (complete except Oct 2020)
+- Current build target: 1993–2025, with Oct 2020 analytically recoverable during Phase 2 normalization
 - 2026 data: Wait until ~March 2027 when December 2026 data is published
 
 ### Yearly Update Workflow
@@ -248,4 +248,4 @@ Check the BTS raw data page for the target year's files before downloading.
 - [x] `02-Data-Staging/config/schema_mappings.json` — Machine-readable column mapping
 
 ### Open Items (non-blocking)
-- [ ] Recover Oct 2020 data — Contact Census (only monthly gap in entire 1993–2025 dataset)
+- [ ] Optional: Contact Census for the original Oct 2020 raw file (dataset coverage is analytically recoverable during Phase 2)

@@ -62,8 +62,12 @@ The annual summary files (`dot{1,2,3}_YYYY.csv`) have the same columns but drop 
 
 ```
 01-Raw-Data/               <- Input (from Phase 1, never modified)
-  legacy/
-  modern/
+  download/
+    legacy/                <- Raw yearly ZIPs (1993-2006)
+    modern/                <- Raw monthly/yearly ZIPs (2007-2025)
+  unpacked/
+    legacy/                <- Extracted legacy DBF/TAB/CSV files
+    modern/                <- Extracted modern CSV/DBF/XLSX files
 
 02-Data-Staging/           <- Scripts, configs, intermediary data, database
   Scripts/
@@ -152,7 +156,7 @@ Region        (str)     -- Texas border region (for TX ports: El Paso, Laredo, P
 
 **Script**: `02-Data-Staging/Scripts/04_create_db.py`
 
-**Input**: `02-Data-Staging/cleaned/`
+**Input**: `01-Raw-Data/download/modern/`
 **Output**: `02-Data-Staging/transborder.db`
 
 **Tables (mirroring BTS dataset types):**
@@ -234,6 +238,33 @@ Region        (str)     -- Texas border region (for TX ports: El Paso, Laredo, P
 - Null rate report for optional columns (Weight, Lat, Lon)
 - Year coverage: all 6 CSVs cover expected year ranges
 - Dimension value validation: only expected values for Country, Mode, TradeType
+
+## Recommended Implementation Order
+
+To reduce rework and avoid validating the wrong intermediate outputs, Phase 2 should be executed in this order:
+
+1. **Implement `03_normalize.py` first**
+   - This is the core dependency for the rest of the pipeline.
+   - It handles schema reconciliation, code decoding, unknown-code logging, weight/null handling, and October 2020 derivation.
+
+2. **Generate and verify `02-Data-Staging/cleaned/`**
+   - Confirm year coverage, month coverage, and key edge cases before loading to SQLite.
+   - Spot-check 2020, legacy date parsing, and known code corrections such as `BN` → `BC`.
+
+3. **Run `04_create_db.py`**
+   - Build `02-Data-Staging/transborder.db` only after normalized outputs are trusted.
+   - Use the database for validation, exploration, and downstream output generation.
+
+4. **Implement and run `05_build_outputs.py`**
+   - Generate the 6 dashboard JSON files and 6 reference CSVs.
+   - Apply browser-size optimization only at this stage, after the normalized source data is stable.
+
+5. **Implement and run `06_validate.py`**
+   - Validate normalized data, database tables, and final outputs.
+   - Confirm year coverage, expected dimensions, null-rate behavior, and consistency with BTS annual totals.
+
+6. **Mark Phase 2 complete only after all four stages pass:**
+   - Normalize → Database build → Output generation → Validation
 
 ## Deliverables Checklist
 

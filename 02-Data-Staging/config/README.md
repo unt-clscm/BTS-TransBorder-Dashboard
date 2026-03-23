@@ -48,7 +48,7 @@ These decode the numeric/alpha codes in the raw BTS data into human-readable val
 |---|---|---|
 | `schema_mappings.json` | Maps legacy (1993–2006) column names and table structures to the modern (2007+) format | Contains: field_mappings, legacy_table_definitions, date_mappings, processing_caveats, known_issues. Heavily commented with `_note` fields. |
 | `port_aliases.json` | Maps variant port name spellings to canonical names | **Currently empty** — populated iteratively during Phase 2 normalization as spelling variants are discovered in the data. |
-| `transborder_url_manifest.json` | Inventory of all BTS download URLs | 14 legacy + 57 modern ZIP URLs. Used for download verification, not by the processing pipeline. Source field references `transborder_raw_data_links.md`. |
+| `transborder_url_manifest.json` | Inventory of all BTS download URLs | 14 legacy + 57 modern ZIP URLs. Used for download verification, not by the processing pipeline. Source field records the manual BTS raw data page inventory. |
 
 ## Known Data Quality Issues
 

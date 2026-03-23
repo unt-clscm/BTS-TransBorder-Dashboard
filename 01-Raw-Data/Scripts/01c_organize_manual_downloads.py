@@ -2,8 +2,8 @@
 """
 Organize manually downloaded BTS TransBorder ZIPs into 01-Raw-Data/download/legacy and modern.
 Use when direct HTTP downloads get 403 from BTS CDN: download files in a browser
-from https://www.bts.gov/topics/transborder-raw-data (or use links in
-transborder_raw_data_links.md), save to a folder, then run this script with that folder.
+from https://www.bts.gov/topics/transborder-raw-data, save them to a folder,
+then run this script with that folder.
 """
 import json
 import shutil

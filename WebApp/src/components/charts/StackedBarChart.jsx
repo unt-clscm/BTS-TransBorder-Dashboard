@@ -1,0 +1,381 @@
+/**
+ * StackedBarChart — Vertical stacked bar chart using D3's stack layout.
+ *
+ * ── BOILERPLATE: NO CHANGES NEEDED ─────────────────────────────────────────
+ * Chart components are data-agnostic — they render whatever data array is
+ * passed via props. When swapping datasets, update the page components
+ * (src/pages/) that prepare and pass data to these charts, not the charts
+ * themselves. The only reason to modify a chart is to change its visual
+ * style or add new interactive features.
+ * ────────────────────────────────────────────────────────────────────────────
+ *
+ * WHAT IT DOES
+ * Renders a grouped/stacked vertical bar chart. Each bar column represents
+ * one x-axis category (e.g. a year), and the stacked layers within each
+ * column represent the `stackKeys` categories (e.g. trade modes).
+ *
+ * Hovering a column highlights it and shows an HTML tooltip with a
+ * per-layer breakdown and total. The tooltip is built with safe DOM APIs
+ * (no innerHTML) to prevent XSS from data values.
+ *
+ * DATA FORMAT
+ * The `data` array must be "wide-format" — one object per x-category, with
+ * each `stackKeys` value as a numeric property:
+ *   [
+ *     { year: 2020, Truck: 5000000, Rail: 3000000, Air: 200000 },
+ *     { year: 2021, Truck: 5500000, Rail: 3100000, Air: 250000 },
+ *   ]
+ * IMPORTANT: Every key listed in `stackKeys` MUST exist as a property on
+ * each data object. Missing keys are treated as 0 by D3's stack, but this
+ * can produce misleading visuals — ensure the parent page fills gaps.
+ *
+ * PROPS
+ * @param {Array<Object>} data
+ *   Wide-format array (see DATA FORMAT above).
+ *
+ * @param {string} [xKey='year']
+ *   Property name for the x-axis (category axis).
+ *
+ * @param {string[]} stackKeys
+ *   Array of property names that form the stacked layers. Order determines
+ *   stacking order — first key is the bottom layer.
+ *
+ * @param {Function} [formatValue=formatCurrency]
+ *   Formatter for tooltip values and y-axis labels.
+ *
+ * @param {boolean} [animate=true]
+ *   Whether bars animate in with a staggered grow-up transition.
+ *
+ * EDGE CASES & LIMITATIONS
+ * - If `data`, `stackKeys`, or the container width is empty/zero, nothing
+ *   renders (early return).
+ * - Only the topmost bar layer gets rounded corners (rx=3).
+ * - X-axis labels are always rotated -35deg — works well for years and
+ *   short category names. Very long labels will be clipped.
+ * - The tooltip shows layers in reverse stack order (top-of-stack first)
+ *   and filters out layers with value 0.
+ */
+import { useRef, useEffect } from 'react'
+import * as d3 from 'd3'
+import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
+import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
+
+export default function StackedBarChart({
+  data = [],
+  xKey = 'year',
+  stackKeys = [],
+  formatValue = formatCompact,
+  animate = true,
+  normalize = false,
+}) {
+  const containerRef = useRef(null)
+  const svgRef = useRef(null)
+  const { width, height: containerHeight, isFullscreen } = useChartResize(containerRef)
+
+  useEffect(() => {
+    if (!data.length || !width || !stackKeys.length) return
+
+    const FS = getResponsiveFontSize(width, isFullscreen)
+
+    // When normalize=true, convert each row so stackKeys sum to 100%
+    const chartData = normalize
+      ? data.map((d) => {
+          const total = stackKeys.reduce((s, k) => s + (d[k] || 0), 0)
+          const row = { ...d }
+          if (total > 0) stackKeys.forEach((k) => { row[k] = (d[k] || 0) / total * 100 })
+          else stackKeys.forEach((k) => { row[k] = 0 })
+          return row
+        })
+      : data
+    const pctFmt = (v) => `${v.toFixed(1)}%`
+
+    // Dynamic left margin: measure the longest Y-axis label to prevent clipping
+    const stackEst = d3.stack().keys(stackKeys)(chartData)
+    const yMaxEst = d3.max(stackEst, (layer) => d3.max(layer, (d) => d[1])) || 1
+    const yTicksEst = d3.scaleLinear().domain([0, normalize ? 100 : yMaxEst]).nice().ticks(5)
+    const yLabelFmt = normalize ? pctFmt : formatValue
+    const maxYLabelLen = d3.max(yTicksEst, (v) => (v === 0 ? '' : yLabelFmt(v)).length) || 4
+    const dynamicLeft = Math.max(48, maxYLabelLen * (FS * 0.6) + 16)
+
+    const margin = isFullscreen
+      ? { top: 16, right: 20, bottom: 68, left: Math.max(100, dynamicLeft) }
+      : { top: 12, right: 12, bottom: 56, left: dynamicLeft }
+
+    // Pre-calculate legend rows
+    const LEGEND_FONT = FS
+    const LEGEND_CHAR_W = LEGEND_FONT * 0.55
+    const LEGEND_DOT_R = 6
+    const LEGEND_GAP = 28
+    const availLegendW = width - margin.left - margin.right
+    let legendRows = 1
+    let tmpOff = 0
+    stackKeys.forEach((key) => {
+      const itemW = LEGEND_DOT_R * 2 + 10 + key.length * LEGEND_CHAR_W + LEGEND_GAP
+      if (tmpOff + itemW > availLegendW && tmpOff > 0) { legendRows++; tmpOff = 0 }
+      tmpOff += itemW
+    })
+    const legendSpace = 16 + legendRows * 28
+
+    const defaultH = 320 + legendSpace
+    // Use computed default height in normal mode to prevent feedback loops
+    // in CSS grid layouts. In fullscreen mode, fill available space.
+    const height = isFullscreen
+      ? Math.max(defaultH, containerHeight > 100 ? containerHeight : defaultH)
+      : defaultH
+    const innerW = Math.max(1, width - margin.left - margin.right)
+    const innerH = Math.max(1, height - margin.top - margin.bottom - legendSpace)
+
+    const svg = d3.select(svgRef.current)
+    svg.selectAll('*').remove()
+    svg.attr('width', width).attr('height', height)
+
+    const g = svg.append('g').attr('transform', `translate(${margin.left},${margin.top})`)
+
+    const colorScale = d3.scaleOrdinal().domain(stackKeys).range(CHART_COLORS)
+
+    // D3 stack layout: converts the wide-format data into layer arrays.
+    // Each layer contains [y0, y1] pairs per data point (cumulative ranges).
+    const stack = d3.stack().keys(stackKeys)
+    const stacked = stack(chartData)
+
+    const x = d3.scaleBand()
+      .domain(chartData.map((d) => d[xKey]))
+      .range([0, innerW])
+      .padding(0.25)
+
+    const y = d3.scaleLinear()
+      .domain([0, normalize ? 100 : (d3.max(stacked, (layer) => d3.max(layer, (d) => d[1])) || 1)])
+      .nice()
+      .range([innerH, 0])
+
+    const TICK_HALF = 5
+
+    // Horizontal grid lines (skip zero)
+    const yGridTicks = y.ticks(5).filter((t) => t !== 0)
+    g.append('g').selectAll('line').data(yGridTicks).enter()
+      .append('line')
+      .attr('x1', 0).attr('x2', innerW)
+      .attr('y1', (d) => y(d)).attr('y2', (d) => y(d))
+      .attr('stroke', '#9ca3af').attr('stroke-dasharray', '4,4')
+
+    // Vertical grid lines (at bar centers)
+    g.append('g').selectAll('line').data(data).enter()
+      .append('line')
+      .attr('x1', (d) => x(d[xKey]) + x.bandwidth() / 2)
+      .attr('x2', (d) => x(d[xKey]) + x.bandwidth() / 2)
+      .attr('y1', 0).attr('y2', innerH)
+      .attr('stroke', '#9ca3af').attr('stroke-dasharray', '4,4')
+
+    // Axis lines
+    g.append('line')
+      .attr('x1', 0).attr('x2', innerW).attr('y1', innerH).attr('y2', innerH)
+      .attr('stroke', '#9ca3af')
+    g.append('line')
+      .attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2', innerH)
+      .attr('stroke', '#9ca3af')
+
+    // Render each stacked layer as a set of rects. Only the topmost layer
+    // (last in the array) gets rounded corners so the bar column looks clean.
+    stacked.forEach((layer, li) => {
+      g.selectAll(`.bar-${li}`).data(layer).enter()
+        .append('rect')
+        .attr('class', `bar-layer bar-layer-${li}`)
+        .attr('x', (d) => x(d.data[xKey]))
+        .attr('width', x.bandwidth())
+        .attr('rx', li === stacked.length - 1 ? 3 : 0)
+        .attr('fill', colorScale(layer.key))
+        .attr('y', innerH)
+        .attr('height', 0)
+        .transition()
+        .duration(animate ? 600 : 0)
+        .delay((d, i) => (animate ? i * 20 + li * 100 : 0))
+        .attr('y', (d) => y(d[1]))
+        .attr('height', (d) => y(d[0]) - y(d[1]))
+    })
+
+    // ── HTML Tooltip (fixed to viewport, escapes overflow-hidden) ──
+    const tipId = `stacked-bar-tooltip-${Math.random().toString(36).slice(2, 9)}`
+    let tipDiv = document.getElementById(tipId)
+    if (!tipDiv) {
+      tipDiv = document.createElement('div')
+      tipDiv.id = tipId
+      Object.assign(tipDiv.style, {
+        position: 'fixed', pointerEvents: 'none', display: 'none',
+        background: 'white', border: '1px solid #e2e5e9', borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.10)', padding: '12px 14px',
+        fontSize: '16px', lineHeight: '1.6', zIndex: '9999', whiteSpace: 'nowrap',
+        fontFamily: 'inherit', color: '#333f48', maxWidth: '360px',
+      })
+      document.body.appendChild(tipDiv)
+    }
+
+    // Invisible overlay rects spanning each bar column's full height.
+    // These capture mouse events so the tooltip works even when hovering
+    // between stacked layers or on the gap between bars.
+    // Look up original (un-normalized) row by xKey for tooltip display
+    const origMap = normalize ? new Map(data.map((d) => [d[xKey], d])) : null
+
+    g.append('g').selectAll('.hover-col').data(chartData).enter()
+      .append('rect')
+      .attr('class', 'hover-col')
+      .attr('x', (d) => x(d[xKey]))
+      .attr('width', x.bandwidth())
+      .attr('y', 0)
+      .attr('height', innerH)
+      .attr('fill', 'transparent')
+      .on('mouseenter', function (_event, d) {
+        tipDiv.style.display = 'block'
+        g.selectAll('.bar-layer').attr('opacity', (bd) => bd.data[xKey] === d[xKey] ? 1 : 0.3)
+      })
+      .on('mousemove', function (event, d) {
+        const orig = origMap ? origMap.get(d[xKey]) : d
+        // Build rows (top-of-stack first)
+        const rows = [...stackKeys].reverse()
+          .map((key) => ({ name: key, pct: d[key] || 0, abs: (orig ? orig[key] : d[key]) || 0, color: colorScale(key) }))
+          .filter((r) => (normalize ? r.abs > 0 : r.pct > 0))
+        const totalAbs = rows.reduce((s, r) => s + r.abs, 0)
+
+        // Build tooltip using safe DOM APIs — textContent and createElement
+        // only. Never use innerHTML to prevent XSS from data values.
+        tipDiv.textContent = ''
+        const header = document.createElement('div')
+        Object.assign(header.style, { fontWeight: '700', fontSize: '16px', marginBottom: '6px' })
+        header.textContent = d[xKey]
+        tipDiv.appendChild(header)
+
+        const body = document.createElement('div')
+        Object.assign(body.style, { borderTop: '1px solid #e5e7eb', paddingTop: '6px' })
+        rows.forEach((r) => {
+          const row = document.createElement('div')
+          Object.assign(row.style, { display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'space-between' })
+          const left = document.createElement('span')
+          Object.assign(left.style, { display: 'flex', alignItems: 'center', gap: '6px' })
+          const dot = document.createElement('span')
+          Object.assign(dot.style, { width: '10px', height: '10px', borderRadius: '50%', background: r.color, flexShrink: '0' })
+          const labelSpan = document.createElement('span')
+          labelSpan.style.color = '#6b7280'
+          labelSpan.textContent = r.name
+          left.appendChild(dot)
+          left.appendChild(labelSpan)
+          const valSpan = document.createElement('span')
+          Object.assign(valSpan.style, { fontWeight: '600', marginLeft: '16px' })
+          valSpan.textContent = normalize ? `${r.pct.toFixed(1)}% (${formatValue(r.abs)})` : formatValue(r.pct)
+          row.appendChild(left)
+          row.appendChild(valSpan)
+          body.appendChild(row)
+        })
+        tipDiv.appendChild(body)
+
+        const footer = document.createElement('div')
+        Object.assign(footer.style, { borderTop: '1px solid #e5e7eb', marginTop: '6px', paddingTop: '6px', display: 'flex', justifyContent: 'space-between', fontWeight: '700' })
+        const totalLabel = document.createElement('span')
+        totalLabel.textContent = 'Total'
+        const totalVal = document.createElement('span')
+        totalVal.textContent = normalize ? `100% (${formatValue(totalAbs)})` : formatValue(totalAbs)
+        footer.appendChild(totalLabel)
+        footer.appendChild(totalVal)
+        tipDiv.appendChild(footer)
+
+        // Position using viewport coordinates, clamped to stay on-screen
+        const tipW = tipDiv.offsetWidth
+        const tipH = tipDiv.offsetHeight
+        const pad = 12
+
+        let tx = event.clientX + 16
+        if (tx + tipW + pad > window.innerWidth) tx = event.clientX - tipW - 16
+        let ty = event.clientY - tipH - 10
+        if (ty < pad) ty = event.clientY + 16
+        // Final clamp
+        tx = Math.max(pad, Math.min(tx, window.innerWidth - tipW - pad))
+        ty = Math.max(pad, Math.min(ty, window.innerHeight - tipH - pad))
+
+        tipDiv.style.left = `${tx}px`
+        tipDiv.style.top = `${ty}px`
+      })
+      .on('mouseleave', function () {
+        tipDiv.style.display = 'none'
+        g.selectAll('.bar-layer').attr('opacity', 1)
+      })
+
+    // X Axis (centered tick marks)
+    const xAxisG = g.append('g')
+      .attr('transform', `translate(0,${innerH})`)
+      .call(d3.axisBottom(x).tickSize(0))
+    xAxisG.select('.domain').remove()
+    xAxisG.selectAll('.tick').append('line')
+      .attr('y1', 0).attr('y2', TICK_HALF)
+      .attr('stroke', '#9ca3af')
+    xAxisG.selectAll('.tick text')
+      .attr('font-size', `${FS}px`)
+      .attr('fill', 'var(--color-text-secondary)')
+      .attr('dy', '1.2em')
+      .attr('transform', 'rotate(-35)')
+      .attr('text-anchor', 'end')
+
+    // Y Axis — dynamic unit (centered tick marks, skip zero)
+    const yAxisG = g.append('g')
+      .call(d3.axisLeft(y).ticks(5).tickFormat((v) => v === 0 ? '' : yLabelFmt(v)).tickSize(0))
+    yAxisG.select('.domain').remove()
+    yAxisG.selectAll('.tick').append('line')
+      .attr('x1', -TICK_HALF).attr('x2', TICK_HALF)
+      .attr('stroke', '#9ca3af')
+    yAxisG.selectAll('.tick text')
+      .attr('font-size', `${FS}px`)
+      .attr('fill', 'var(--color-text-secondary)')
+      .attr('dx', '-0.4em')
+    yAxisG.selectAll('.tick').filter((d) => d === 0).remove()
+
+    // Legend (centered, wraps to multiple rows if needed)
+    const legendG = svg.append('g')
+
+    // Measure total width for centering
+    const legendItems = []
+    let totalLegendW = 0
+    stackKeys.forEach((key, i) => {
+      const textW = key.length * LEGEND_CHAR_W
+      const itemW = LEGEND_DOT_R * 2 + 10 + textW
+      legendItems.push({ key, color: colorScale(key), itemW, textW })
+      totalLegendW += itemW + (i < stackKeys.length - 1 ? LEGEND_GAP : 0)
+    })
+
+    const legendY = margin.top + innerH + margin.bottom + 14
+    if (totalLegendW <= availLegendW) {
+      // Single centered row
+      const startX = margin.left + (availLegendW - totalLegendW) / 2
+      let xOff = 0
+      legendItems.forEach((item) => {
+        const ig = legendG.append('g').attr('transform', `translate(${startX + xOff}, ${legendY})`)
+        ig.append('circle').attr('cx', LEGEND_DOT_R).attr('cy', -1).attr('r', LEGEND_DOT_R).attr('fill', item.color)
+        ig.append('text').attr('x', LEGEND_DOT_R * 2 + 10).attr('y', 5)
+          .attr('font-size', `${FS}px`).attr('fill', 'var(--color-text-primary)').text(item.key)
+        xOff += item.itemW + LEGEND_GAP
+      })
+    } else {
+      // Multi-row wrapping
+      let xOff = 0
+      let yOff = 0
+      const rowH = 28
+      legendItems.forEach((item) => {
+        const fullW = item.itemW + LEGEND_GAP
+        if (xOff + item.itemW > availLegendW && xOff > 0) { xOff = 0; yOff += rowH }
+        const ig = legendG.append('g').attr('transform', `translate(${margin.left + xOff}, ${legendY + yOff})`)
+        ig.append('circle').attr('cx', LEGEND_DOT_R).attr('cy', -1).attr('r', LEGEND_DOT_R).attr('fill', item.color)
+        ig.append('text').attr('x', LEGEND_DOT_R * 2 + 10).attr('y', 5)
+          .attr('font-size', `${FS}px`).attr('fill', 'var(--color-text-primary)').text(item.key)
+        xOff += fullW
+      })
+    }
+
+    return () => { document.getElementById(tipId)?.remove() }
+  }, [data, width, containerHeight, isFullscreen, xKey, stackKeys, animate, normalize])
+
+  // Ensure container expands for legend rows
+  const estLegendRows = stackKeys.length > 0 ? Math.max(1, Math.ceil(stackKeys.length / 4)) : 0
+  const minH = 320 + (estLegendRows > 0 ? 16 + estLegendRows * 28 : 0)
+
+  return (
+    <div ref={containerRef} className="w-full" style={{ minHeight: minH }}>
+      <svg ref={svgRef} className="w-full" />
+    </div>
+  )
+}

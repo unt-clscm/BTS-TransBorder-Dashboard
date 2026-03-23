@@ -10,6 +10,20 @@ The web application is built by forking the Airport Dashboard (`Task 6 - Airport
 
 **Tech Stack (inherited):** React 19, Vite 7, Zustand, D3 7, TailwindCSS 4, React-Leaflet, Lucide React
 
+## 3.0 Post-Phase-2 Cleanup
+
+Before starting dashboard development, clean up the large staging artifacts from Phase 2 that are no longer needed. The ZIPs in `01-Raw-Data/download/` remain the source of truth and can be re-unpacked at any time via `unpack_raw_data.py`.
+
+| Action | Path | Size | Rationale |
+|---|---|---|---|
+| **Delete** | `01-Raw-Data/unpacked/` | ~20 GB | Raw files have been normalized into `02-Data-Staging/cleaned/` and loaded into `transborder.db`. Re-unpackable from ZIPs if ever needed. |
+| **Delete** | `02-Data-Staging/cleaned/` | TBD | Intermediate normalized CSVs. The database and final outputs in `03-Processed-Data/` supersede these. |
+| **Keep** | `01-Raw-Data/download/` | ~2 GB (ZIPs) | Source of truth. Compact. Required for reproducibility. |
+| **Keep** | `02-Data-Staging/transborder.db` | TBD | Working database for ad-hoc queries and future re-generation. |
+| **Keep** | `03-Processed-Data/` | <100 MB | Final outputs (JSON + CSV). |
+
+**Verification before deleting:** Confirm that `06_validate.py` passed and that all 6 JSON + 6 CSV files exist in `03-Processed-Data/` with expected row counts. Only then proceed with cleanup.
+
 ## 3.1 Fork the Airport Dashboard
 
 - **Review the cloned project structure** (routing, stores, components, design playbook) to understand the web application setup before forking.
@@ -597,6 +611,7 @@ All paths relative to `c:/Users/UNT/UNT System/TxDOT IAC 2025-26 - General/`
 
 ## Deliverables Checklist
 
+- [ ] Post-Phase-2 cleanup complete (`01-Raw-Data/unpacked/` and `02-Data-Staging/cleaned/` deleted after validation)
 - [ ] WebApp/ directory created (forked from Airport Dashboard)
 - [ ] package.json and vite.config.js updated
 - [ ] transborderStore.js -- new data store with 6 datasets

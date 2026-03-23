@@ -26,20 +26,21 @@ All files were initially saved to a dump folder, then organized into `download/l
 
 ### Download date
 
-Bulk download completed on **2025-03-21**.
+Bulk download completed on **2026-03-21**.
 
 ## Missing Data and Recovery
 
 After downloading, a comprehensive audit identified files that were missing from the BTS download page.
 
-### October 2020 (all tables) — STILL MISSING
+### October 2020 (all tables) — RAW FILE MISSING, ANALYTICALLY RECOVERABLE
 
 - The BTS download page had no ZIP files for October, November, or December 2020.
 - We emailed the BTS data contact, **Sean Jahanmir** (sean.jahanmir@dot.gov, 202-760-1007).
 - Sean provided **November and December 2020** ZIPs via email on **2026-03-22**.
 - He confirmed that **October 2020 raw data is not available at BTS**.
 - BTS suggested contacting **Census** as a fallback: https://www.census.gov/foreign-trade/contact.html
-- October 2020 remains the **only confirmed monthly data gap** in the entire 1993–2025 dataset.
+- October 2020 is the **only confirmed monthly raw-file gap** in the entire 1993–2025 dataset.
+- **No analytical gap remains:** October values are derived during Phase 2 normalization by subtracting known months (Sep YTD + Nov + Dec) from annual aggregates. Verified: zero negative values across all 3 tables.
 - See `download/modern/2020/README.md` for detailed provenance of the 2020 files.
 
 ### 2023 and 2009 — Resolved (false alarms)
@@ -79,4 +80,4 @@ After downloading, a comprehensive audit identified files that were missing from
 | Era | Years | Monthly Coverage | Gaps |
 |-----|-------|-----------------|------|
 | Legacy | 1993–2006 | Apr 1993 – Dec 2006 (program started Apr 1993) | None |
-| Modern | 2007–2025 | Jan 2007 – Dec 2025 | **Oct 2020 only** |
+| Modern | 2007–2025 | Jan 2007 – Dec 2025 | Oct 2020 raw file missing (analytically recovered via subtraction) |

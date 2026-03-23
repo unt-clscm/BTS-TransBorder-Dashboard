@@ -48,7 +48,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 | Gap | Impact | Action |
 |---|---|---|
-| **2020 all tables: Oct (month 10) missing** | Low | **Recoverable via subtraction:** Annual totals (Dec 2020 "YTD" annual aggregates) minus (Sep YTD months 1–9 + Nov monthly + Dec monthly) = October. Verified: zero negative values across all 3 tables (DOT1: 26,789 Oct records, DOT2: 74,243, DOT3: 17,258). Will be computed during Phase 2 normalization. Alternatively: contact Census at https://www.census.gov/foreign-trade/contact.html for raw data. |
+| **2020 all tables: Oct (month 10) raw file missing** | Low | Raw file not available from BTS. **No analytical gap:** October values derived via subtraction (Annual aggregates − Sep YTD − Nov − Dec). Verified: zero negative values across all 3 tables (DOT1: 26,789 records, DOT2: 74,243, DOT3: 17,258). Implemented during Phase 2 normalization. Alternatively: contact Census at https://www.census.gov/foreign-trade/contact.html for raw file. |
 | 2026 data (partial) | None | Jan 2026 available but excluded per policy — only complete years (all 12 months) are incorporated. |
 
 ### Resolved Data Gaps (verified 2026-03-22)
@@ -61,7 +61,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 ### Open Questions
 
-- [x] ~~Legacy download page structure~~ — Completed. Links cataloged in `transborder_raw_data_links.md`.
+- [x] ~~Legacy download page structure~~ — Completed. Links cataloged in `02-Data-Staging/config/transborder_url_manifest.json`.
 - [x] ~~Socrata app token~~ — No public API exists for TransBorder freight data. Not applicable.
 - [ ] DBF file handling: Are there known issues with `dbfread` for BTS-specific DBF files (encoding, field types)?
 - [x] ~~**Missing data request to BTS**~~: Sean Jahanmir responded 2026-03-22 — provided Nov/Dec 2020. Oct 2020 unavailable at BTS. 2023 and 2009 gaps were false alarms (data verified present in full audit). Next step for Oct 2020: contact Census.
@@ -90,7 +90,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 ### Open Questions
 
-- [x] ~~Legacy-to-modern schema reconciliation~~ — Documented in `02-Data-Staging/docs/legacy-to-modern-mapping/legacy-to-modern-mapping.md`. Key finding: DOT3 (Port×Commodity) has no legacy equivalent. Legacy tables map to DOT1/DOT2 via column renaming + filename-derived fields (TRDTYPE, COUNTRY, MONTH, YEAR).
+- [x] ~~Legacy-to-modern schema reconciliation~~ — Documented in `01-Raw-Data/data_dictionary/legacy-to-modern-mapping.md`. Key finding: DOT3 (Port×Commodity) has no legacy equivalent. Legacy tables map to DOT1/DOT2 via column renaming + filename-derived fields (TRDTYPE, COUNTRY, MONTH, YEAR).
 - [ ] Weight data gaps: Weight is only available for imports (except air/vessel). How should missing weight values be handled — NULL, zero, or excluded?
 - [x] ~~Commodity code changes~~ — TransBorder uses **HS 2-digit codes** throughout (1993–2025). SCTG is a different system (Commodity Flow Survey) and is NOT used here. No crosswalk needed.
 - [ ] CSV size budget: Phase 2 plan mentions a ~10MB budget per CSV. Has this been validated against expected row counts?
@@ -112,7 +112,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 ### Open Questions
 
 - [ ] Airport Dashboard source: Is `c:/Users/UNT/UNT System/TxDOT IAC 2025-26 - General/Task 6 - Airport Connectivity/07_WebApp/` still the correct path for the fork source?
-- [ ] Deployment target: Where will the dashboard be hosted? GitHub Pages, UNT server, TxDOT infrastructure?
+- [x] ~~Deployment target~~ — GitHub Pages (static-only). Confirmed in Phase 2 plan.
 - [ ] Map visualizations: Phase 3 mentions geographic/port maps — are GeoJSON boundaries available for Texas border ports?
 
 ---
@@ -138,7 +138,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 | Issue | Impact | Status |
 |---|---|---|
-| Missing Oct 2020 raw data (all 3 tables) | Low | Recoverable via subtraction (Annual - Sep YTD - Nov - Dec). No true gap in coverage. |
+| Oct 2020 raw file missing (all 3 tables) | Low | No analytical gap — October derived via subtraction during Phase 2 normalization. Only the raw source file is absent. |
 
 ---
 

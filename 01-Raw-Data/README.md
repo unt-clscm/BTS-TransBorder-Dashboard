@@ -75,6 +75,30 @@ After downloading, a comprehensive audit identified files that were missing from
   README.md          <- This file
 ```
 
+## Legacy File Format Notes (confirmed by BTS, 2026-03-23)
+
+The following was confirmed by **Sean Jahanmir (BTS)** via email on 2026-03-23. See `data_dictionary/legacy-to-modern-mapping.md` for full column-level details.
+
+### Export Tables: D5/D6 A vs. B Suffix (1994–2002)
+
+> The "A" files (e.g., D5A, D6A) typically represent the state of origin or destination at a more granular level (often including the National Trade Data Bank style summaries).
+>
+> The "B" files (e.g., D5B, D6B) provide an alternative view, often focusing on the U.S. state of export/import specifically organized to show trade with individual Canadian provinces or Mexican states.
+>
+> **The Nuance:** If you were to sum D5A and D5B together, you would be double-counting the total trade value. Think of them as two different pivot tables created from the same raw transaction ledger. Use the version that matches your specific unit of analysis (e.g., if you need Provincial/State pairings, use the "B" series).
+
+**Pipeline decision:** We use the A-series (State of Origin). B-series is excluded because D5B/D6B use NTAR (89 multicounty regions) instead of state codes, making them incompatible with the DOT1 state×port structure.
+
+### 1995 Revision Files: R vs. X Prefix
+
+> **R Files (Revised):** These are replacement files. They contain the full set of records for that period, updated to correct errors found in the original release. You should use the R file instead of the original file.
+>
+> **X Files (Deltas/Adjustments):** These are supplemental/correction records. These were often used for late-arriving data or specific line-item adjustments that weren't captured in the first pass but didn't warrant a full file re-issue at the time.
+>
+> **Historical Context:** During the mid-90s, the move toward the North American Free Trade Agreement (NAFTA) caused a massive surge in data volume, leading to frequent "carry-over" issues where shipments from December weren't processed until January. The X and R files were the 1.44MB-floppy-disk-era solution to data integrity.
+
+**Pipeline decision:** R-files are detected and used instead of originals. X-files (deltas) are ignored — they cannot be cleanly merged without the original transaction IDs.
+
 ## Data Completeness Summary
 
 | Era | Years | Monthly Coverage | Gaps |

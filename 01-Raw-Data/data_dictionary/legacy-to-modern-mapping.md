@@ -69,14 +69,16 @@ Import tables use `DESTATE` (destination state) and `TSUSA` (Tariff Schedule USA
 
 **A/B suffix** (geographic methodology for export tables, Apr 1994–2002 only):
 
-From April 1994, export tables were split into A/B variants. **Both A and B are EXPORTS** — the suffix encodes geographic methodology, NOT trade direction. Source: BTS README4.TXT (1994).
+From April 1994, export tables were split into A/B variants. **Both A and B are EXPORTS** — the suffix encodes geographic methodology, NOT trade direction. Source: BTS README4.TXT (1994), confirmed by Sean Jahanmir (BTS) 2026-03-23.
 
 | Suffix | Meaning | State Column | Notes |
 |--------|---------|-------------|-------|
-| A | State of Origin | `ORSTATE` | Where goods entered the foreign trade pipeline |
-| B | State/NTAR of Exporter | `EXSTATE` (D3B/D4B) or `NTAR` (D5B/D6B) | Where the exporting company is located |
+| A | State of Origin | `ORSTATE` | Where goods entered the foreign trade pipeline. Per BTS: "the state of origin at a more granular level (often including the National Trade Data Bank style summaries)." |
+| B | State/NTAR of Exporter | `EXSTATE` (D3B/D4B) or `NTAR` (D5B/D6B) | Where the exporting company is located. Per BTS: "an alternative view, often focusing on the U.S. state of export/import specifically organized to show trade with individual Canadian provinces or Mexican states." |
 
-BTS explanation: *"Neither measure provides a true representation of the production origin of exports, because the state of origin may be the state that contains a consolidation point."* B-variants were dropped in 2003.
+**BTS authoritative guidance (Sean Jahanmir, 2026-03-23):** *"If you were to sum D5A and D5B together, you would be double-counting the total trade value. Think of them as two different pivot tables created from the same raw transaction ledger. Use the version that matches your specific unit of analysis (e.g., if you need Provincial/State pairings, use the 'B' series)."*
+
+BTS explanation (README4.TXT): *"Neither measure provides a true representation of the production origin of exports, because the state of origin may be the state that contains a consolidation point."* B-variants were dropped in 2003.
 
 **S suffix** (1993–early 1994 only): The trailing `S` denotes "State of Origin" — the predecessor to the `A` suffix. Files like `D5AUG93S.DBF` exist in 1993 and map to the `A` variant (State of Origin). `03_normalize.py` handles this automatically.
 
@@ -230,8 +232,16 @@ When B-variants were dropped in 2003, the A-variant tables continued as **export
 - Both are HS 2-digit codes in practice, but the column names reflect export vs. import nomenclature
 - Modern `COMMODITY2` unifies both
 
-### 1995 revision files
-- 26 revision files (X-prefix and R-prefix) exist for Jan–Mar 1995 and Jul 1995. These should be used **instead of** the original files for those months.
+### 1995 revision files (R and X prefixes)
+
+Confirmed by Sean Jahanmir (BTS), 2026-03-23:
+
+- **R-files (Revised):** Full replacement files. They contain the complete set of records for that period, updated to correct errors found in the original release. **Use the R file instead of the original file.**
+- **X-files (Deltas/Adjustments):** Supplemental correction records for late-arriving data or specific line-item adjustments that didn't warrant a full file re-issue.
+
+**Historical context (per BTS):** During the mid-1990s, the move toward NAFTA caused a massive surge in data volume, leading to frequent "carry-over" issues where shipments from December weren't processed until January. The X and R files were the 1.44MB-floppy-disk-era solution to data integrity.
+
+26 revision files exist for Jan–Mar 1995 and Jul 1995. `03_normalize.py` detects R-files and prefers them over originals; X-files are ignored (delta records cannot be cleanly merged without the original transaction IDs).
 
 ## 6. Summary: What We Lose Normalizing Legacy → Modern
 

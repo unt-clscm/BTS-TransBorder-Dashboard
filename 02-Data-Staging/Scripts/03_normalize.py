@@ -5,7 +5,7 @@
 Handles:
   - Modern era (2007-2025): CSV files from 01-Raw-Data/unpacked/modern/
   - Legacy era (1993-2006): DBF files from 01-Raw-Data/unpacked/legacy/
-  - 2020 special case: Oct derived via subtraction from annual totals
+  - 2020 special case: Sep YTD + Oct/Nov/Dec monthly (Oct recovered from Census)
   - Legacy anomalies:
     * D5...S files (1993-Mar 1994): State of Origin variant, mapped to D5A
     * DO9 typo (May 1994): letter O instead of digit 0, auto-corrected
@@ -63,19 +63,6 @@ DOT2_RAW_COLS = [
 DOT3_RAW_COLS = [
     "TRDTYPE", "DEPE", "COMMODITY2", "DISAGMOT", "COUNTRY", "VALUE",
     "SHIPWT", "FREIGHT_CHARGES", "DF", "CONTCODE", "MONTH", "YEAR",
-]
-
-# Dimension columns (non-value) per DOT table — used for Oct 2020 derivation
-DOT1_DIM_COLS = [
-    "TRDTYPE", "USASTATE", "DEPE", "DISAGMOT", "MEXSTATE", "CANPROV",
-    "COUNTRY", "DF", "CONTCODE",
-]
-DOT2_DIM_COLS = [
-    "TRDTYPE", "USASTATE", "COMMODITY2", "DISAGMOT", "MEXSTATE", "CANPROV",
-    "COUNTRY", "DF", "CONTCODE",
-]
-DOT3_DIM_COLS = [
-    "TRDTYPE", "DEPE", "COMMODITY2", "DISAGMOT", "COUNTRY", "DF", "CONTCODE",
 ]
 
 VALUE_COLS = ["VALUE", "SHIPWT", "FREIGHT_CHARGES"]
@@ -303,17 +290,14 @@ def load_modern_year(year, dot_prefix, raw_cols):
 
 
 def load_2020_data(dot_prefix, raw_cols):
-    """Handle 2020 special case: Sep YTD + Nov/Dec monthly + Oct derived."""
+    """Handle 2020 special case: Sep YTD + Oct/Nov/Dec monthly files.
+
+    BTS did not publish a YTD beyond September for 2020. Oct data was
+    recovered directly from the Census Bureau (Jason Jindrich, Mar 2026).
+    Nov and Dec were published as monthly files by BTS.
+    """
     year_dir = UNPACKED_MODERN / "2020"
     yy = "20"
-
-    # Determine dimension columns for this DOT table
-    if dot_prefix == "dot1":
-        dim_cols = DOT1_DIM_COLS
-    elif dot_prefix == "dot2":
-        dim_cols = DOT2_DIM_COLS
-    else:
-        dim_cols = DOT3_DIM_COLS
 
     # 1. Load Sep YTD (months 1-9)
     sep_ytd_file = year_dir / f"{dot_prefix}_ytd_09{yy}.csv"
@@ -323,11 +307,10 @@ def load_2020_data(dot_prefix, raw_cols):
     df_sep = load_modern_csv(sep_ytd_file)
     print(f"  {dot_prefix} 2020: {len(df_sep):,} rows from Sep YTD (months 1-9)")
 
-    # 2. Load Nov and Dec monthly files
-    nov_file = year_dir / f"{dot_prefix}_11{yy}.csv"
-    dec_file = year_dir / f"{dot_prefix}_12{yy}.csv"
+    # 2. Load Oct, Nov, Dec monthly files
     frames = [df_sep]
-    for mf, label in [(nov_file, "Nov"), (dec_file, "Dec")]:
+    for month, label in [(10, "Oct"), (11, "Nov"), (12, "Dec")]:
+        mf = year_dir / f"{dot_prefix}_{month:02d}{yy}.csv"
         if mf.exists():
             df_m = load_modern_csv(mf)
             frames.append(df_m)
@@ -335,81 +318,8 @@ def load_2020_data(dot_prefix, raw_cols):
         else:
             print(f"  WARNING: {dot_prefix} 2020 {label} monthly not found")
 
-    known_months = pd.concat(frames, ignore_index=True)
-
-    # 3. Load annual aggregate (no MONTH column)
-    annual_file = year_dir / f"{dot_prefix}_ytd_20{yy}.csv"
-    if not annual_file.exists():
-        # Try alternate naming
-        annual_file = year_dir / f"{dot_prefix}_20{yy}.csv"
-    if not annual_file.exists():
-        print(f"  WARNING: {dot_prefix} 2020 annual file not found, skipping Oct derivation")
-        return known_months
-
-    df_annual = load_modern_csv(annual_file)
-    print(f"  {dot_prefix} 2020: {len(df_annual):,} rows from annual aggregate")
-
-    # 4. Derive October via subtraction
-    # Fill NaN in dimension columns with sentinel for groupby
-    sentinel = "__NA__"
-    for col in dim_cols:
-        if col in known_months.columns:
-            known_months[col] = known_months[col].fillna(sentinel)
-        if col in df_annual.columns:
-            df_annual[col] = df_annual[col].fillna(sentinel)
-
-    # Sum known months by dimension columns
-    present_dim_cols = [c for c in dim_cols if c in known_months.columns]
-    known_summed = (
-        known_months.groupby(present_dim_cols, as_index=False)[VALUE_COLS]
-        .sum(min_count=1)
-    )
-
-    # Merge annual with summed known months
-    annual_dim_cols = [c for c in present_dim_cols if c in df_annual.columns]
-    merged = df_annual.merge(
-        known_summed, on=annual_dim_cols, how="left", suffixes=("_annual", "_known")
-    )
-
-    # Subtract: October = Annual - Known
-    oct_rows = merged.copy()
-    for vc in VALUE_COLS:
-        annual_col = f"{vc}_annual"
-        known_col = f"{vc}_known"
-        if annual_col in oct_rows.columns and known_col in oct_rows.columns:
-            oct_rows[vc] = oct_rows[annual_col].fillna(0) - oct_rows[known_col].fillna(0)
-            oct_rows.drop(columns=[annual_col, known_col], inplace=True)
-        elif annual_col in oct_rows.columns:
-            oct_rows.rename(columns={annual_col: vc}, inplace=True)
-
-    oct_rows["MONTH"] = 10
-    oct_rows["YEAR"] = 2020
-
-    # Restore NaN sentinels
-    for col in present_dim_cols:
-        if col in oct_rows.columns:
-            oct_rows[col] = oct_rows[col].replace(sentinel, pd.NA)
-        if col in known_months.columns:
-            known_months[col] = known_months[col].replace(sentinel, pd.NA)
-
-    # Check for negative values
-    for vc in VALUE_COLS:
-        if vc in oct_rows.columns:
-            neg_count = (oct_rows[vc] < 0).sum()
-            if neg_count > 0:
-                print(f"  WARNING: {neg_count} negative {vc} values in Oct 2020 derivation")
-
-    # Drop rows where all value columns are 0 or NaN (no October activity)
-    value_mask = False
-    for vc in VALUE_COLS:
-        if vc in oct_rows.columns:
-            value_mask = value_mask | (oct_rows[vc].fillna(0) != 0)
-    oct_rows = oct_rows[value_mask]
-
-    print(f"  {dot_prefix} 2020: {len(oct_rows):,} rows derived for October")
-
-    # Combine known months + derived October
-    result = pd.concat([known_months, oct_rows], ignore_index=True)
+    result = pd.concat(frames, ignore_index=True)
+    print(f"  {dot_prefix} 2020: {len(result):,} rows total")
     return result
 
 

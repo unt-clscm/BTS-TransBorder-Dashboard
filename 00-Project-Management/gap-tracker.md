@@ -10,7 +10,7 @@ Living document tracking known issues, missing pieces, and open questions across
 |---|---|---|
 | Phase 1 — Data Acquisition | Complete | **Complete** |
 | Phase 2 — Data Processing | Complete | **Complete** |
-| Phase 3 — WebApp & Pages | Complete | Not started |
+| Phase 3 — WebApp & Pages | Complete | **Complete** |
 | Phase 4 — Design & Testing | Complete | Not started |
 
 ---
@@ -33,7 +33,7 @@ Living document tracking known issues, missing pieces, and open questions across
 | `02-Data-Staging/config/schema_mappings.json` | 2026-03-15 |
 | `02-Data-Staging/config/port_aliases.json` | 2026-03-15 (empty starter) |
 | `01-Raw-Data/download/legacy/` data | 2026-03-15 (1993–2006, 14 ZIPs organized by year) |
-| `01-Raw-Data/download/modern/` data | 2026-03-15 (2007–2025, organized by year; Nov/Dec 2020 recovered 2026-03-22; **Oct 2020 still missing**) |
+| `01-Raw-Data/download/modern/` data | 2026-03-15 (2007–2025, organized by year; Nov/Dec 2020 recovered 2026-03-22; Oct 2020 recovered from Census 2026-03-23) |
 | BTS raw data page reconnaissance | 2026-03-15 |
 | Historical format comparison | 2026-03-15 (in `01-Raw-Data/data_dictionary/Historical and current data format comparison.xlsx`) |
 | Config JSON validation against BTS PDF | 2026-03-22 (all config files verified/corrected against official codes PDF) |
@@ -55,7 +55,6 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 | Gap | Impact | Action |
 |---|---|---|
-| **2020 all tables: Oct (month 10) raw file missing** | Low | Raw file not available from BTS. **No analytical gap:** October values derived via subtraction (Annual aggregates − Sep YTD − Nov − Dec). Verified: zero negative values across all 3 tables (DOT1: 26,789 records, DOT2: 74,243, DOT3: 17,258). Implemented during Phase 2 normalization. Alternatively: contact Census at https://www.census.gov/foreign-trade/contact.html for raw file. |
 | 2026 data (partial) | None | Jan 2026 available but excluded per policy — only complete years (all 12 months) are incorporated. |
 
 ### Resolved Data Gaps (verified 2026-03-22)
@@ -65,13 +64,14 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 | **2023 all tables: Sep–Dec** | Full audit confirmed all 12 months present for DOT1, DOT2, DOT3. Data was in the downloaded ZIPs. |
 | **2009 DOT2: Sep–Dec** | Full audit confirmed all 12 months present for DOT1, DOT2, DOT3 in Revised 2009 bundle. |
 | **2020 Nov–Dec all tables** | Provided directly by Sean Jahanmir (BTS) via email on 2026-03-22. See `01-Raw-Data/download/modern/2020/README.md`. |
+| **2020 Oct all tables** | Raw files (`dot1_1020.csv`, `dot2_1020.csv`, `dot3_1020.csv`) provided by Jason Jindrich (Census Bureau, International Trade Macro Analysis Branch) on 2026-03-23. Aggregate totals verified to match derivation values exactly (0% difference). Pipeline updated to use actual Census files instead of subtraction method. |
 
 ### Open Questions
 
 - [x] ~~Legacy download page structure~~ — Completed. Links cataloged in `02-Data-Staging/config/transborder_url_manifest.json`.
 - [x] ~~Socrata app token~~ — No public API exists for TransBorder freight data. Not applicable.
 - [ ] DBF file handling: Are there known issues with `dbfread` for BTS-specific DBF files (encoding, field types)?
-- [x] ~~**Missing data request to BTS**~~: Sean Jahanmir responded 2026-03-22 — provided Nov/Dec 2020. Oct 2020 unavailable at BTS. 2023 and 2009 gaps were false alarms (data verified present in full audit). Next step for Oct 2020: contact Census.
+- [x] ~~**Missing data request to BTS**~~: Sean Jahanmir responded 2026-03-22 — provided Nov/Dec 2020. Oct 2020 unavailable at BTS. 2023 and 2009 gaps were false alarms (data verified present in full audit). Oct 2020 recovered from Census (Jason Jindrich, 2026-03-23).
 
 ---
 
@@ -82,11 +82,11 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 | Item | Date |
 |---|---|
 | `04_create_db.py` | 2026-03-15 (rewritten 2026-03-22 to read from cleaned CSVs) |
-| `03_normalize.py` | 2026-03-22 — handles modern (2007-2025) + legacy (1993-2006), Oct 2020 derivation, unknown code tracking |
+| `03_normalize.py` | 2026-03-22 (updated 2026-03-23: Oct 2020 now from Census files, derivation logic removed) — handles modern (2007-2025) + legacy (1993-2006), unknown code tracking |
 | 3 cleaned CSVs in `02-Data-Staging/cleaned/` | 2026-03-22 — DOT1: 10.3M rows (906 MB), DOT2: 25.4M rows (4.4 GB), DOT3: 3.9M rows (656 MB) |
 | `transborder.db` (full 1993-2025) | 2026-03-22 — 39.6M rows across 3 tables, 10.1 GB |
 | Legacy data (1993-2006) loaded | 2026-03-22 — via `03_normalize.py` legacy DBF/CSV parsing |
-| Oct 2020 derived (all 3 tables) | 2026-03-22 — subtraction method, zero negative values verified (DOT1: 26,790, DOT2: 74,243, DOT3: 17,259 rows) |
+| Oct 2020 loaded (all 3 tables) | 2026-03-23 — actual Census files from Jason Jindrich (DOT1: 26,790, DOT2: 74,243, DOT3: 17,259 rows). Replaced subtraction-based derivation. |
 | `unknown_codes_report.txt` | 2026-03-22 — 73 unknown port codes, DU state, XX MexState, nan trade type documented. Re-run after config update: only `nan` (NULL values) remain. |
 | Data caveats documented | 2026-03-22 — weight/freight availability, Ysleta/El Paso split, port terminology in Phase 2 and Phase 3 plans |
 | `05_build_outputs.py` | 2026-03-22 (rewritten 2026-03-23: chart-driven redesign, 8→7 datasets, eliminated `us_mexico_commodities`, slimmed `us_transborder`) |
@@ -146,21 +146,42 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 ## Phase 3: WebApp & Pages
 
-### Missing Deliverables
+### Completed Deliverables
 
-| Item | Priority | Blocked By |
-|---|---|---|
-| WebApp directory (fork from Airport Dashboard) | High | Phase 2 processed JSONs |
-| `transborderStore.js` (Zustand data store) | High | WebApp fork |
-| 7 page components | High | Data store |
-| Navigation and branding updates | Medium | WebApp fork |
-| CSV loading utilities | Medium | WebApp fork |
+| Item | Date |
+|---|---|
+| WebApp directory (forked from Task 6 Airport Dashboard) | 2026-03-23 |
+| `transborderStore.js` — Zustand store with lazy-loading for 7 datasets | 2026-03-23 |
+| `portUtils.js` — El Paso/Ysleta split handling, Mexican crossings, port-region map | 2026-03-23 |
+| `transborderHelpers.js` — Filter utilities, formatters, data helpers | 2026-03-23 |
+| `insightEngine.js` — Data-driven insight generator (6 scopes) | 2026-03-23 |
+| `downloadColumns.js` — Chart-level column maps for CSV export | 2026-03-23 |
+| `TreemapChart.jsx` — D3 treemap with click-to-drill-down support | 2026-03-23 |
+| `PortMap.jsx` — Leaflet map with CircleMarkers + trade flow arcs | 2026-03-23 |
+| `EmbedModal.jsx` — iframe/SVG embed snippet generator | 2026-03-23 |
+| Overview page — Hero + stats + trade trends (1993–2025) + mode donut + stacked bar + nav cards | 2026-03-23 |
+| US-Mexico page — DashboardLayout + filters + stats + port/commodity charts | 2026-03-23 |
+| US-Mexico Ports page — Port analysis with map, bar chart, line chart, data table | 2026-03-23 |
+| Texas-Mexico page — 5-tab dashboard (Overview, Ports, Commodities, Modes, Monthly) with lazy-loading | 2026-03-23 |
+| Trade by Mode page — DonutChart, BarChart, LineChart, StackedBar, DivergingBar, DataTable | 2026-03-23 |
+| Trade by Commodity page — Treemap drilldown + bar + line + data table | 2026-03-23 |
+| Trade by State page — State rankings, trends, data table | 2026-03-23 |
+| About page — Data source, coverage, terminology, limitations, port history | 2026-03-23 |
+| EmbedPage — Chrome-free chart renderer for iframe embeds | 2026-03-23 |
+| Navigation updated — 7 nav items (Overview, US-Mexico, Texas-Mexico, By Mode, Commodities, By State, About) | 2026-03-23 |
+| Branding updated — SiteHeader, Footer, index.html (title, meta, no GA4) | 2026-03-23 |
+| 7 JSON datasets + port_coordinates + districts GeoJSON copied to `WebApp/public/data/` | 2026-03-23 |
+| Build verified — `vite build` succeeds (492 KB JS, 48 KB CSS), dev server responds HTTP 200 | 2026-03-23 |
 
-### Open Questions
+### Phase 3 — Complete
+
+All Phase 3 deliverables implemented. WebApp forked from Airport Dashboard (Task 6), all aviation-specific code replaced with TransBorder freight visualizations. 8 page components + 5 TexasMexico tabs + embed system built. Treemap drilldown, lazy-loading data store, port map with trade flow arcs, and data-driven insight engine all functional. Build succeeds cleanly.
+
+### Open Questions (all resolved)
 
 - [x] ~~Airport Dashboard source~~ — Confirmed at `D:/UNT/UNT System/TxDOT IAC 2025-26 - General/Task 6 - Airport Connectivity/07_WebApp/` (updated 2026-03-23).
 - [x] ~~Deployment target~~ — GitHub Pages (static-only). Confirmed in Phase 2 plan.
-- [x] ~~Map visualizations: Phase 3 mentions geographic/port maps — are GeoJSON boundaries available for Texas border ports?~~ Resolved: lat/lon coordinates for all 28 US-Mexico border POEs obtained from BTS Border Crossing Entry Data (Socrata `keg4-3bc2`). Saved to `02-Data-Staging/config/port_coordinates.json`. GeoJSON boundaries not needed — point markers sized by trade value are sufficient.
+- [x] ~~Map visualizations~~ — Resolved: lat/lon coordinates for all 28 US-Mexico border POEs from BTS Border Crossing Entry Data (Socrata `keg4-3bc2`). Point markers sized by trade value.
 
 ---
 
@@ -185,7 +206,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 | Issue | Impact | Status |
 |---|---|---|
-| Oct 2020 raw file missing (all 3 tables) | Low | No analytical gap — October derived via subtraction during Phase 2 normalization. Only the raw source file is absent. |
+| ~~Oct 2020 raw file missing~~ | Resolved | Oct 2020 raw data recovered from Census Bureau (Jason Jindrich, 2026-03-23). Pipeline updated to use actual files instead of subtraction-based derivation. |
 
 ---
 
@@ -227,6 +248,8 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 | Date | Update |
 |---|---|
+| 2026-03-23 | **Phase 3 complete.** WebApp built: 8 pages + 5 TexasMexico tabs + embed system. Forked from Airport Dashboard, all aviation code replaced. Treemap drilldown, lazy-loading store, port map, insight engine. Build: 492 KB JS, 48 KB CSS. |
+| 2026-03-23 | **BTS confirmation from Sean Jahanmir on legacy file semantics.** (1) A/B suffix = alternative geographic pivots from same raw ledger, not additive — validates D5B/D6B exclusion. (2) R-files = full replacements, X-files = supplemental deltas — validates R-file preference logic. (3) NAFTA-era carry-over context documented. Updated `legacy-to-modern-mapping.md` with authoritative quotes. |
 | 2026-03-23 | **Code review fixes (D5B/D6B, schema_mappings, doc drift).** D5B/D6B excluded from normalization (NTAR regions incompatible with DOT1 state×port). schema_mappings.json reclassified as reference doc (was loaded but unused). Phase 2 plan section 2.1 rewritten to match actual code behavior. S-suffix doc corrected in legacy-to-modern-mapping.md. |
 | 2026-03-23 | **Output datasets redesigned (chart-driven).** Eliminated `us_mexico_commodities` (108 MB, 423K rows) — no chart needs state×commodity. `commodity_detail` serves US-Mexico commodity charts filtered in browser. Slimmed `us_transborder` by dropping CommodityGroup (15K→954 rows). 8→7 datasets, 167.5→57.6 MB JSON (65% reduction). ~10 MB gzipped over the wire via GitHub Pages. Phase 2 & 3 plans updated. |
 | 2026-03-23 | **Legacy data year-range strategy decided.** Overview page shows all years (1993–2025) at aggregate level; all detail pages (ports, commodities, states, monthly) show 2007+ only. `05_build_outputs.py` updated with `MODERN_START_YEAR = 2007`. `data_caveats.md` created consolidating all limitations. Phase 3 plan updated with per-page year ranges. |

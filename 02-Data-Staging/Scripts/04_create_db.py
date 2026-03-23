@@ -91,12 +91,21 @@ def load_table(conn, table_name, table_def):
     """Load a cleaned CSV into a SQLite table."""
     csv_path = CLEANED_DIR / table_def["csv"]
     if not csv_path.exists():
-        print(f"  WARNING: {csv_path} not found, skipping {table_name}")
-        return 0
+        print(f"  ERROR: {csv_path} not found")
+        sys.exit(1)
 
     columns = table_def["columns"]
     col_names = [c[0] for c in columns]
     col_types = {c[0]: c[1] for c in columns}
+
+    # Validate CSV headers before loading
+    with open(csv_path, "r", encoding="utf-8") as f:
+        reader = csv.reader(f)
+        headers = [h.strip() for h in next(reader)]
+    missing = set(col_names) - set(headers)
+    if missing:
+        print(f"  ERROR: {csv_path.name} is missing required columns: {sorted(missing)}")
+        sys.exit(1)
 
     # Create table
     cur = conn.cursor()

@@ -39,6 +39,7 @@ Living document tracking known issues, missing pieces, and open questions across
 | Config JSON validation against BTS PDF | 2026-03-22 (all config files verified/corrected against official codes PDF) |
 | Legacy-to-modern mapping documentation | 2026-03-22 (in `01-Raw-Data/data_dictionary/legacy-to-modern-mapping.md`) |
 | Data dictionary provenance documentation | 2026-03-22 (in `01-Raw-Data/data_dictionary/README.md`) |
+| `02-Data-Staging/config/port_coordinates.json` | 2026-03-22 (28 US-Mexico border POEs with lat/lon, from BTS Border Crossing Entry Data, Socrata dataset `keg4-3bc2`) |
 
 ### Phase 1 — Complete
 
@@ -113,7 +114,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 
 - [ ] Airport Dashboard source: Is `c:/Users/UNT/UNT System/TxDOT IAC 2025-26 - General/Task 6 - Airport Connectivity/07_WebApp/` still the correct path for the fork source?
 - [x] ~~Deployment target~~ — GitHub Pages (static-only). Confirmed in Phase 2 plan.
-- [ ] Map visualizations: Phase 3 mentions geographic/port maps — are GeoJSON boundaries available for Texas border ports?
+- [x] ~~Map visualizations: Phase 3 mentions geographic/port maps — are GeoJSON boundaries available for Texas border ports?~~ Resolved: lat/lon coordinates for all 28 US-Mexico border POEs obtained from BTS Border Crossing Entry Data (Socrata `keg4-3bc2`). Saved to `02-Data-Staging/config/port_coordinates.json`. GeoJSON boundaries not needed — point markers sized by trade value are sufficient.
 
 ---
 
@@ -156,6 +157,7 @@ All Phase 1 deliverables are done. Download scripts were not needed (data downlo
 | 2026-03-22 | Config JSONs validated and corrected against official BTS codes PDF. Fixed: canadian_province_codes (completely wrong), mexican_state_codes (missing OT, wrong MX label), mode_codes (label corrections). |
 | 2026-03-22 | Legacy-to-modern mapping documented in `01-Raw-Data/data_dictionary/legacy-to-modern-mapping.md`. |
 | 2026-03-22 | Data dictionary organized in `01-Raw-Data/data_dictionary/` with provenance README. |
+| 2026-03-22 | Port coordinates obtained: `port_coordinates.json` created with lat/lon for all 28 US-Mexico border POEs from BTS Border Crossing Entry Data (Socrata `keg4-3bc2`). Phase 3 map question resolved. |
 | 2026-03-22 | Phase 2 plan updated with unknown code validation step (step 13). |
 | 2026-03-15 | BTS raw data page reconnaissance completed. |
 | 2026-03-15 | Historical format comparison Excel (now in `01-Raw-Data/data_dictionary/`). |

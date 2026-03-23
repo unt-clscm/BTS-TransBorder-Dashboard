@@ -125,7 +125,7 @@ export default function USMexico() {
 - Remove `chatStore.js` and AI chat components (unless desired)
 
 **Create new utilities:**
-- `src/lib/portUtils.js` -- Port data helpers (aggregate by port, region grouping, coordinate lookup)
+- `src/lib/portUtils.js` -- Port data helpers (aggregate by port, region grouping, coordinate lookup from `port_coordinates.json`, Mexican crossing lookup)
 - `src/lib/transborderHelpers.js` -- Domain predicates (`isTexasMexico(d)`, `isUSMexico(d)`), formatters (`formatCurrency`, `formatWeight`)
 - `src/lib/insightEngine.js` -- Data-driven insight generator (see section 3.8)
 
@@ -164,7 +164,7 @@ filters: {
 
 The Airport Dashboard renders curved SVG arcs between origin/destination airports. Repurpose this rendering code for trade flow visualization:
 
-- **Data**: Each port has a U.S.-side coordinate (from `schedule_d_port_codes.json` with lat/lon) and a corresponding Mexican-side crossing point. For ports where the Mexican counterpart is known (e.g., Laredo <-> Nuevo Laredo, El Paso <-> Ciudad Juarez), draw arcs between the pair.
+- **Data**: Each port has a U.S.-side coordinate (from `02-Data-Staging/config/port_coordinates.json` — sourced from BTS Border Crossing Entry Data, Socrata dataset `keg4-3bc2`) and a corresponding Mexican-side crossing point. For ports where the Mexican counterpart is known (e.g., Laredo <-> Nuevo Laredo, El Paso <-> Ciudad Juarez), draw arcs between the pair.
 - **Arc width**: Proportional to trade value at that port (min 1.5px, max 6px, scaled linearly within the visible ports)
 - **Arc color**: Export arcs `#0056a9` (blue, flowing south), Import arcs `#df5c16` (orange, flowing north). When showing both, use export color with 70% opacity.
 - **Arc style**: Quadratic Bezier curve (same as airport arcs) with curvature offset proportional to distance, so short-distance pairs don't overlap markers

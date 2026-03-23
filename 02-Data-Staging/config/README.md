@@ -41,6 +41,13 @@ These decode the numeric/alpha codes in the raw BTS data into human-readable val
 | `canadian_province_codes.json` | `CANPROV` | 15 | `{"code": "name"}` | X-prefix codes (XA=Alberta, XC=British Columbia, etc.) + OT=Unknown. |
 | `mexican_state_codes.json` | `MEXSTATE` | 32 | `{"code": "name"}` | 2-letter codes for 31 states + OT=Unknown. Note: raw data from Apr 1994–May 1998 uses erroneous code `BN` for Baja California — `03_normalize.py` must remap BN→BC. |
 | `schedule_d_port_codes.json` | `DEPE` | ~300 | `{"code": {"port", "district", "state"}}` | 4-digit Census Schedule D port codes. Each entry includes port name, customs district, and state. |
+| `port_coordinates.json` | `DEPE` | 28 | `{"code": {"port", "state", "lat", "lon"}}` | Lat/lon coordinates for all 28 US-Mexico land border ports of entry. See below for source details. |
+
+### Geographic Data
+
+| File | Purpose | Source | Notes |
+|---|---|---|---|
+| `port_coordinates.json` | Provides lat/lon coordinates for US-Mexico border ports of entry, used by the dashboard map (Phase 3 `PortMap.jsx`) | **BTS Border Crossing Entry Data** — Socrata dataset `keg4-3bc2`, queried via `https://data.bts.gov/resource/keg4-3bc2.json` | Retrieved 2026-03-22. Contains all 28 US-Mexico land border POEs. Port names may differ slightly from `schedule_d_port_codes.json` (e.g., `Tornillo` vs `Fabens` for code 2404, `Hidalgo` vs `Hidalgo/Pharr` for code 2305). Join on `port_code`, not port name. Does NOT cover interior/air ports (e.g., 2407 Albuquerque, 2605 Phoenix) — those have no border crossing coordinates. |
 
 ### Schema & Mapping Files
 

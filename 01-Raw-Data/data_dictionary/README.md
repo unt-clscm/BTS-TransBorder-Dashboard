@@ -31,3 +31,26 @@ The JSON lookup files in `02-Data-Staging/config/` are machine-readable versions
 | `canadian_province_codes.json` | CANPROV codes from the PDF |
 | `mexican_state_codes.json` | MEXSTATE codes from the PDF |
 | `schedule_d_port_codes.json` | DEPE codes from the PDF + Census Schedule D |
+| `port_coordinates.json` | BTS Border Crossing Entry Data (see below) |
+
+## Port Coordinate Data
+
+`02-Data-Staging/config/port_coordinates.json` provides geographic coordinates (latitude/longitude) for all 28 US-Mexico land border ports of entry. These coordinates are **not** part of the TransBorder freight data itself — they come from a separate BTS dataset.
+
+**Source:** BTS Border Crossing Entry Data
+- **Socrata dataset ID:** `keg4-3bc2`
+- **API endpoint:** `https://data.bts.gov/resource/keg4-3bc2.json`
+- **Query used:** `$select=port_name,port_code,state,latitude,longitude&$where=border='US-Mexico Border'&$group=port_name,port_code,state,latitude,longitude&$order=port_name`
+- **Retrieved:** 2026-03-22
+- **Coverage:** All 28 US-Mexico land border POEs (13 Texas, 3 New Mexico, 5 California, 6 Arizona, 1 Cross Border Xpress)
+- **Not covered:** Interior ports used for air/vessel freight (e.g., 2407 Albuquerque, 2605 Phoenix, 2501 San Diego) — these are not border crossings and have no crossing coordinates
+
+**Known naming discrepancies** between `port_coordinates.json` (BTS Border Crossing data) and `schedule_d_port_codes.json` (Census Schedule D):
+
+| Port Code | Schedule D Name | BTS Border Crossing Name |
+|-----------|----------------|--------------------------|
+| 2305 | Hidalgo/Pharr | Hidalgo |
+| 2404 | Fabens | Tornillo |
+| 2507 | Calexico-East | Calexico East |
+
+The normalization pipeline uses `schedule_d_port_codes.json` for canonical port names and `port_coordinates.json` only for lat/lon, joining on `port_code` to avoid these naming conflicts.

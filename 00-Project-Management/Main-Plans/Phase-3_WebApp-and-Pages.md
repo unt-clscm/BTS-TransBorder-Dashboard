@@ -53,32 +53,63 @@ Before starting dashboard development, clean up the large staging artifacts from
 
 **Rename store**: `src/stores/aviationStore.js` -> `src/stores/transborderStore.js`
 
-**Data source**: The WebApp reads processed CSVs from `03-Processed-Data/` (or a copy deployed to `WebApp/public/data/`).
+**Data source**: The WebApp reads pre-aggregated JSON files from `03-Processed-Data/json/` (copied to `WebApp/public/data/` for deployment). JSON is used instead of CSV for faster browser parsing and smaller payload (no repeated header names per row).
 
-**Replace data loading:**
+**Lazy-loading strategy**: Instead of fetching all 6 datasets upfront (which could be 50-80 MB total), datasets are loaded on-demand when the user first navigates to a page that needs them. Once loaded, they stay in memory — no re-fetching.
+
+| Dataset | Est. Size | Loaded When | Used By |
+|---|---|---|---|
+| `usTransborder` | ~0.8 MB | **App startup** (landing page data) | Overview, US-Mexico (filtered), Trade by Mode |
+| `usMexico` | ~30-54 MB | First visit to US-Mexico or US-Mexico Ports | US-Mexico, US-Mexico Ports |
+| `texasMexico` | ~5-18 MB | First visit to Texas-Mexico | Texas-Mexico (all tabs except Monthly) |
+| `usStateTrade` | ~2.8 MB | First visit to Trade by State | Trade by State |
+| `commodityDetail` | ~5.6 MB | First visit to Commodities | Commodity Analysis |
+| `monthlyTrends` | ~0.6 MB | First visit to Texas-Mexico Monthly tab | Texas-Mexico Monthly tab |
+
+**Store implementation:**
+
+Each dataset has three states: `null` (not yet requested), loading (promise in flight), or loaded (array in memory). The store exposes a `loadDataset(name)` action that pages call on mount.
+
 ```js
-const [usTransborder, usMexico, texasMexico, usStateTrade, commodityDetail, monthlyTrends] =
-  await Promise.all([
-    d3.csv(`${base}data/us_transborder.csv`, d3.autoType),
-    d3.csv(`${base}data/us_mexico.csv`, d3.autoType),
-    d3.csv(`${base}data/texas_mexico.csv`, d3.autoType),
-    d3.csv(`${base}data/us_state_trade.csv`, d3.autoType),
-    d3.csv(`${base}data/commodity_detail.csv`, d3.autoType),
-    d3.csv(`${base}data/monthly_trends.csv`, d3.autoType),
-  ])
+// Store state — datasets start as null (not loaded)
+usTransborder: [],       // loaded at app init (small, needed for landing page)
+usMexico: null,          // lazy
+texasMexico: null,       // lazy
+usStateTrade: null,      // lazy
+commodityDetail: null,   // lazy
+monthlyTrends: null,     // lazy
+datasetLoading: {},      // { usMexico: true, ... } tracks in-flight requests
+
+// Generic lazy-loader (called by pages on mount)
+loadDataset: async (name) => {
+  const state = get()
+  if (state[name] !== null || state.datasetLoading[name]) return  // already loaded or in-flight
+  set({ datasetLoading: { ...state.datasetLoading, [name]: true } })
+  const raw = await fetch(`${base}data/${toFilename(name)}.json`).then(r => r.json())
+  set({
+    [name]: raw.map(normalize),
+    datasetLoading: { ...get().datasetLoading, [name]: false },
+  })
+}
 ```
 
-**Update state properties:**
+**App init** loads only `usTransborder` (~0.8 MB) so the Overview page renders immediately:
 ```js
-set({
-  usTransborder: usTransborder.map(normalize),
-  usMexico: usMexico.map(normalize),
-  texasMexico: texasMexico.map(normalize),
-  usStateTrade: usStateTrade.map(normalize),
-  commodityDetail: commodityDetail.map(normalize),
-  monthlyTrends: monthlyTrends.map(normalize),
-  loading: false,
-})
+init: async () => {
+  const raw = await fetch(`${base}data/us_transborder.json`).then(r => r.json())
+  set({ usTransborder: raw.map(normalize), loading: false })
+}
+```
+
+**Page usage pattern:**
+```jsx
+export default function USMexico() {
+  const { usMexico, loadDataset } = useTransborderStore()
+  useEffect(() => { loadDataset('usMexico') }, [])
+
+  if (!usMexico) return <LoadingSpinner />
+  // ... render page with usMexico data
+}
 ```
 
 **Update normalize function** for TransBorder columns:
@@ -210,11 +241,16 @@ const navItems = [
 
 ### Page Template Pattern (from Airport Dashboard)
 
-Every page follows this structure:
+Every page follows this structure. Pages that use lazy-loaded datasets call `loadDataset()` on mount and show a spinner until the data arrives. Pages using `usTransborder` (loaded at app init) skip this step.
+
 ```jsx
 export default function SomePage() {
-  const { datasetName, filters } = useTransborderStore()
+  const { datasetName, loadDataset, filters } = useTransborderStore()
   const [localFilters, setLocalFilters] = useState({})
+
+  // 0. Lazy-load dataset on mount (skip for pages using usTransborder)
+  useEffect(() => { loadDataset('datasetName') }, [])
+  if (!datasetName) return <LoadingSpinner />
 
   // 1. Compute filter options
   const years = useMemo(() => [...new Set(data.map(d => d.Year))].sort(), [data])

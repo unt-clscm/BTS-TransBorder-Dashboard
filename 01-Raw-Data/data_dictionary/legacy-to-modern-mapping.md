@@ -24,9 +24,11 @@ Each table contains **all countries** (Canada + Mexico), **all trade directions*
 
 Before January 2007, the data was split into many separate tables. Instead of using columns to distinguish country, trade direction, and transport mode, these were encoded into **separate files**.
 
+**⚠️ IMPORTANT: All D-prefix tables (D03–D12) are SURFACE-ONLY.** They contain DISAGMOT values 4 (mail), 5 (truck), 6 (rail), 7 (pipeline), 8 (other/unknown), 9 (FTZ). Air (1) and vessel (3) modes **never** appear in D-tables. This was verified against actual DBF files across all years 1993–2006. Air/vessel data was added to TransBorder starting November 2003 via a separate AV (air/vessel) table series — see section 1.1 below.
+
 The legacy table numbering system uses **D-prefix numbers** that correspond to specific cross-tabulations. The table numbers represent the following concepts:
 
-**Export tables (D03–D06):**
+**Export tables (D03–D06) — surface only:**
 
 | Table | Description | Dimensions | Modern Equivalent |
 |-------|-------------|------------|-------------------|
@@ -37,7 +39,7 @@ The legacy table numbering system uses **D-prefix numbers** that correspond to s
 
 Export tables use `ORSTATE`/`EXSTATE` (origin/exporter state) and `SCH_B` (Schedule B export commodity classification). They do NOT have `CONTCODE`, `SHIPWT`, or `CHARGES`.
 
-**Import tables (D09–D12):**
+**Import tables (D09–D12) — surface only:**
 
 | Table | Description | Dimensions | Modern Equivalent |
 |-------|-------------|------------|-------------------|
@@ -46,7 +48,7 @@ Export tables use `ORSTATE`/`EXSTATE` (origin/exporter state) and `SCH_B` (Sched
 | **D11** | Imports from Mexico — State × Port (no province) | Mode, State, Port, ContCode | DOT1 (Mexico imports) |
 | **D12** | Imports from Canada — State × Port × Province | Mode, State, Port, Province, ContCode | DOT1 (Canada imports) |
 
-Import tables use `DESTATE` (destination state) and `TSUSA` (Tariff Schedule USA import commodity classification). They carry additional fields: `CONTCODE` (containerization), `SHIPWT` (weight), and `CHARGES` (freight charges). **Despite historical mislabeling as "air/vessel tables," D09–D12 contain ALL transport modes (surface, air, vessel, pipeline).**
+Import tables use `DESTATE` (destination state) and `TSUSA` (Tariff Schedule USA import commodity classification). They carry additional fields: `CONTCODE` (containerization), `SHIPWT` (weight), and `CHARGES` (freight charges). D09–D12 contain surface modes only (DISAGMOT 4–9), not air or vessel.
 
 **Why the export/import field differences?** Export tables (D03–D06) lack `CONTCODE`, `SHIPWT`, and `FREIGHT_CHARGES` (except Canada export tables D04/D06 which have `FREIGHT`). Import tables (D09–D12) have all of these. The 2007 consolidation unified both into single tables that include all fields (with blanks where not applicable).
 
@@ -76,15 +78,48 @@ From April 1994, export tables were split into A/B variants. **Both A and B are 
 
 BTS explanation: *"Neither measure provides a true representation of the production origin of exports, because the state of origin may be the state that contains a consolidation point."* B-variants were dropped in 2003.
 
-**⚠️ Suffixes D, J, M, N, O, S do NOT exist** in actual BTS legacy filenames. Previous documentation erroneously listed these. Import tables (D09–D12) have no letter suffix — the table number itself encodes trade direction and country.
+**S suffix** (1993–early 1994 only): The trailing `S` denotes "State of Origin" — the predecessor to the `A` suffix. Files like `D5AUG93S.DBF` exist in 1993 and map to the `A` variant (State of Origin). `03_normalize.py` handles this automatically.
 
-### DOT3 Has No Legacy Equivalent
+**⚠️ Suffixes D, J, M, N, O do NOT exist** in actual BTS legacy filenames. Previous documentation erroneously listed these. Import tables (D09–D12) have no letter suffix — the table number itself encodes trade direction and country.
 
-**DOT3 (Port × Commodity) did not exist before January 2007.** Legacy data never cross-tabulated port and commodity in a single table. This means:
+**D5B/D6B exclusion**: These B-variant tables (1994–2002) use `NTAR` (89 multicounty regions) instead of state codes, making them incompatible with the DOT1 state×port structure. They are excluded from normalization. D5A/D6A already cover the same export flows with proper state geography.
 
-- Port × Commodity analysis can only go back to 2007
-- For 1993–2006, you can get port-level data (from D05/D06/D11/D12) OR commodity-level data (from D03/D04/D09/D10), but **never both dimensions together at the record level**
-- If DOT3-equivalent analysis is needed for pre-2007 years, it would require combining port and commodity tables and aggregating, which would lose granularity
+### 1.1 AV (Air/Vessel) Tables — Nov 2003–Dec 2006
+
+Starting November 2003, BTS added air and vessel freight data to the TransBorder dataset via a new **AV (air/vessel) table series**. These 12 tables mirror the D-table structure but contain only DISAGMOT values 1 (air) and 3 (vessel). AV files do not have a `STATMOYR` column — month and year are encoded in the filename.
+
+**AV file naming conventions:**
+- **2003 (Nov–Dec only):** `av{table}.dbf` (November), `av{table}12.dbf` (December)
+- **2004–2006 (all 12 months):** `av{table}{MM}{YY}.dbf` (e.g., `av10104.dbf` = table 1, Jan 2004)
+
+| AV Table | Description | Direction | Country | Modern Equiv |
+|----------|-------------|-----------|---------|--------------|
+| **AV1** | Commodity × US State | Export | Mexico | DOT2 |
+| **AV2** | Commodity × US State | Export | Canada | DOT2 |
+| **AV3** | US State × Port | Export | Mexico | DOT1 |
+| **AV4** | Commodity × Port | Export | Mexico | **DOT3** |
+| **AV5** | US State × Port | Export | Canada | DOT1 |
+| **AV6** | Commodity × Port | Export | Canada | **DOT3** |
+| **AV7** | Commodity × US State | Import | Mexico | DOT2 |
+| **AV8** | Commodity × US State | Import | Canada | DOT2 |
+| **AV9** | US State × Port | Import | Mexico | DOT1 |
+| **AV10** | Commodity × Port | Import | Mexico | **DOT3** |
+| **AV11** | US State × Port | Import | Canada | DOT1 |
+| **AV12** | Commodity × Port | Import | Canada | **DOT3** |
+
+**Key observations:**
+- AV tables use the same column name conventions as D-tables: `ORSTATE`/`SCH_B` for exports, `DESTATE`/`TSUSA`/`HTS` for imports
+- AV export tables include `SHIPWT` (unlike D-table exports which lack it)
+- AV4/6/10/12 provide **Port × Commodity** (DOT3-equivalent) — this cross-tabulation did not exist in D-tables
+- Before November 2003, air and vessel freight data was not part of the TransBorder dataset at all
+
+### DOT3 Surface Has No Legacy Equivalent
+
+**Surface DOT3 (Port × Commodity) did not exist before January 2007.** D-tables never cross-tabulated port and commodity in a single table. However, **air/vessel Port × Commodity** data is available from AV tables (AV4/6/10/12) for November 2003–December 2006. This means:
+
+- Surface Port × Commodity analysis can only go back to 2007
+- Air/vessel Port × Commodity goes back to November 2003 (via AV tables)
+- For 1993–Oct 2003, you can get port-level data (from D05/D06/D11/D12) OR commodity-level data (from D03/D04/D09/D10), but **never both dimensions together at the record level**
 
 ## 2. Column-by-Column Mapping
 
@@ -161,10 +196,19 @@ The number of table types changed over the years:
 | 1993 (Apr–Dec) | D03, D04, D05, D06 | D09, D10, D11, D12 | Original format |
 | 1994 (transition) | Jan–Mar: D03-D06; Apr–Dec: D3A/B, D4A/B, D5A/B, D6A/B | D09, D10, D11, D12 | A/B split: State of Origin vs State of Exporter |
 | 1995–2002 | D3A/B, D4A/B, D5A/B, D6A/B | D09, D10, D11, D12 | Stable era |
-| 2003–2006 | D3A, D4A, D5A, D6A | D09, D10, D11, D12 | B-variants (State of Exporter) dropped |
-| 2007+ | DOT1, DOT2, DOT3 (unified) | DOT1, DOT2, DOT3 (unified) | Major consolidation |
+| 2003 (Nov–Dec) | D3A, D4A, D5A, D6A + **AV1-AV6** | D09, D10, D11, D12 + **AV7-AV12** | B-variants dropped; air/vessel tables added |
+| 2004–2006 | D3A, D4A, D5A, D6A + AV1-AV6 | D09, D10, D11, D12 + AV7-AV12 | Surface (D-tables) + air/vessel (AV-tables) |
+| 2007+ | DOT1, DOT2, DOT3 (unified) | DOT1, DOT2, DOT3 (unified) | Major consolidation — all modes in single tables |
 
 When B-variants were dropped in 2003, the A-variant tables continued as **export-only** (confirmed by `ORSTATE` and `SCH_B` columns). Imports remained in D09–D12. The A-tables did NOT begin containing imports.
+
+### Mode coverage timeline
+
+| Period | Surface (truck, rail, pipeline, mail, other, FTZ) | Air & Vessel |
+|--------|---------------------------------------------------|--------------|
+| 1993–Oct 2003 | D-tables (D03–D12) | **Not in TransBorder** |
+| Nov 2003–Dec 2006 | D-tables (D3A–D6A, D09–D12) | AV tables (AV1–AV12) |
+| Jan 2007+ | DOT1/DOT2/DOT3 (all modes in single files) | DOT1/DOT2/DOT3 |
 
 ## 5. Additional Caveats
 
@@ -193,16 +237,18 @@ When B-variants were dropped in 2003, the A-variant tables continued as **export
 
 | Lost Data | Severity | Workaround |
 |-----------|----------|------------|
-| **DOT3 (Port × Commodity) for 1993–2006** | **High** | Cannot reconstruct. Port and commodity were never in the same table pre-2007. |
+| **Air/vessel data for 1993–Oct 2003** | **High** | Not available in TransBorder. The dataset was surface-only before Nov 2003. Air/vessel trade for this period requires a different Census source. |
+| **Surface DOT3 (Port × Commodity) for 1993–2006** | **Medium** | Surface D-tables never cross-tabulated port and commodity. Air/vessel DOT3 data available from AV tables (Nov 2003–Dec 2006). |
 | `COUNT` field (1993–1996) | Low | Dropped by BTS in 1997. Transaction count not needed for value/weight analysis. |
 | `NTAR` exporter region (1994–2002 exports) | Low | Only in B-variant (State of Exporter) export tables. Not used in standard analysis. |
-| `CONTCODE` for exports (1993–2006) | Medium | Containerization data for export tables only available from 2007+. Import tables (D09-D12) have it. |
-| `SHIPWT` for exports (1993–2006) | Medium | Weight data for export tables only available from 2007+. Import tables (D09-D12) have it. |
+| `CONTCODE` for surface exports (1993–2006) | Medium | Containerization data for D-table exports only available from 2007+. D-table imports (D09-D12) have it. |
+| `SHIPWT` for surface exports (1993–2006) | Medium | Weight data for D-table exports only available from 2007+. D-table imports (D09-D12) have it. AV export tables (Nov 2003+) do include `SHIPWT`. |
 | `FREIGHT_CHARGES` for Mexico exports (1993–2006) | Medium | Freight costs for Mexico exports only from 2007+. Canada exports (D04/D06) have `FREIGHT`. All imports (D09-D12) have `CHARGES`. |
 
 ### What We Gain
 | Gained Data | Notes |
 |-------------|-------|
 | `TRDTYPE` as explicit column | Derived from table number — no information created, just restructured |
-| `MONTH` / `YEAR` as separate columns | Parsed from `STATMOYR` — no information created, just restructured |
+| `MONTH` / `YEAR` as separate columns | Parsed from `STATMOYR` (D-tables) or filename (AV tables) |
 | Unified file structure | All countries/directions/modes in one file instead of 8+ separate files |
+| Air/vessel data (Nov 2003–Dec 2006) | AV tables incorporated into DOT1/DOT2/DOT3, extending mode coverage before 2007 |

@@ -42,7 +42,9 @@ Previously suspected gaps in 2009 DOT2 and 2023 Sep–Dec were **false alarms** 
 
 ### Legacy Era (1993–2006): Monthly DBF/CSV Files
 
-Legacy data uses a different table numbering scheme (d03–d12) with up to 24 tables per month. These are nested ZIPs (year → month → data files). Pre-2007 files use DBF format (early years) transitioning to CSV. Schema mappings in `schema_mappings.json` handle the column name differences.
+Legacy data uses a different table numbering scheme (d03–d12) with up to 24 tables per month. These are nested ZIPs (year → month → data files). Pre-2007 files use DBF format (early years) transitioning to CSV. Column name mappings are hardcoded in `03_normalize.py` (documented in `schema_mappings.json` for reference). D5B/D6B tables (1994–2002) are excluded — they use NTAR regions instead of state codes, incompatible with DOT1.
+
+**Important:** All D-prefix tables (D03–D12) are **surface-only** (DISAGMOT 4–9: mail, truck, rail, pipeline, other, FTZ). Air (1) and vessel (3) modes are provided by **AV tables (AV1–AV12)**, which exist only from November 2003 to December 2006. Before Nov 2003, TransBorder did not include air/vessel freight data. From Jan 2007, all modes merged into DOT1/DOT2/DOT3.
 
 ### BTS Raw Dataset Types (DOT1/DOT2/DOT3)
 
@@ -118,40 +120,51 @@ The annual summary files (`dot{1,2,3}_YYYY.csv`) have the same columns but drop 
 **Output**: `02-Data-Staging/cleaned/` -- one normalized CSV per dataset type
 
 **Normalization Steps:**
-1. **Apply schema mappings** from `02-Data-Staging/config/schema_mappings.json` to unify pre/post-consolidation column names (e.g., `TSUSA`/`SCH_B` → `COMMODITY`, `DESTATE`/`ORSTATE` → `USASTATE`, `STATMOYR` → `STATMO`+`STATYR`)
-2. **Standardize dates**: Parse `STATMO`/`STATYR` (or `STATMOYR` for pre-2007) into consistent integer Year and Month
-3. **Decode mode codes**: Map `DISAGMOT` codes to names using `mode_codes.json`: 1=Vessel, 3=Air, 4=Mail, 5=Truck, 6=Rail, 7=Pipeline, 8=Other/Unknown, 9=FTZ
-4. **Decode commodity codes**: Map HS 2-digit `COMMODITY` codes to descriptions using `commodity_codes.json` (e.g., "27" → "Mineral fuels, oils, waxes"). Derive high-level `CommodityGroup` from HS chapter groupings
-5. **Decode port codes**: Map 4-digit `DEPE` Schedule D codes to port names, districts, and states using `schedule_d_port_codes.json`. Apply `port_aliases.json` to reconcile spelling variations
-6. **Decode state codes**: Map `USASTATE` USPS codes to full names using `state_codes.json`
-7. **Decode country codes**: Map 4-digit `COUNTRY` codes to names using `country_codes.json` (1220=Canada, 2010=Mexico)
-8. **Decode trade direction**: Map `TRDTYPE` codes using `trade_type_codes.json` (1=Export, 2=Import). For pre-2007 data where direction was implicit in file structure, infer from file metadata
-9. **Decode Canadian provinces**: Map `CANPROV` X-prefix codes using `canadian_province_codes.json`
-10. **Decode Mexican states**: Map `MEXSTATE` codes using `mexican_state_codes.json`. Fix known errata: code `BN` (Apr 1994 - May 1998) → `BC` (Baja California)
-11. **Parse trade values**: `VALUE` field to numeric (US dollars)
-12. **Parse weight values**: `SHIPWT` in kilograms → convert to short tons (÷ 907.185). **Missing weight policy: store as NULL** (not zero). Weight is unavailable for legacy export tables (D03–D06, which lack `SHIPWT`) and some modern export records. NULLs are preserved through aggregation — sums skip NULLs, and dashboard displays "N/A" where weight is unavailable.
-13. **Unknown code validation**: For every decode step (mode, commodity, port, state, country, trade type, province), log any code value found in the raw data that is not present in the corresponding config JSON. Do not silently drop these records — keep them with the raw code value and log the mismatch to a report file. This catches retired port codes, historical codes not in the current BTS data dictionary, or data entry errors.
-14. **Drop duplicates** and flag data quality issues
-14. **Add computed columns**: `YearMonth` (YYYY-MM format for time series)
+1. **Rename legacy columns** to modern equivalents using hardcoded mappings in the script (e.g., `TSUSA`/`SCH_B` → `COMMODITY2`, `DESTATE`/`ORSTATE`/`EXSTATE` → `USASTATE`). The mapping rules are also documented in `schema_mappings.json` for reference, but the script uses internal dicts (`FIELD_MAPPINGS`, `DROP_FIELDS`, `LEGACY_TABLE_INFO`)
+2. **Classify legacy tables**: Route each legacy file to the correct modern table (DOT1/DOT2/DOT3) based on table number, set trade direction from table number (D03–D06 = Export, D09–D12 = Import), and handle legacy anomalies (S-suffix, DO9 typo, R-file priority, X-file skip, **D5B/D6B exclusion** — these use NTAR regions instead of state codes and are incompatible with DOT1)
+3. **Standardize dates**: Parse `STATMOYR` (pre-2007) into consistent integer `MONTH` and `YEAR`. Handle format change: MMYY (1993–1997) vs YYYYMM (1998–2006)
+4. **Decode mode codes**: Map `DISAGMOT` codes to names using `mode_codes.json`
+5. **Decode commodity codes**: Map HS 2-digit `COMMODITY2` codes to descriptions using `commodity_codes.json`. Derive `CommodityGroup` from HS chapter groupings
+6. **Decode port codes**: Map 4-digit `DEPE` Schedule D codes to port names using `schedule_d_port_codes.json`
+7. **Decode state codes**: Map `USASTATE` USPS codes to full names using `state_codes.json`
+8. **Decode country codes**: Map 4-digit `COUNTRY` codes to names using `country_codes.json`
+9. **Decode trade direction**: Map `TRDTYPE` codes using `trade_type_codes.json`
+10. **Decode Canadian provinces**: Map `CANPROV` codes using `canadian_province_codes.json`
+11. **Decode Mexican states**: Map `MEXSTATE` codes using `mexican_state_codes.json`. Fix known errata: `BN` → `BC` (Baja California)
+12. **Parse trade values**: `VALUE` field to numeric (US dollars)
+13. **Parse weight values**: `SHIPWT` in kilograms → convert to short tons (÷ 907.185). **Missing weight policy: store as NULL** (not zero)
+14. **Unknown code validation**: Log any code not found in config JSONs. Records are kept with raw code values, mismatches written to `unknown_codes_report.txt`
+15. **Drop duplicates** and flag data quality issues
+16. **Derive Oct 2020**: Annual totals − (Sep YTD + Nov + Dec) = October
 
-**Unified Column Schema:**
+**Normalization Output Schema** (per DOT table — not all columns in every table):
 ```
 Year          (int)     -- 1993-2025
 Month         (int)     -- 1-12
-Country       (str)     -- Canada, Mexico
-Port          (str)     -- Standardized port name
-State         (str)     -- U.S. state full name
-StateCode     (str)     -- 2-letter state code
-Mode          (str)     -- Vessel, Air, Mail, Truck, Rail, Pipeline, Other/Unknown, FTZ
-CommodityGroup(str)     -- High-level commodity category (derived from HS chapter groupings)
-Commodity     (str)     -- HS 2-digit commodity description (decoded from commodity_codes.json)
-HSCode        (str)     -- HS 2-digit commodity code (01-99)
 TradeType     (str)     -- Export, Import
+StateCode     (str)     -- 2-letter state code (DOT1, DOT2 only)
+State         (str)     -- U.S. state full name (DOT1, DOT2 only)
+PortCode      (str)     -- 4-digit Schedule D port code (DOT1, DOT3 only)
+Port          (str)     -- Decoded port name (DOT1, DOT3 only)
+HSCode        (str)     -- HS 2-digit commodity code (DOT2, DOT3 only)
+Commodity     (str)     -- HS 2-digit commodity description (DOT2, DOT3 only)
+CommodityGroup(str)     -- High-level commodity category (DOT2, DOT3 only)
+Mode          (str)     -- Vessel, Air, Mail, Truck, Rail, Pipeline, Other/Unknown, FTZ
+MexState      (str)     -- Mexican state code (DOT1, DOT2 only)
+CanProv       (str)     -- Canadian province code (DOT1, DOT2 only)
+Country       (str)     -- Canada, Mexico
 TradeValue    (float)   -- Value in US dollars
-Weight        (float)   -- Weight in short tons; NULL when not reported (legacy export tables D03–D06 lack SHIPWT)
-Lat           (float)   -- Port latitude (where available)
-Lon           (float)   -- Port longitude (where available)
-Region        (str)     -- Texas border region (for TX ports: El Paso, Laredo, Pharr)
+Weight        (float)   -- Weight in short tons; NULL when not reported
+FreightCharges(float)   -- Freight charges in US dollars; NULL when not reported
+DF            (str)     -- Domestic/Foreign indicator
+ContCode      (str)     -- Containerization code
+```
+
+**Enrichment columns added downstream** (by `05_build_outputs.py`, not normalization):
+```
+Lat           (float)   -- Port latitude (from port_coordinates config)
+Lon           (float)   -- Port longitude (from port_coordinates config)
+Region        (str)     -- Texas border region (El Paso, Laredo, Pharr)
 ```
 
 ## 2.2 SQLite Database (Intermediate)
@@ -168,7 +181,7 @@ Region        (str)     -- Texas border region (for TX ports: El Paso, Laredo, P
 | `dot1_state_port` | DOT1 YTD files | Trade by US state and port | TRDTYPE, USASTATE, DEPE, DISAGMOT, MEXSTATE, CANPROV, COUNTRY, VALUE, SHIPWT, FREIGHT_CHARGES, DF, CONTCODE, MONTH, YEAR |
 | `dot2_state_commodity` | DOT2 YTD files | Trade by US state and commodity | TRDTYPE, USASTATE, COMMODITY2, DISAGMOT, MEXSTATE, CANPROV, COUNTRY, VALUE, SHIPWT, FREIGHT_CHARGES, DF, CONTCODE, MONTH, YEAR |
 | `dot3_port_commodity` | DOT3 YTD files | Trade by port and commodity | TRDTYPE, DEPE, COMMODITY2, DISAGMOT, COUNTRY, VALUE, SHIPWT, FREIGHT_CHARGES, DF, CONTCODE, MONTH, YEAR |
-| `legacy_combined` | Pre-2007 DBF/CSV | Legacy data (d03–d12 tables normalized) | Mapped to modern column names via schema_mappings.json |
+| `legacy_combined` | Pre-2007 DBF/CSV | Legacy data (d03–d12 tables normalized) | Mapped to modern column names via hardcoded mappings in 03_normalize.py |
 
 **Note on 2020:** Months 1–9 from Sep YTD, months 11–12 from recovered monthly files, month 10 derived via subtraction from annual aggregates.
 
@@ -270,8 +283,9 @@ These terms should be used consistently in the dashboard and defined in the Abou
 | Caveat | Scope | Details |
 |---|---|---|
 | **DF (Domestic/Foreign) only meaningful for exports** | Export records | DF=1 (domestic origin), DF=2 (re-export/foreign origin). For imports, DF is NULL in modern data. |
-| **Port x Commodity data starts Jan 2007** | DOT3-sourced views (us_mexico, texas_mexico with commodity detail) | The Port x Commodity cross-tabulation did not exist before Jan 2007. Views combining port + commodity are limited to 2007+. |
-| **Legacy trade direction is known** | All pre-2007 rows | Trade direction is derived from table number: D03–D06 = Export, D09–D12 = Import. No records have unknown TradeType. |
+| **Surface Port x Commodity data starts Jan 2007** | DOT3-sourced views (us_mexico, texas_mexico with commodity detail) | Surface Port x Commodity (D-tables) did not exist before Jan 2007. Air/vessel Port x Commodity available from AV tables (Nov 2003–Dec 2006). Views combining port + commodity are limited to Nov 2003+ (air/vessel) or Jan 2007+ (all modes). |
+| **Legacy trade direction is known** | All pre-2007 rows | Trade direction is derived from table number: D03–D06 = Export, D09–D12 = Import, AV1–AV6 = Export, AV7–AV12 = Import. No records have unknown TradeType. |
+| **Air/vessel data starts Nov 2003** | All pre-Nov-2003 rows | TransBorder was surface-only (truck, rail, pipeline, mail, other) before November 2003. Air and vessel modes were added via AV tables (Nov 2003–Dec 2006), then merged into DOT tables from Jan 2007. Mode totals for 1993–Oct 2003 exclude air/vessel freight. |
 | **Containerization code values** | All modes, modern data | 0 = not containerized, 1 = containerized, X = not applicable/unknown. Pipeline always 0 or X. |
 
 ### How to surface these caveats

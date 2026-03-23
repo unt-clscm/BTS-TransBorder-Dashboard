@@ -11,6 +11,8 @@ Handles:
     * DO9 typo (May 1994): letter O instead of digit 0, auto-corrected
     * R-files (1995): revised replacements for erroneous D-files, preferred over originals
     * X-files (1995): delta/missing records, skipped (R-files contain full corrected data)
+    * D5B/D6B (1994-2002): EXCLUDED — use NTAR regions instead of state codes,
+      incompatible with DOT1 state×port structure. D5A/D6A cover the same exports.
 
 Output (in 02-Data-Staging/cleaned/):
   - dot1_state_port.csv       (State × Port, 1993-2025)
@@ -159,7 +161,10 @@ def load_configs():
         "port": load_json("schedule_d_port_codes.json"),
         "can_prov": load_json("canadian_province_codes.json"),
         "mex_state": load_json("mexican_state_codes.json"),
-        "schema": load_json("schema_mappings.json"),
+        # NOTE: schema_mappings.json is a reference data dictionary, not a config
+        # driver. Normalization logic is hardcoded (FIELD_MAPPINGS, DROP_FIELDS,
+        # LEGACY_TABLE_INFO, etc.) because the conditional behavior is too complex
+        # for a flat config. The JSON documents field semantics and known issues.
     }
 
 
@@ -472,9 +477,11 @@ LEGACY_TABLE_INFO = {
     "D4A":  {"modern": "dot2", "trdtype": "export", "country": "Canada"},
     "D4B":  {"modern": "dot2", "trdtype": "export", "country": "Canada"},
     "D5A":  {"modern": "dot1", "trdtype": "export", "country": "Mexico"},
-    "D5B":  {"modern": "dot1", "trdtype": "export", "country": "Mexico"},
+    # D5B EXCLUDED — uses NTAR (89 multicounty regions) instead of state codes.
+    # Cannot map to DOT1 which requires USASTATE. D5A already covers these exports
+    # with proper state-level geography, so including D5B would double-count.
     "D6A":  {"modern": "dot1", "trdtype": "export", "country": "Canada"},
-    "D6B":  {"modern": "dot1", "trdtype": "export", "country": "Canada"},
+    # D6B EXCLUDED — same NTAR issue as D5B (Canada-bound exports).
     # --- Import tables (D09-D12) ---
     # Surface imports only (no air/vessel). Carry additional fields (CONTCODE,
     # CHARGES, SHIPWT) not present in export tables.
@@ -534,8 +541,11 @@ FIELD_MAPPINGS = {
     "FREIGES": "FREIGHT_CHARGES",
 }
 
-# Fields that should be dropped during normalization
-DROP_FIELDS = {"COUNT", "USREGION", "MEXREGION", "DISTGROUP", "NTAR", "MERGE"}
+# Fields that should be dropped during normalization.
+# NOTE: NTAR is NOT in this set. D5B/D6B (which use NTAR) are excluded from
+# LEGACY_TABLE_INFO entirely. If NTAR appears in an unexpected table, we want
+# to know about it rather than silently dropping geographic data.
+DROP_FIELDS = {"COUNT", "USREGION", "MEXREGION", "DISTGROUP", "MERGE"}
 
 
 def parse_legacy_filename(filename):
@@ -803,7 +813,10 @@ def load_all_legacy(configs):
             # Look up table info
             info = LEGACY_TABLE_INFO.get(table_type)
             if info is None:
-                continue  # Unknown table type
+                # Log excluded NTAR tables so the skip is visible
+                if table_type in ("D5B", "D6B"):
+                    processed_tables[f"{table_type}(skipped-NTAR)"] = 0
+                continue  # Unknown or excluded table type
 
             filepath = year_dir / dbf_file
             df = read_legacy_dbf(filepath)

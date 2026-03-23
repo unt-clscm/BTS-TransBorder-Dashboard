@@ -4,14 +4,18 @@
 Checks:
   1. All 7 JSON + 7 CSV files exist with nonzero size
   2. JSON row counts match CSV row counts
-  3. Year ranges match expected spans
+  3. Year ranges match the output-builder contract:
+       - us_transborder: 1993-2025 (full legacy + modern)
+       - All other datasets: 2007-2025 (modern era only)
   4. Total trade values from outputs match direct DB queries
+     (using the same WHERE filters as 05_build_outputs.py)
   5. No NULL TradeType in outputs (should be 'Unknown')
   6. Texas port datasets only contain expected port codes
-  7. texas_mexico_commodities starts from 2007 (DOT3, no legacy)
-  8. Weight is NULL (not zero) where expected
+     (loaded dynamically from config/texas_border_ports.json)
+  7. texas_mexico_ports has coordinates and regions
+  8. us_transborder schema: no CommodityGroup column
   9. Sample value cross-checks against DB
- 10. us_transborder has NO CommodityGroup column (chart-driven design)
+ 10. Weight NULL handling spot-check
  11. No obsolete files remain (us_mexico_commodities removed)
 
 Usage:
@@ -30,11 +34,10 @@ DB_PATH = STAGING_DIR / "transborder.db"
 OUTPUT_DIR = STAGING_DIR.parent / "03-Processed-Data"
 JSON_DIR = OUTPUT_DIR / "json"
 CSV_DIR = OUTPUT_DIR / "csv"
+CONFIG_DIR = STAGING_DIR / "config"
 
-TX_BORDER_PORTS = {
-    "2301", "2302", "2303", "2304", "2305", "2307", "2309", "2310",
-    "2401", "2402", "2403", "2404",
-}
+# Year boundary matching 05_build_outputs.py
+MODERN_START_YEAR = 2007
 
 DATASETS = [
     "us_transborder",
@@ -45,6 +48,9 @@ DATASETS = [
     "commodity_detail",
     "monthly_trends",
 ]
+
+# Datasets that use all years (1993+); everything else starts at MODERN_START_YEAR
+FULL_RANGE_DATASETS = {"us_transborder"}
 
 passed = 0
 failed = 0
@@ -81,12 +87,22 @@ def count_csv(name):
         return sum(1 for _ in reader) - 1  # subtract header
 
 
+def load_texas_border_ports():
+    """Load TX border port codes from config (same source as 05_build_outputs.py)."""
+    path = CONFIG_DIR / "texas_border_ports.json"
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return {k for k in data if not k.startswith("_")}
+
+
 def main():
     if not DB_PATH.exists():
         print(f"ERROR: Database not found: {DB_PATH}")
         sys.exit(1)
 
     conn = sqlite3.connect(str(DB_PATH))
+    tx_border_ports = load_texas_border_ports()
+
     print("=" * 60)
     print("VALIDATION REPORT")
     print("=" * 60)
@@ -130,46 +146,59 @@ def main():
         data = json_data[ds]
         years = sorted(set(r["Year"] for r in data))
         min_yr, max_yr = years[0], years[-1]
-        if ds == "texas_mexico_commodities":
-            check(min_yr == 2007, f"{ds}: starts 2007 (DOT3, got {min_yr})")
-        else:
+        if ds in FULL_RANGE_DATASETS:
             check(min_yr == 1993, f"{ds}: starts 1993 (got {min_yr})")
+        else:
+            check(min_yr == MODERN_START_YEAR,
+                  f"{ds}: starts {MODERN_START_YEAR} (got {min_yr})")
         check(max_yr == 2025, f"{ds}: ends 2025 (got {max_yr})")
 
     # --- Check 4: Trade value totals vs DB ---
+    # Each query mirrors the exact WHERE clause used in 05_build_outputs.py
     print("\n--- Trade Value Totals (output vs DB) ---")
 
-    # us_transborder total should match DOT2 total
+    # us_transborder: DOT2, all years (Year IS NOT NULL)
     if "us_transborder" in json_data:
         out_total = sum(r["TradeValue"] for r in json_data["us_transborder"])
-        cur = conn.execute('SELECT SUM("TradeValue") FROM dot2_state_commodity WHERE "Year" IS NOT NULL')
+        cur = conn.execute(
+            'SELECT SUM("TradeValue") FROM dot2_state_commodity WHERE "Year" IS NOT NULL'
+        )
         db_total = cur.fetchone()[0]
         pct_diff = abs(out_total - db_total) / db_total * 100
         check(pct_diff < 0.01,
               f"us_transborder total: ${out_total/1e12:.3f}T vs DB ${db_total/1e12:.3f}T (diff {pct_diff:.4f}%)")
 
-    # us_mexico_ports total should match DOT1 Mexico total
+    # us_mexico_ports: DOT1, Mexico only, Year >= 2007
     if "us_mexico_ports" in json_data:
         out_total = sum(r["TradeValue"] for r in json_data["us_mexico_ports"])
-        cur = conn.execute('SELECT SUM("TradeValue") FROM dot1_state_port WHERE "Country"=\'Mexico\' AND "Year" IS NOT NULL')
+        cur = conn.execute(
+            f'SELECT SUM("TradeValue") FROM dot1_state_port '
+            f'WHERE "Country"=\'Mexico\' AND "Year" >= {MODERN_START_YEAR}'
+        )
         db_total = cur.fetchone()[0]
         pct_diff = abs(out_total - db_total) / db_total * 100
         check(pct_diff < 0.01,
               f"us_mexico_ports total: ${out_total/1e12:.3f}T vs DB ${db_total/1e12:.3f}T (diff {pct_diff:.4f}%)")
 
-    # monthly_trends total should match DOT1 total
+    # monthly_trends: DOT1, Year >= 2007 AND Month IS NOT NULL
     if "monthly_trends" in json_data:
         out_total = sum(r["TradeValue"] for r in json_data["monthly_trends"])
-        cur = conn.execute('SELECT SUM("TradeValue") FROM dot1_state_port WHERE "Year" IS NOT NULL')
+        cur = conn.execute(
+            f'SELECT SUM("TradeValue") FROM dot1_state_port '
+            f'WHERE "Year" >= {MODERN_START_YEAR} AND "Month" IS NOT NULL'
+        )
         db_total = cur.fetchone()[0]
         pct_diff = abs(out_total - db_total) / db_total * 100
         check(pct_diff < 0.01,
               f"monthly_trends total: ${out_total/1e12:.3f}T vs DB ${db_total/1e12:.3f}T (diff {pct_diff:.4f}%)")
 
-    # commodity_detail total should match DOT2 total
+    # commodity_detail: DOT2, Year >= 2007
     if "commodity_detail" in json_data:
         out_total = sum(r["TradeValue"] for r in json_data["commodity_detail"])
-        cur = conn.execute('SELECT SUM("TradeValue") FROM dot2_state_commodity WHERE "Year" IS NOT NULL')
+        cur = conn.execute(
+            f'SELECT SUM("TradeValue") FROM dot2_state_commodity '
+            f'WHERE "Year" >= {MODERN_START_YEAR}'
+        )
         db_total = cur.fetchone()[0]
         pct_diff = abs(out_total - db_total) / db_total * 100
         check(pct_diff < 0.01,
@@ -193,7 +222,7 @@ def main():
             continue
         data = json_data[ds]
         port_codes = set(r["PortCode"] for r in data)
-        unexpected = port_codes - TX_BORDER_PORTS
+        unexpected = port_codes - tx_border_ports
         check(len(unexpected) == 0,
               f"{ds}: only TX border ports (unexpected: {unexpected or 'none'})")
 
@@ -237,7 +266,7 @@ def main():
         check(pct_diff < 0.01,
               f"Laredo 2024 exports: ${laredo_exp/1e9:.1f}B vs DB ${db_val/1e9:.1f}B")
 
-    # US-Mexico 2024 total from commodity_detail (DOT2, filtered to Mexico)
+    # US-Mexico 2024 total from commodity_detail (DOT2, filtered to Mexico, 2007+)
     if "commodity_detail" in json_data:
         data = json_data["commodity_detail"]
         mex_2024 = sum(r["TradeValue"] for r in data

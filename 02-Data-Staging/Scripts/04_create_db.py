@@ -7,7 +7,7 @@ Creates 3 tables mirroring the BTS DOT table structure, plus a summary table.
 Tables created:
   - dot1_state_port       (State x Port, 1993-2025)
   - dot2_state_commodity   (State x Commodity, 1993-2025)
-  - dot3_port_commodity    (Port x Commodity, 2007-2025)
+  - dot3_port_commodity    (Port x Commodity, Nov 2003-2025: air/vessel Nov 2003-2006 via AV tables, all modes 2007+)
   - load_summary           (metadata about what was loaded)
 
 Usage:

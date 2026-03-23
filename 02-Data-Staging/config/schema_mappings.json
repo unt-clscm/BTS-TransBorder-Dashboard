@@ -1,4 +1,6 @@
 {
+  "_role": "Reference data dictionary — NOT loaded by 03_normalize.py. Normalization logic is hardcoded because the conditional behavior (R-file priority, S-suffix mapping, NTAR exclusion) is too complex for flat config. This JSON documents field semantics and known issues for human and agent reference.",
+
   "field_mappings": {
     "_note": "Legacy column name -> modern column name. Apply after .upper().strip() on all column names.",
     "USSTATE": "USASTATE",
@@ -49,7 +51,8 @@
     "NTAR": {
       "description": "National Transportation Analysis Region — 89 multicounty regions based on exporter ZIP code",
       "found_in": "D5B, D6B (1994-2002 export tables, 'State of Exporter' variant)",
-      "impact": "Low - not used in standard analysis"
+      "impact": "Low - not used in standard analysis",
+      "handling": "D5B/D6B are EXCLUDED from normalization entirely (not just the field). They use NTAR instead of state codes, making them incompatible with DOT1's state×port structure. D5A/D6A already cover the same exports with proper state geography."
     },
     "MERGE": {
       "description": "Processing artifact",
@@ -75,9 +78,9 @@
   },
 
   "legacy_table_definitions": {
-    "_note": "Maps legacy table numbers to their dimensions and modern equivalents. Trade direction is encoded in the TABLE NUMBER: D03-D06 = Exports, D09-D12 = Imports. Source: BTS README_9.TXT (1993), README4.TXT (1994).",
+    "_note": "Maps legacy table numbers to their dimensions and modern equivalents. Trade direction is encoded in the TABLE NUMBER: D03-D06 = Exports, D09-D12 = Imports. ALL D-tables are SURFACE-ONLY (DISAGMOT 4-9). Air/vessel modes (1, 3) never appear in D-tables. Source: BTS README_9.TXT (1993), README4.TXT (1994).",
     "exports": {
-      "_note": "D03-D06 are EXPORT tables. They use ORSTATE/EXSTATE (origin/exporter) and SCH_B (Schedule B export commodity). Missing CONTCODE, SHIPWT — these only appear in import tables.",
+      "_note": "D03-D06 are SURFACE EXPORT tables. They use ORSTATE/EXSTATE (origin/exporter) and SCH_B (Schedule B export commodity). Missing CONTCODE, SHIPWT — these only appear in import tables.",
       "D03": {
         "description": "Exports to Mexico — Commodity x Mexican State",
         "dimensions": ["DISAGMOT", "SCH_B", "MEXSTATE"],
@@ -112,7 +115,7 @@
       }
     },
     "imports": {
-      "_note": "D09-D12 are IMPORT tables. They use DESTATE (destination state) and TSUSA (import commodity). They carry additional fields (CONTCODE, CHARGES, SHIPWT) not present in export tables. Despite containing all transport modes (not just air/vessel), these were historically mislabeled as 'air/vessel tables'.",
+      "_note": "D09-D12 are SURFACE IMPORT tables. They use DESTATE (destination state) and TSUSA (import commodity). They carry additional fields (CONTCODE, CHARGES, SHIPWT) not present in export tables. DISAGMOT values: 4 (mail), 5 (truck), 6 (rail), 7 (pipeline), 8 (other), 9 (FTZ). No air (1) or vessel (3).",
       "D09": {
         "description": "Imports from Mexico — Commodity x State (no province)",
         "dimensions": ["DISAGMOT", "TSUSA", "DESTATE", "CONTCODE"],
@@ -145,6 +148,21 @@
         "has_fields": ["DISAGMOT", "DESTATE", "DEPE", "PROV", "CONTCODE", "COUNTRY", "VALUE", "SHIPWT", "CHARGES", "DF", "STATMOYR"],
         "missing_vs_modern": []
       }
+    },
+    "air_vessel": {
+      "_note": "AV1-AV12 are AIR/VESSEL tables. Only exist Nov 2003 - Dec 2006. DISAGMOT values: 1 (air), 3 (vessel) only. 12 tables mirror D-table structure. No STATMOYR — month/year parsed from filename. Naming: 2003: av{table}.dbf (Nov), av{table}12.dbf (Dec). 2004-2006: av{table}{MM}{YY}.dbf.",
+      "AV1":  {"description": "Air/Vessel Exports to Mexico — Commodity x State", "modern_equivalent": "DOT2", "country_scope": "Mexico", "has_fields": ["DISAGMOT", "SCH_B", "ORSTATE", "SHIPWT", "COUNTRY", "VALUE"]},
+      "AV2":  {"description": "Air/Vessel Exports to Canada — Commodity x State", "modern_equivalent": "DOT2", "country_scope": "Canada", "has_fields": ["DISAGMOT", "ORSTATE", "SCH_B", "SHIPWT", "COUNTRY", "VALUE", "FREIGHT"]},
+      "AV3":  {"description": "Air/Vessel Exports to Mexico — State x Port", "modern_equivalent": "DOT1", "country_scope": "Mexico", "has_fields": ["DISAGMOT", "DF", "ORSTATE", "DEPE", "SHIPWT", "COUNTRY", "VALUE"]},
+      "AV4":  {"description": "Air/Vessel Exports to Mexico — Commodity x Port", "modern_equivalent": "DOT3", "country_scope": "Mexico", "has_fields": ["DISAGMOT", "DF", "SCH_B", "DEPE", "SHIPWT", "COUNTRY", "VALUE"]},
+      "AV5":  {"description": "Air/Vessel Exports to Canada — State x Port", "modern_equivalent": "DOT1", "country_scope": "Canada", "has_fields": ["DISAGMOT", "DF", "ORSTATE", "DEPE", "SHIPWT", "COUNTRY", "FREIGHT", "VALUE"]},
+      "AV6":  {"description": "Air/Vessel Exports to Canada — Commodity x Port", "modern_equivalent": "DOT3", "country_scope": "Canada", "has_fields": ["DISAGMOT", "DF", "SCH_B", "DEPE", "SHIPWT", "COUNTRY", "VALUE"]},
+      "AV7":  {"description": "Air/Vessel Imports from Mexico — Commodity x State", "modern_equivalent": "DOT2", "country_scope": "Mexico", "has_fields": ["DISAGMOT", "TSUSA", "DESTATE", "COUNTRY", "VALUE", "CHARGES", "SHIPWT"]},
+      "AV8":  {"description": "Air/Vessel Imports from Canada — Commodity x State", "modern_equivalent": "DOT2", "country_scope": "Canada", "has_fields": ["DISAGMOT", "DESTATE", "TSUSA", "COUNTRY", "VALUE", "CHARGES", "SHIPWT"]},
+      "AV9":  {"description": "Air/Vessel Imports from Mexico — State x Port", "modern_equivalent": "DOT1", "country_scope": "Mexico", "has_fields": ["DISAGMOT", "DESTATE", "DEPE", "COUNTRY", "VALUE", "CHARGES", "SHIPWT"]},
+      "AV10": {"description": "Air/Vessel Imports from Mexico — Commodity x Port", "modern_equivalent": "DOT3", "country_scope": "Mexico", "has_fields": ["DISAGMOT", "HTS", "DEPE", "COUNTRY", "VALUE", "CHARGES", "SHIPWT"]},
+      "AV11": {"description": "Air/Vessel Imports from Canada — State x Port", "modern_equivalent": "DOT1", "country_scope": "Canada", "has_fields": ["DISAGMOT", "DESTATE", "DEPE", "COUNTRY", "VALUE", "CHARGES", "SHIPWT"]},
+      "AV12": {"description": "Air/Vessel Imports from Canada — Commodity x Port", "modern_equivalent": "DOT3", "country_scope": "Canada", "has_fields": ["DISAGMOT", "HTS", "DEPE", "COUNTRY", "VALUE", "CHARGES", "SHIPWT"]}
     }
   },
 
@@ -152,8 +170,10 @@
     "_note": "From Apr 1994 to 2002, export tables (D03-D06) were split into A/B variants. A and B are BOTH exports — the suffix encodes GEOGRAPHIC METHODOLOGY, not trade direction. B-tables were dropped in 2003. Source: README4.TXT, README5.TXT.",
     "A": "State of Origin — where goods entered the foreign trade pipeline",
     "B": "State/NTAR of Exporter — where the exporting company is located (D3B/D4B use EXSTATE; D5B/D6B use NTAR)",
+    "S": "State of Origin — used in 1993 and early 1994 before the 'A' suffix was introduced (e.g., D5APR93S.DBF). Maps to the 'A' variant.",
     "bts_rationale": "Census reports that neither measure provides a true representation of the production origin of exports, because the state of origin may be the state that contains a consolidation point.",
-    "important": "Trade direction (export vs import) and country are encoded in the TABLE NUMBER, not in filename suffixes. D03-D06 = exports, D09-D12 = imports. Suffixes D, J, M, N, O, S do NOT exist in actual BTS filenames."
+    "important": "Trade direction (export vs import) and country are encoded in the TABLE NUMBER, not in filename suffixes. D03-D06 = exports, D09-D12 = imports. Suffixes D, J, M, N, O do NOT exist in actual BTS filenames.",
+    "d5b_d6b_exclusion": "D5B/D6B use NTAR (89 multicounty regions) instead of state codes. They are EXCLUDED from normalization — incompatible with DOT1 state×port structure. D5A/D6A cover the same exports with proper state geography."
   },
 
   "date_mappings": {
@@ -189,18 +209,18 @@
     "_note": "Which table types exist in which time periods. Trade direction is always encoded in the table number: D03-D06 = exports, D09-D12 = imports.",
     "1993_apr_dec": {
       "period": "1993-04 to 1993-12",
-      "description": "Original format. No A/B split.",
-      "export_tables": ["D03", "D04", "D05", "D06"],
+      "description": "Original format. No A/B split, but 'S' suffix used for State of Origin.",
+      "export_tables": ["D03", "D04", "D05", "D06", "D5A"],
       "import_tables": ["D09", "D10", "D11", "D12"],
-      "notes": "1993 uses SCH_B_GRP and TSUSA_GRP instead of SCH_B/TSUSA. Also has MEXREGION, USREGION, DISTGROUP columns."
+      "notes": "1993 uses SCH_B_GRP and TSUSA_GRP instead of SCH_B/TSUSA. Also has MEXREGION, USREGION, DISTGROUP columns. D5...S files exist alongside D05 files; S denotes State of Origin and maps to D5A."
     },
     "1994_transition": {
       "period": "1994-01 to 1994-12",
-      "description": "Jan-Mar: old format. Apr-Dec: export tables split into A/B variants (State of Origin vs State of Exporter).",
-      "export_tables_pre_apr": ["D03", "D04", "D05", "D06"],
+      "description": "Jan-Mar: old format (including 'S' suffix for State of Origin). Apr-Dec: export tables split into A/B variants (State of Origin vs State of Exporter).",
+      "export_tables_pre_apr": ["D03", "D04", "D05", "D06", "D5A"],
       "export_tables_post_apr": ["D3A", "D3B", "D4A", "D4B", "D5A", "D5B", "D6A", "D6B"],
       "import_tables": ["D09", "D10", "D11", "D12"],
-      "notes": "A = State of Origin, B = State/NTAR of Exporter. Both A and B are EXPORTS. Import tables (D09-D12) are unchanged."
+      "notes": "A = State of Origin, B = State/NTAR of Exporter. Both A and B are EXPORTS. Import tables (D09-D12) are unchanged. Pre-April 'S' files map to 'A'."
     },
     "1995_to_2002": {
       "period": "1995-01 to 2002-12",
@@ -248,6 +268,14 @@
     "b_tables_dropped_2003": {
       "description": "B-variants (State of Exporter methodology) were dropped in 2003. A-tables continue as export-only. Imports remain in D09-D12.",
       "fix": "No special handling needed — A-tables are still exports, D09-D12 are still imports. Trade direction comes from the table number."
+    },
+    "av_files_2003_2006": {
+      "description": "Air/vessel (AV) tables exist only Nov 2003 - Dec 2006. Before Nov 2003, TransBorder was surface-only. 12 AV tables parallel the D-table structure. AV4/6/10/12 provide Port×Commodity (DOT3-equivalent) for air/vessel modes only.",
+      "fix": "Parse AV filenames separately (different naming convention from D-tables). Set MONTH/YEAR from filename since AV files lack STATMOYR."
+    },
+    "d_tables_surface_only": {
+      "description": "All D-prefix tables (D03-D12, including A/B variants) contain ONLY surface modes (DISAGMOT 4-9). Air (1) and Vessel (3) never appear. This was verified against actual DBF files across all years 1993-2006.",
+      "fix": "Document clearly that pre-Nov-2003 data is surface-only. Air/vessel totals for 1993-Oct 2003 are not available in TransBorder."
     }
   },
 
@@ -275,8 +303,8 @@
       "available_from": "2007 (DOT1/DOT2) for Mexico exports"
     },
     "DOT3_pre_2007": {
-      "description": "Port x Commodity cross-tabulation did not exist before January 2007. Cannot reconstruct from legacy data.",
-      "available_from": "2007"
+      "description": "Surface Port x Commodity cross-tabulation did not exist before January 2007. However, air/vessel Port x Commodity data is available from AV tables (AV4/6/10/12) for Nov 2003 - Dec 2006.",
+      "available_from": "Nov 2003 (air/vessel only via AV tables), Jan 2007 (all modes via DOT3)"
     }
   }
 }

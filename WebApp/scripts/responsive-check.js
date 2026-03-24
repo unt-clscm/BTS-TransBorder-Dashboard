@@ -37,8 +37,6 @@ const VIEWPORTS = [
 const ROUTES = [
   { path: '/', expect: 'TransBorder Freight Data', hasSidebar: false },
   { path: '/trade-by-state', expect: 'TransBorder Trade by U.S. State', hasSidebar: true },
-  { path: '/commodities', expect: 'TransBorder Trade by Commodity', hasSidebar: true },
-  { path: '/trade-by-mode', expect: 'TransBorder Trade by Transportation Mode', hasSidebar: true },
   { path: '/texas-mexico', expect: 'Surface Freight Trade', hasSidebar: true },
   { path: '/us-mexico', expect: 'TransBorder Freight', hasSidebar: true },
 ]

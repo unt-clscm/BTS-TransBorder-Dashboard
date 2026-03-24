@@ -49,7 +49,7 @@ const ROUTES = [
     label: 'Overview (Home)',
     expect: 'TransBorder Freight Data',
     hasCharts: true,
-    hasMap: false,
+    hasMap: true,
     minSvgs: 2,
   },
   {
@@ -57,7 +57,7 @@ const ROUTES = [
     label: 'U.S.\u2013Mexico Trade',
     expect: 'Mexico',
     hasCharts: true,
-    hasMap: false,
+    hasMap: true,
     minSvgs: 2,
   },
   {
@@ -84,27 +84,11 @@ const ROUTES = [
     ],
   },
   {
-    path: '/trade-by-mode',
-    label: 'Trade by Mode',
-    expect: 'Transportation Mode',
-    hasCharts: true,
-    hasMap: false,
-    minSvgs: 2,
-  },
-  {
-    path: '/commodities',
-    label: 'Trade by Commodity',
-    expect: 'Commodity',
-    hasCharts: true,
-    hasMap: false,
-    minSvgs: 2,
-  },
-  {
     path: '/trade-by-state',
     label: 'Trade by State',
     expect: 'State',
     hasCharts: true,
-    hasMap: false,
+    hasMap: true,
     minSvgs: 2,
   },
   {

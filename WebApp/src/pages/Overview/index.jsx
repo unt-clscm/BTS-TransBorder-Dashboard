@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   TrendingUp, TrendingDown, DollarSign, ArrowRight, Database, Layers,
@@ -8,6 +8,7 @@ import {
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency } from '@/lib/chartColors'
 import { generateInsights } from '@/lib/insightEngine'
+import { usePortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import HeroStardust from '@/components/ui/HeroStardust'
 import InsightCallout from '@/components/ui/InsightCallout'
 import SectionBlock from '@/components/ui/SectionBlock'
@@ -16,6 +17,7 @@ import StatCard from '@/components/ui/StatCard'
 import LineChart from '@/components/charts/LineChart'
 import DonutChart from '@/components/charts/DonutChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
+import PortMap from '@/components/maps/PortMap'
 import { DL, PAGE_TRANSBORDER_COLS } from '@/lib/downloadColumns'
 
 /* ── Icon lookup for insightEngine string → component ────────────────── */
@@ -26,7 +28,17 @@ const ICON_MAP = {
 }
 
 export default function OverviewPage() {
-  const { usTransborder, loading } = useTransborderStore()
+  const { usTransborder, usMexicoPorts, loading, loadDataset } = useTransborderStore()
+
+  /* ── lazy-load port data for map ───────────────────────────────── */
+  useEffect(() => { loadDataset('usMexicoPorts') }, [loadDataset])
+
+  const { portCoords } = usePortCoordinates()
+
+  const mapPorts = useMemo(() => {
+    if (!usMexicoPorts?.length) return []
+    return buildMapPorts(usMexicoPorts, portCoords)
+  }, [usMexicoPorts, portCoords])
 
   /* ── Derived year bounds ─────────────────────────────────────────── */
   const latestYear = useMemo(() => {
@@ -147,18 +159,6 @@ export default function OverviewPage() {
       Icon: MapPin,
     },
     {
-      path: '/trade-by-mode',
-      title: 'By Mode',
-      desc: 'How goods move across the border — compare truck, rail, pipeline, air, and vessel freight. See which modes dominate exports vs. imports and how the mix has shifted over time.',
-      Icon: Truck,
-    },
-    {
-      path: '/commodities',
-      title: 'By Commodity',
-      desc: 'What is being traded — explore HS 2-digit commodity groups by trade value. Click any group in the treemap to drill down into individual commodities and track the top groups over time.',
-      Icon: Package,
-    },
-    {
       path: '/trade-by-state',
       title: 'By State',
       desc: 'Which U.S. states drive cross-border trade? Rankings, trend lines for the top states, and export/import breakdowns. See how Texas compares to Michigan, California, and others.',
@@ -246,6 +246,22 @@ export default function OverviewPage() {
         )}
       </div>
 
+      {/* ── Border Ports Map ────────────────────────────────────────── */}
+      {mapPorts.length > 0 && (
+        <SectionBlock>
+          <ChartCard title="U.S.-Mexico Border Ports of Entry" subtitle="All ports sized by total trade value — click a port for details">
+            <PortMap
+              ports={mapPorts}
+              showFlowArcs={false}
+              formatValue={formatCurrency}
+              center={[29.5, -104.0]}
+              zoom={5}
+              height="480px"
+            />
+          </ChartCard>
+        </SectionBlock>
+      )}
+
       {/* ── Annual Trade Trends ────────────────────────────────────── */}
       <SectionBlock>
         <div className="flex items-center gap-2.5 mb-5">
@@ -255,7 +271,7 @@ export default function OverviewPage() {
         <div className="grid grid-cols-1 gap-6">
           <ChartCard
             title="U.S. TransBorder Exports vs Imports"
-            subtitle={`Annual trade value, ${minYear || 1993}--${latestYear || 2025}`}
+            subtitle={`Annual trade value, ${minYear || 1993}\u2013${latestYear || 2025}`}
             downloadData={{
               summary: { data: trendData, filename: 'us-transborder-exports-vs-imports', columns: DL.tradeTrendSeries },
               detail:  { data: usTransborder, filename: 'us-transborder-detail', columns: PAGE_TRANSBORDER_COLS },
@@ -296,7 +312,7 @@ export default function OverviewPage() {
 
           <ChartCard
             title="Canada vs Mexico Trade Share"
-            subtitle={`Annual trade value by country, ${minYear || 1993}--${latestYear || 2025}`}
+            subtitle={`Annual trade value by country, ${minYear || 1993}\u2013${latestYear || 2025}`}
             downloadData={{
               summary: { data: countryStackData.data, filename: 'canada-vs-mexico-trade-share' },
             }}

@@ -10,6 +10,7 @@ import LineChart from '@/components/charts/LineChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import { formatCurrency } from '@/lib/chartColors'
+import DatasetError from '@/components/ui/DatasetError'
 import { DL, PAGE_MONTHLY_COLS } from '@/lib/downloadColumns'
 
 const MONTH_LABELS = [
@@ -17,11 +18,15 @@ const MONTH_LABELS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ]
 
-export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear }) {
+export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear, datasetError }) {
   /* ── ensure dataset is loaded ────────────────────────────────────── */
   useEffect(() => {
     loadDataset('monthlyTrends')
   }, [loadDataset])
+
+  if (datasetError) {
+    return <DatasetError datasetName="Monthly Trends" error={datasetError} onRetry={() => loadDataset('monthlyTrends')} />
+  }
 
   /* ── spinner while loading ───────────────────────────────────────── */
   if (!filteredMonthly) {

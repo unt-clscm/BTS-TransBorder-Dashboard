@@ -9,8 +9,11 @@
  *   - Scrollable dropdown with configurable max height
  *   - Outside click dismissal
  *   - ARIA listbox/option pattern with arrow-key navigation
+ *   - Portal-based dropdown to escape overflow:auto clipping in sidebars
+ *   - Auto drop-up/drop-down based on available space within the sidebar
  */
-import { useState, useRef, useEffect, useMemo, useId, useCallback } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect, useMemo, useId, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { ChevronDown, Check, Search } from 'lucide-react'
 
 function getVal(opt) {
@@ -38,22 +41,32 @@ export default function FilterMultiSelect({
   const ref = useRef(null)
   const searchRef = useRef(null)
   const triggerRef = useRef(null)
+  const dropdownRef = useRef(null)
   const optionRefs = useRef([])
   const [computedMaxH, setComputedMaxH] = useState(maxHeight)
   const [dropUp, setDropUp] = useState(false)
+  // Portal position (fixed coordinates)
+  const [portalPos, setPortalPos] = useState({ top: 0, left: 0, width: 0 })
 
-  // Close on outside click
+  // Close on outside click — check both the trigger area and the portal dropdown
   useEffect(() => {
     const handleClick = (e) => {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+      const inTrigger = ref.current && ref.current.contains(e.target)
+      const inDropdown = dropdownRef.current && dropdownRef.current.contains(e.target)
+      if (!inTrigger && !inDropdown) setOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
   }, [])
 
-  // Compute available space within the nearest scroll container and flip direction
-  useEffect(() => {
-    if (open && triggerRef.current) {
+  // Compute available space and portal position — same logic as the airport
+  // dashboard but using fixed positioning via a portal so the dropdown escapes
+  // the sidebar's overflow-y-auto clipping.
+  useLayoutEffect(() => {
+    if (!open || !triggerRef.current) return
+
+    const reposition = () => {
+      if (!triggerRef.current) return
       const rect = triggerRef.current.getBoundingClientRect()
       // Find nearest scrollable ancestor (the sidebar's overflow-y-auto div)
       let container = triggerRef.current.parentElement
@@ -62,16 +75,36 @@ export default function FilterMultiSelect({
         if (/(auto|scroll)/.test(overflow + overflowY)) break
         container = container.parentElement
       }
-      // Measure space within the scroll container's visible bounds, or viewport
-      const bounds = container
+      // Measure space within the scroll container's visible bounds, clamped to viewport
+      const raw = container
         ? container.getBoundingClientRect()
         : { top: 0, bottom: window.innerHeight }
+      const bounds = {
+        top: Math.max(0, raw.top),
+        bottom: Math.min(window.innerHeight, raw.bottom),
+      }
       const spaceBelow = bounds.bottom - rect.bottom - 8
       const spaceAbove = rect.top - bounds.top - 8
       const shouldDropUp = spaceAbove > spaceBelow
       setDropUp(shouldDropUp)
       const available = shouldDropUp ? spaceAbove : spaceBelow
       setComputedMaxH(Math.max(200, available))
+      // Position the portal dropdown in fixed viewport coordinates
+      setPortalPos({
+        top: shouldDropUp ? rect.top - 4 : rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      })
+    }
+
+    reposition()
+
+    // Keep position updated on scroll (capture phase for nested containers) and resize
+    window.addEventListener('scroll', reposition, true)
+    window.addEventListener('resize', reposition)
+    return () => {
+      window.removeEventListener('scroll', reposition, true)
+      window.removeEventListener('resize', reposition)
     }
   }, [open])
 
@@ -108,7 +141,6 @@ export default function FilterMultiSelect({
   // Reset search, dropUp, and focusIdx when dropdown closes; focus search when it opens
   useEffect(() => {
     if (!open) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearch('')
       setDropUp(false)
       setFocusIdx(-1)
@@ -253,6 +285,71 @@ export default function FilterMultiSelect({
     return allOptions.filter((opt) => matchesSearch(getLbl(opt))).map(renderOption)
   }
 
+  // Dropdown panel — rendered via portal to escape sidebar overflow-y-auto clipping
+  const dropdownPanel = open && createPortal(
+    <div
+      ref={dropdownRef}
+      id={listboxId}
+      role="listbox"
+      aria-multiselectable="true"
+      aria-label={label}
+      onKeyDown={handleKeyDown}
+      className="fixed z-[9999] bg-white border border-border rounded-lg shadow-lg flex flex-col overflow-hidden"
+      style={{
+        left: `${portalPos.left}px`,
+        width: `${portalPos.width}px`,
+        maxHeight: `${computedMaxH}px`,
+        ...(dropUp
+          ? { bottom: `${window.innerHeight - portalPos.top}px` }
+          : { top: `${portalPos.top}px` }),
+      }}
+    >
+      {/* All option */}
+      <div
+        ref={(el) => { optionRefs.current[0] = el }}
+        role="option"
+        aria-selected={allSelected}
+        onClick={selectAll}
+        onMouseEnter={() => setFocusIdx(0)}
+        className={`flex-shrink-0 w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left cursor-pointer transition-colors ${allSelected ? 'bg-brand-blue/10 font-medium text-brand-blue' : ''} ${focusIdx === 0 ? 'bg-brand-blue/10 outline outline-2 outline-brand-blue/30' : 'hover:bg-brand-blue/5'}`}
+      >
+        <span
+          className={`flex-shrink-0 flex items-center justify-center w-4 h-4 rounded border ${allSelected ? 'bg-brand-blue border-brand-blue' : 'border-border'}`}
+        >
+          {allSelected && <Check size={12} className="text-white" />}
+        </span>
+        {allLabel}
+      </div>
+
+      {/* Search input */}
+      {searchable && (
+        <div className="flex-shrink-0 px-2 py-1.5 border-t border-border/40">
+          <div className="relative">
+            <Search
+              size={13}
+              className="absolute left-2 top-1/2 -translate-y-1/2 text-text-secondary"
+            />
+            <input
+              ref={searchRef}
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search..."
+              className="w-full pl-7 pr-2 py-1 text-sm rounded border border-border/60 bg-surface-secondary/30
+                         focus:outline-none focus:ring-1 focus:ring-brand-blue/30 focus:border-brand-blue/40"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Options list (scrollable) */}
+      <div className="overflow-y-auto flex-1 min-h-0">
+        {groups ? renderGroups() : renderFlatOptions()}
+      </div>
+    </div>,
+    document.body,
+  )
+
   return (
     <div className="flex flex-col gap-1 min-w-0 w-full" ref={ref}>
       <label htmlFor={id} className="text-base font-medium text-text-secondary uppercase tracking-wider">
@@ -281,62 +378,8 @@ export default function FilterMultiSelect({
           size={14}
           className={`absolute right-2.5 top-1/2 -translate-y-1/2 text-text-secondary pointer-events-none transition-transform duration-150 ${open ? 'rotate-180' : ''}`}
         />
-
-        {open && (
-          <div
-            id={listboxId}
-            role="listbox"
-            aria-multiselectable="true"
-            aria-label={label}
-            onKeyDown={handleKeyDown}
-            className={`absolute z-50 w-full bg-white border border-border rounded-lg shadow-lg flex flex-col ${dropUp ? 'bottom-full mb-1' : 'top-full mt-1'}`}
-            style={{ maxHeight: `${computedMaxH}px` }}
-          >
-            {/* All option */}
-            <div
-              ref={(el) => { optionRefs.current[0] = el }}
-              role="option"
-              aria-selected={allSelected}
-              onClick={selectAll}
-              onMouseEnter={() => setFocusIdx(0)}
-              className={`flex-shrink-0 w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left cursor-pointer transition-colors ${allSelected ? 'bg-brand-blue/10 font-medium text-brand-blue' : ''} ${focusIdx === 0 ? 'bg-brand-blue/10 outline outline-2 outline-brand-blue/30' : 'hover:bg-brand-blue/5'}`}
-            >
-              <span
-                className={`flex-shrink-0 flex items-center justify-center w-4 h-4 rounded border ${allSelected ? 'bg-brand-blue border-brand-blue' : 'border-border'}`}
-              >
-                {allSelected && <Check size={12} className="text-white" />}
-              </span>
-              {allLabel}
-            </div>
-
-            {/* Search input */}
-            {searchable && (
-              <div className="flex-shrink-0 px-2 py-1.5 border-t border-border/40">
-                <div className="relative">
-                  <Search
-                    size={13}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 text-text-secondary"
-                  />
-                  <input
-                    ref={searchRef}
-                    type="text"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Search..."
-                    className="w-full pl-7 pr-2 py-1 text-sm rounded border border-border/60 bg-surface-secondary/30
-                               focus:outline-none focus:ring-1 focus:ring-brand-blue/30 focus:border-brand-blue/40"
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Options list (scrollable) */}
-            <div className="overflow-y-auto flex-1">
-              {groups ? renderGroups() : renderFlatOptions()}
-            </div>
-          </div>
-        )}
       </div>
+      {dropdownPanel}
     </div>
   )
 }

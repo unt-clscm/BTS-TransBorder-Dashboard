@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, formatCompact } from '@/lib/chartColors'
+import { formatCurrency } from '@/lib/chartColors'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterSidebar from '@/components/filters/FilterSidebar'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
@@ -13,15 +13,19 @@ import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { DollarSign, MapPin, Award, TrendingUp } from 'lucide-react'
+import DatasetError from '@/components/ui/DatasetError'
 import { DL, PAGE_STATE_COLS } from '@/lib/downloadColumns'
 
 export default function TradeByStatePage() {
-  const { usStateTrade, loadDataset } = useTransborderStore()
+  const { usStateTrade, datasetErrors, loadDataset } = useTransborderStore()
 
   /* ── lazy-load dataset on mount ─────────────────────────────────── */
   useEffect(() => { loadDataset('usStateTrade') }, [loadDataset])
 
-  /* ── loading spinner ────────────────────────────────────────────── */
+  /* ── loading / error ───────────────────────────────────────────── */
+  if (datasetErrors.usStateTrade) {
+    return <DatasetError datasetName="State Trade" error={datasetErrors.usStateTrade} onRetry={() => loadDataset('usStateTrade')} />
+  }
   if (!usStateTrade) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">

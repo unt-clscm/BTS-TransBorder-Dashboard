@@ -10,7 +10,7 @@
  *   icon:    a lucide-react icon name string
  */
 
-import { formatCurrency, formatCompact, formatPercent } from './transborderHelpers'
+import { formatCurrency, formatPercent } from './transborderHelpers'
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -191,7 +191,7 @@ function usMexicoInsights(data, latestYear) {
   return insights
 }
 
-function texasMexicoInsights(data, latestYear) {
+function texasMexicoInsights(data, _latestYear) {
   const insights = []
 
   // Top region share

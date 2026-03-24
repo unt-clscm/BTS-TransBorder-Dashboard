@@ -87,6 +87,7 @@ export default function DataTable({ columns, data, pageSize: fixedPageSize }) {
   }, [fixedPageSize, effectiveRowHeight])
 
   useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     recalcPageSize()
     const el = rootRef.current
     if (!el) return
@@ -102,6 +103,7 @@ export default function DataTable({ columns, data, pageSize: fixedPageSize }) {
   // Reset to page 0 when page size or data changes (e.g. entering/exiting
   // fullscreen, or applying a filter that reduces available pages)
   useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPage(0)
   }, [pageSize, data])
 
@@ -125,6 +127,7 @@ export default function DataTable({ columns, data, pageSize: fixedPageSize }) {
 
   // Reset measured column widths when data or columns change
   useLayoutEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setColWidths(null)
     setNowrapWidths(null)
   }, [data, columns])
@@ -164,6 +167,7 @@ export default function DataTable({ columns, data, pageSize: fixedPageSize }) {
       const perWrap = (container - totalNowrap) / wrapColCount
       if (perWrap < 80) return // don't set widths — table stays auto layout
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNowrapWidths(widths)
   }, [hasWrapCols, nowrapWidths, columns])
 

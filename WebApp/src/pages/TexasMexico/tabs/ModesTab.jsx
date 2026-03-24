@@ -10,10 +10,10 @@ import BarChart from '@/components/charts/BarChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DivergingBarChart from '@/components/charts/DivergingBarChart'
 import DataTable from '@/components/ui/DataTable'
-import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
+import { formatCurrency, formatNumber } from '@/lib/chartColors'
 import { DL } from '@/lib/downloadColumns'
 
-export default function ModesTab({ filteredPorts, filteredPortsNoYear, latestYear }) {
+export default function ModesTab({ filteredPorts, filteredPortsNoYear, _latestYear }) {
   /* ── Mode comparison (vertical bar) ──────────────────────────────── */
   const modeComparison = useMemo(() => {
     const byMode = new Map()

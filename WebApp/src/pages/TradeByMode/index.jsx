@@ -1,6 +1,6 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, formatCompact } from '@/lib/chartColors'
+import { formatCurrency } from '@/lib/chartColors'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterSidebar from '@/components/filters/FilterSidebar'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'

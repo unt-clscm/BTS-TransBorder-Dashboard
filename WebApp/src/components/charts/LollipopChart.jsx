@@ -163,7 +163,7 @@ export default function LollipopChart({
 
       // Tooltip on hover for full route name
       textEl
-        .on('mouseover', function (event) {
+        .on('mouseover', function (_event) {
           if (!tooltip) return
           tooltip.textContent = fullLabel
           tooltip.style.opacity = '1'

@@ -21,7 +21,7 @@ const VARIANTS = {
 export default function InsightCallout({
   finding,
   context,
-  icon: Icon = Lightbulb,
+  icon: Icon = Lightbulb, // eslint-disable-line no-unused-vars
   variant = 'default',
   className = '',
 }) {

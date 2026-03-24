@@ -49,6 +49,7 @@ export const useTransborderStore = create((set, get) => ({
   loading: true,
   error: null,
   datasetLoading: {},
+  datasetErrors: {},
 
   // Filter state
   filters: {
@@ -98,7 +99,9 @@ export const useTransborderStore = create((set, get) => ({
   loadDataset: async (name) => {
     const state = get()
     if (state[name] !== null || state.datasetLoading[name]) return
-    set({ datasetLoading: { ...state.datasetLoading, [name]: true } })
+    const nextErrors = { ...state.datasetErrors }
+    delete nextErrors[name]
+    set({ datasetLoading: { ...state.datasetLoading, [name]: true }, datasetErrors: nextErrors })
     try {
       const file = DATASET_FILES[name]
       if (!file) throw new Error(`Unknown dataset: ${name}`)
@@ -106,13 +109,20 @@ export const useTransborderStore = create((set, get) => ({
       if (!resp.ok) throw new Error(`Failed to load ${file}: ${resp.status}`)
       const raw = await resp.json()
       raw.forEach(normalizeRow)
+      const { datasetErrors, ...rest } = get()
+      const nextErrors = { ...datasetErrors }
+      delete nextErrors[name]
       set({
         [name]: raw,
-        datasetLoading: { ...get().datasetLoading, [name]: false },
+        datasetLoading: { ...rest.datasetLoading, [name]: false },
+        datasetErrors: nextErrors,
       })
     } catch (err) {
       console.error(`Failed to load dataset ${name}:`, err)
-      set({ datasetLoading: { ...get().datasetLoading, [name]: false } })
+      set({
+        datasetLoading: { ...get().datasetLoading, [name]: false },
+        datasetErrors: { ...get().datasetErrors, [name]: err.message },
+      })
     }
   },
 }))

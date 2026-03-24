@@ -15,13 +15,14 @@ import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
 import PortMap from '@/components/maps/PortMap'
+import DatasetError from '@/components/ui/DatasetError'
 import { DL, PAGE_PORT_COLS } from '@/lib/downloadColumns'
 
 /* ── COVID annotation ─────────────────────────────────────────────── */
 const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
 
 export default function USMexicoPortsPage() {
-  const { usMexicoPorts, loading, loadDataset } = useTransborderStore()
+  const { usMexicoPorts, loading, datasetErrors, loadDataset } = useTransborderStore()
 
   /* ── lazy-load on mount ──────────────────────────────────────────── */
   useEffect(() => {
@@ -227,6 +228,9 @@ export default function USMexicoPortsPage() {
   }
 
   /* ── render: loading ─────────────────────────────────────────────── */
+  if (datasetErrors.usMexicoPorts) {
+    return <DatasetError datasetName="US-Mexico Ports" error={datasetErrors.usMexicoPorts} onRetry={() => loadDataset('usMexicoPorts')} />
+  }
   if (loading || usMexicoPorts === null) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">

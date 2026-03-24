@@ -122,7 +122,7 @@ export default function ScatterPlot({
     }
 
     /* ── tick generation (avoid symlog overlap) ─────────────────── */
-    const makeTicks = (scale, maxVal, pixelRange) => {
+    const makeTicks = (scale, maxVal, _pixelRange) => {
       if (scaleType === 'linear') return scale.ticks(6)
       // For symlog/log: use powers of 10 within domain, filtered by min pixel spacing
       const ticks = []

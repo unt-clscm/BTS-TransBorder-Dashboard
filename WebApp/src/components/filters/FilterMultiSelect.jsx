@@ -108,6 +108,7 @@ export default function FilterMultiSelect({
   // Reset search, dropUp, and focusIdx when dropdown closes; focus search when it opens
   useEffect(() => {
     if (!open) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSearch('')
       setDropUp(false)
       setFocusIdx(-1)

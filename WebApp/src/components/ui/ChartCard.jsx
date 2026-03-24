@@ -50,6 +50,7 @@ const trackFullscreen = () => {}
 
 /** Child charts (e.g. LineChart) call setZoomRange({ xKey, min, max }) during zoom
  *  and setZoomRange(null) on reset so ChartCard can filter download data. */
+// eslint-disable-next-line react-refresh/only-export-components
 export const ZoomRangeContext = createContext(null)
 
 export default function ChartCard({

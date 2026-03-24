@@ -224,7 +224,7 @@ export default function BarChart({
           // Show HTML tooltip on hover with full label text
           d3.select(this)
             .style('cursor', !fits ? 'pointer' : null)
-            .on('mouseover', function (event) {
+            .on('mouseover', function (_event) {
               if (!tooltip) return
               tooltip.textContent = fullText
               tooltip.style.opacity = '1'

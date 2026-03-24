@@ -16,13 +16,14 @@ import DonutChart from '@/components/charts/DonutChart'
 import BarChart from '@/components/charts/BarChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
+import DatasetError from '@/components/ui/DatasetError'
 import { DL, PAGE_TRANSBORDER_COLS, PAGE_PORT_COLS } from '@/lib/downloadColumns'
 
 /* ── COVID annotation ─────────────────────────────────────────────── */
 const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
 
 export default function USMexicoPage() {
-  const { usTransborder, usMexicoPorts, commodityDetail, loading, loadDataset } = useTransborderStore()
+  const { usTransborder, usMexicoPorts, commodityDetail, loading, datasetErrors, loadDataset } = useTransborderStore()
 
   /* ── lazy-load datasets on mount ──────────────────────────────────── */
   useEffect(() => {
@@ -53,10 +54,6 @@ export default function USMexicoPage() {
     }
   }, [portsData])
 
-  const summaryFilterOptions = useMemo(() => {
-    return buildFilterOptions(usMexicoData, ['Year', 'TradeType', 'Mode'])
-  }, [usMexicoData])
-
   /* ── apply filters to port data ──────────────────────────────────── */
   const filteredPorts = useMemo(() => {
     let data = portsData
@@ -82,13 +79,6 @@ export default function USMexicoPage() {
     if (modeFilter.length) data = data.filter((d) => modeFilter.includes(d.Mode))
     return data
   }, [usMexicoData, tradeTypeFilter, modeFilter])
-
-  const filteredPortsNoYear = useMemo(() => {
-    let data = portsData
-    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
-    if (modeFilter.length) data = data.filter((d) => modeFilter.includes(d.Mode))
-    return data
-  }, [portsData, tradeTypeFilter, modeFilter])
 
   /* ── latest year ─────────────────────────────────────────────────── */
   const latestYear = useMemo(() => {
@@ -227,6 +217,11 @@ export default function USMexicoPage() {
   }
 
   /* ── render: loading ─────────────────────────────────────────────── */
+  if (datasetErrors.usMexicoPorts || datasetErrors.commodityDetail) {
+    const errName = datasetErrors.usMexicoPorts ? 'US-Mexico Ports' : 'Commodity Detail'
+    const errMsg = datasetErrors.usMexicoPorts || datasetErrors.commodityDetail
+    return <DatasetError datasetName={errName} error={errMsg} onRetry={() => { loadDataset('usMexicoPorts'); loadDataset('commodityDetail') }} />
+  }
   if (loading || usMexicoPorts === null || commodityDetail === null) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">

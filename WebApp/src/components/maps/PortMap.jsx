@@ -16,7 +16,8 @@
  */
 import { useMemo, useCallback, useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { MapContainer, TileLayer, CircleMarker, Polyline, Popup, useMap, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from 'react-leaflet'
+// leaflet CSS imported above via react-leaflet
 import 'leaflet/dist/leaflet.css'
 
 const COLORS = {
@@ -114,6 +115,72 @@ function ResetZoomButton({ center, zoom }) {
         </button>
       </div>
     </div>
+  )
+}
+
+/**
+ * Renders a curved SVG arc (quadratic Bezier) between two lat/lng points on the map.
+ * The control point is offset perpendicular to the midpoint for a visible curve.
+ */
+function CurvedArc({ from, to, weight, color, opacity, onMouseOver, onMouseMove, onMouseOut, children: _children }) {
+  const map = useMap()
+  const [path, setPath] = useState('')
+  const pathRef = useRef(null)
+
+  useEffect(() => {
+    const update = () => {
+      const p1 = map.latLngToLayerPoint(from)
+      const p2 = map.latLngToLayerPoint(to)
+      // Perpendicular offset for the control point
+      const dx = p2.x - p1.x
+      const dy = p2.y - p1.y
+      const dist = Math.sqrt(dx * dx + dy * dy)
+      const offset = Math.max(20, dist * 0.3)
+      // Rotate 90 degrees to get perpendicular direction
+      const mx = (p1.x + p2.x) / 2 + (-dy / dist) * offset
+      const my = (p1.y + p2.y) / 2 + (dx / dist) * offset
+      setPath(`M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`)
+    }
+    update()
+    map.on('move zoom viewreset', update)
+    return () => map.off('move zoom viewreset', update)
+  }, [map, from, to])
+
+  if (!path) return null
+
+  const pane = map.getPane('overlayPane')
+  if (!pane) return null
+
+  return createPortal(
+    <svg
+      style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', overflow: 'visible' }}
+      width="0" height="0"
+    >
+      {/* Invisible wide hit area for hover */}
+      <path
+        d={path}
+        fill="none"
+        stroke="transparent"
+        strokeWidth={Math.max(12, weight + 8)}
+        style={{ pointerEvents: 'stroke', cursor: 'pointer' }}
+        onMouseOver={onMouseOver}
+        onMouseMove={onMouseMove}
+        onMouseOut={onMouseOut}
+      />
+      {/* Visible arc */}
+      <path
+        ref={pathRef}
+        d={path}
+        fill="none"
+        stroke={color}
+        strokeWidth={weight}
+        strokeOpacity={opacity}
+        strokeDasharray="6 4"
+        strokeLinecap="round"
+        style={{ pointerEvents: 'none' }}
+      />
+    </svg>,
+    pane,
   )
 }
 
@@ -250,46 +317,34 @@ export default function PortMap({
             <MapResizeHandler />
             <TooltipSync mapRef={mapInstanceRef} tooltip={tooltip} setTooltip={setTooltip} />
 
-            {/* Trade flow arcs */}
+            {/* Trade flow arcs (curved Bezier) */}
             {arcs.map((arc, i) => (
-              <Polyline
+              <CurvedArc
                 key={`arc-${arc.usPort.portCode}-${i}`}
-                positions={arc.positions}
-                pathOptions={{
-                  color: COLORS.arc,
-                  weight: arc.weight,
-                  opacity: 0.4,
-                  dashArray: '6 4',
+                from={arc.positions[0]}
+                to={arc.positions[1]}
+                weight={arc.weight}
+                color={COLORS.arc}
+                opacity={0.4}
+                onMouseOver={(e) => {
+                  setTooltip({
+                    content: (
+                      <>
+                        <strong>{arc.usPort.name}</strong> &#8596; <strong>{arc.mxCrossing.name}</strong>
+                        <br />
+                        {formatValue(arc.usPort.value)} {metricLabel}
+                      </>
+                    ),
+                    x: e.clientX + 12,
+                    y: e.clientY - 12,
+                    sticky: true,
+                  })
                 }}
-                eventHandlers={{
-                  mouseover: (e) => {
-                    setTooltip({
-                      content: (
-                        <>
-                          <strong>{arc.usPort.name}</strong> &harr; <strong>{arc.mxCrossing.name}</strong>
-                          <br />
-                          {formatValue(arc.usPort.value)} {metricLabel}
-                        </>
-                      ),
-                      x: e.originalEvent.clientX + 12,
-                      y: e.originalEvent.clientY - 12,
-                      sticky: true,
-                    })
-                  },
-                  mousemove: (e) => {
-                    setTooltip((prev) => prev ? { ...prev, x: e.originalEvent.clientX + 12, y: e.originalEvent.clientY - 12 } : null)
-                  },
-                  mouseout: () => setTooltip(null),
+                onMouseMove={(e) => {
+                  setTooltip((prev) => prev ? { ...prev, x: e.clientX + 12, y: e.clientY - 12 } : null)
                 }}
-              >
-                <Popup>
-                  <div className="text-sm">
-                    <strong>{arc.usPort.name}</strong> &harr; <strong>{arc.mxCrossing.name}</strong>
-                    <br />
-                    {formatValue(arc.usPort.value)} {metricLabel}
-                  </div>
-                </Popup>
-              </Polyline>
+                onMouseOut={() => setTooltip(null)}
+              />
             ))}
 
             {/* Mexican crossing markers (orange) */}

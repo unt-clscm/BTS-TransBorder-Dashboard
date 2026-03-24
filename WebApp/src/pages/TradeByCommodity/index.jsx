@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, formatCompact } from '@/lib/chartColors'
+import { formatCurrency } from '@/lib/chartColors'
+import DatasetError from '@/components/ui/DatasetError'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterSidebar from '@/components/filters/FilterSidebar'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
@@ -17,12 +18,15 @@ import { DollarSign, Layers, Award, Package } from 'lucide-react'
 import { DL, PAGE_COMMODITY_COLS } from '@/lib/downloadColumns'
 
 export default function TradeByCommodityPage() {
-  const { commodityDetail, loadDataset } = useTransborderStore()
+  const { commodityDetail, datasetErrors, loadDataset } = useTransborderStore()
 
   /* ── lazy-load dataset on mount ─────────────────────────────────── */
   useEffect(() => { loadDataset('commodityDetail') }, [loadDataset])
 
-  /* ── loading spinner ────────────────────────────────────────────── */
+  /* ── loading / error ───────────────────────────────────────────── */
+  if (datasetErrors.commodityDetail) {
+    return <DatasetError datasetName="Commodity Detail" error={datasetErrors.commodityDetail} onRetry={() => loadDataset('commodityDetail')} />
+  }
   if (!commodityDetail) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">

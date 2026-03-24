@@ -50,6 +50,7 @@ function useCountUp(displayValue, duration = 1200, startDelay = 0) {
 
   useEffect(() => {
     if (typeof displayValue !== 'string') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setShown(displayValue)
       return
     }

@@ -9,7 +9,7 @@ import ChartCard from '@/components/ui/ChartCard'
 import LineChart from '@/components/charts/LineChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
-import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
+import { formatCurrency } from '@/lib/chartColors'
 import { DL, PAGE_MONTHLY_COLS } from '@/lib/downloadColumns'
 
 const MONTH_LABELS = [
@@ -17,7 +17,7 @@ const MONTH_LABELS = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ]
 
-export default function MonthlyTab({ filteredMonthly, loadDataset, latestYear }) {
+export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear }) {
   /* ── ensure dataset is loaded ────────────────────────────────────── */
   useEffect(() => {
     loadDataset('monthlyTrends')

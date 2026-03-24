@@ -8,6 +8,7 @@ import { Menu, X } from 'lucide-react'
 const navItems = [
   { label: 'Overview', path: '/' },
   { label: 'US-Mexico', path: '/us-mexico' },
+  { label: 'US-Mexico Ports', path: '/us-mexico/ports' },
   { label: 'Texas-Mexico', path: '/texas-mexico' },
   { label: 'By Mode', path: '/trade-by-mode' },
   { label: 'By Commodity', path: '/commodities' },
@@ -21,6 +22,7 @@ export default function MainNav() {
   const hamburgerRef = useRef(null)
   const firstLinkRef = useRef(null)
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { setMobileOpen(false) }, [location.pathname])
 
   const prevOpen = useRef(false)

@@ -8,7 +8,7 @@ import ChartCard from '@/components/ui/ChartCard'
 import LineChart from '@/components/charts/LineChart'
 import DonutChart from '@/components/charts/DonutChart'
 import BarChart from '@/components/charts/BarChart'
-import { formatCurrency, formatCompact } from '@/lib/chartColors'
+import { formatCurrency } from '@/lib/chartColors'
 import { DL } from '@/lib/downloadColumns'
 
 export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latestYear }) {

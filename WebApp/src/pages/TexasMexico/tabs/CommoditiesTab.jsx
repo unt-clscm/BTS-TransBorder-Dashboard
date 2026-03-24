@@ -10,10 +10,10 @@ import TreemapChart from '@/components/charts/TreemapChart'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
-import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
+import { formatCurrency, formatNumber } from '@/lib/chartColors'
 import { DL, PAGE_COMMODITY_COLS } from '@/lib/downloadColumns'
 
-export default function CommoditiesTab({ filteredCommodities, loadDataset, latestYear }) {
+export default function CommoditiesTab({ filteredCommodities, loadDataset, _latestYear }) {
   /* ── ensure dataset is loaded ────────────────────────────────────── */
   useEffect(() => {
     loadDataset('texasMexicoCommodities')

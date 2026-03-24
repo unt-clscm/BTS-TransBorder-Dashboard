@@ -14,6 +14,7 @@ import TradeByCommodityPage from '@/pages/TradeByCommodity'
 import TradeByStatePage from '@/pages/TradeByState'
 import AboutPage from '@/pages/About'
 
+import EmbedPage from '@/pages/EmbedPage'
 import NotFoundPage from '@/pages/NotFound'
 
 function ScrollToTop() {
@@ -78,7 +79,7 @@ function AppContent() {
               <Route path="/commodities" element={<TradeByCommodityPage />} />
               <Route path="/trade-by-state" element={<TradeByStatePage />} />
               <Route path="/about" element={<AboutPage />} />
-
+              <Route path="/embed/:pageId/:chartId" element={<EmbedPage />} />
 
               <Route path="*" element={<NotFoundPage />} />
             </Routes>

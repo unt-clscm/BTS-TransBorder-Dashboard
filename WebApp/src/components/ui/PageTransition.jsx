@@ -12,6 +12,7 @@ export default function PageTransition({ children }) {
   const [displayChildren, setDisplayChildren] = useState(children)
   const timeoutRef = useRef(null)
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     // On route change, start exit then swap content and enter
     setPhase('exit')
@@ -29,6 +30,7 @@ export default function PageTransition({ children }) {
       setDisplayChildren(children)
     }
   }, [children]) // eslint-disable-line react-hooks/exhaustive-deps
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   return (
     <div

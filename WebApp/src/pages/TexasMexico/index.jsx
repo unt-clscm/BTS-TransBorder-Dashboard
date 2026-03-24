@@ -10,7 +10,8 @@ import { useSearchParams } from 'react-router-dom'
 import { BarChart3, MapPin, ShoppingCart, Truck, CalendarDays, DollarSign, ArrowUpDown, Package, Activity } from 'lucide-react'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, formatCompact, formatNumber, CHART_COLORS } from '@/lib/chartColors'
+import { formatCurrency, CHART_COLORS } from '@/lib/chartColors'
+import DatasetError from '@/components/ui/DatasetError'
 const trackTabSwitch = () => {}
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterSelect from '@/components/filters/FilterSelect'
@@ -48,7 +49,7 @@ const TRADE_TYPE_OPTIONS = [
 export default function TexasMexicoPage() {
   const {
     texasMexicoPorts, texasMexicoCommodities, monthlyTrends,
-    loading, loadDataset,
+    loading, datasetErrors, loadDataset,
   } = useTransborderStore()
 
   /* ── local filter state ──────────────────────────────────────────── */
@@ -191,6 +192,9 @@ export default function TexasMexicoPage() {
   }, [])
 
   /* ── render ──────────────────────────────────────────────────────── */
+  if (datasetErrors.texasMexicoPorts) {
+    return <DatasetError datasetName="Texas-Mexico Ports" error={datasetErrors.texasMexicoPorts} onRetry={() => loadDataset('texasMexicoPorts')} />
+  }
   if (loading || !texasMexicoPorts) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">

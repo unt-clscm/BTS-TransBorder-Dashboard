@@ -10,10 +10,10 @@ import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
 import PortMap from '@/components/maps/PortMap'
 import { MEXICAN_CROSSINGS } from '@/lib/portUtils'
-import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
+import { formatCurrency, formatNumber } from '@/lib/chartColors'
 import { DL, PAGE_PORT_COLS } from '@/lib/downloadColumns'
 
-export default function PortsTab({ filteredPorts, filteredPortsNoYear, latestYear }) {
+export default function PortsTab({ filteredPorts, filteredPortsNoYear, _latestYear }) {
   /* ── Map markers (aggregate trade by port, attach coords) ────────── */
   const mapPorts = useMemo(() => {
     const byPort = new Map()

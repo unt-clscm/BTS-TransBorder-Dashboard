@@ -25,7 +25,7 @@
  *   this boilerplate for a new project or dataset. The parent component is
  *   responsible for assembling the summary/detail data objects.
  */
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Download } from 'lucide-react'
 import { downloadCsv } from '@/lib/downloadCsv'
 const trackDownload = () => {}
@@ -61,6 +61,7 @@ export default function DownloadButton({ summary, detail, size = 'default' }) {
 
   // Reset focusIdx when dropdown closes
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (!open) setFocusIdx(-1)
   }, [open])
 

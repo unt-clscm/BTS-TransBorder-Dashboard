@@ -6,7 +6,7 @@ import {
   Globe, Map, Scale, ArrowUpDown, Lightbulb,
 } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, formatCompact, formatPercent } from '@/lib/chartColors'
+import { formatCurrency } from '@/lib/chartColors'
 import { generateInsights } from '@/lib/insightEngine'
 import HeroStardust from '@/components/ui/HeroStardust'
 import InsightCallout from '@/components/ui/InsightCallout'

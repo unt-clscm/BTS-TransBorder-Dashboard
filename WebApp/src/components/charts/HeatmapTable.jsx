@@ -52,6 +52,7 @@ export default function HeatmapTable({
     let max = 0
     cells.forEach((row) => row.forEach((v) => { if (v > max) max = v }))
     return max
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   }, [cells])
 
   if (!rowLabels.length || !colLabels.length) {

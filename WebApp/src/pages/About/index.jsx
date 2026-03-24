@@ -31,7 +31,7 @@ export default function AboutPage() {
       {/* Quick-jump nav */}
       <nav className="border-b border-border-light bg-white sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-6 flex items-center gap-1 overflow-x-auto scrollbar-hide py-2">
-          {SECTIONS.map((s, i) => (
+          {SECTIONS.map((s, _i) => (
             <button
               key={s.id}
               type="button"

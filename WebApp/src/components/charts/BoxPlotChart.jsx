@@ -25,14 +25,14 @@
  * @param {boolean} [animate=true] - Entrance animation
  * @param {Array} [annotations=[]] - Optional annotation bands (same format as LineChart)
  */
-import { useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 
 const TICK_HALF = 5
 
-export default function BoxPlotChart({
+function BoxPlotChartInner({
   data = [],
   xKey = 'year',
   color = CHART_COLORS[0],
@@ -189,6 +189,7 @@ export default function BoxPlotChart({
     if (!tipDiv) {
       tipDiv = document.createElement('div')
       tipDiv.id = tipId
+      tipDiv.setAttribute('role', 'tooltip')
       Object.assign(tipDiv.style, {
         position: 'fixed', pointerEvents: 'none', display: 'none',
         background: 'white', border: '1px solid #e2e5e9', borderRadius: '8px',
@@ -353,7 +354,9 @@ export default function BoxPlotChart({
 
   return (
     <div ref={containerRef} className="w-full" style={{ minHeight: 340 }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label="Box plot chart showing distribution statistics per category" />
     </div>
   )
 }
+
+export default React.memo(BoxPlotChartInner)

@@ -74,13 +74,13 @@
  *   For fractional x-axes, the snapping logic would need adjustment.
  * - The legend only appears when there are 2+ series.
  */
-import { useRef, useEffect, useContext } from 'react'
+import React, { useRef, useEffect, useContext } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 import { ZoomRangeContext } from '@/components/ui/ChartCard'
 
-export default function LineChart({
+function LineChart({
   data = [],
   xKey = 'year',
   yKey = 'value',
@@ -361,6 +361,7 @@ export default function LineChart({
     if (!tipDiv) {
       tipDiv = document.createElement('div')
       tipDiv.id = tipId
+      tipDiv.setAttribute('role', 'tooltip')
       Object.assign(tipDiv.style, {
         position: 'fixed', pointerEvents: 'none', display: 'none',
         background: 'white', border: '1px solid #e2e5e9', borderRadius: '8px',
@@ -693,7 +694,7 @@ export default function LineChart({
     }
 
     return () => { document.getElementById(tipId)?.remove() }
-  }, [data, width, containerHeight, isFullscreen, xKey, yKey, seriesKey, formatX, showArea, animate, annotations])
+  }, [data, width, containerHeight, isFullscreen, xKey, yKey, seriesKey, formatX, showArea, animate, annotations, formatValue, setZoomRange])
 
   // Ensure container expands for legend rows
   const seriesCount = seriesKey ? new Set(data.map(d => d[seriesKey])).size : 0
@@ -702,7 +703,9 @@ export default function LineChart({
 
   return (
     <div ref={containerRef} className="w-full h-full" style={{ minHeight: minH }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label="Line chart visualization" />
     </div>
   )
 }
+
+export default React.memo(LineChart)

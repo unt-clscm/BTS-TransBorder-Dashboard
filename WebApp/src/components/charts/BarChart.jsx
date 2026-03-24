@@ -68,7 +68,7 @@
  * - The component sets a `minHeight` on the container in horizontal mode
  *   to ensure each bar gets ~32px of vertical space.
  */
-import { useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
@@ -76,7 +76,7 @@ import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 /** Half-length of axis tick marks (extends TICK_HALF px above and below the axis line). */
 const TICK_HALF = 5
 
-export default function BarChart({
+function BarChart({
   data = [],
   xKey = 'label',
   yKey = 'value',
@@ -334,7 +334,7 @@ export default function BarChart({
         })
     }
 
-  }, [data, width, containerHeight, isFullscreen, xKey, yKey, color, colorAccessor, horizontal, selectedBar, maxBars, animate, labelAccessor])
+  }, [data, width, containerHeight, isFullscreen, xKey, yKey, color, colorAccessor, horizontal, selectedBar, maxBars, animate, labelAccessor, formatValue, onBarClick])
 
   // In horizontal mode, set a minimum height so each bar gets enough space
   // (~32px per bar). This allows the parent grid cell to grow accordingly.
@@ -343,9 +343,10 @@ export default function BarChart({
 
   return (
     <div ref={containerRef} className="w-full h-full relative" style={{ minHeight: minH }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label={`${horizontal ? 'Horizontal bar' : 'Bar'} chart visualization`} />
       <div
         ref={tooltipRef}
+        role="tooltip"
         style={{
           position: 'absolute',
           pointerEvents: 'none',
@@ -366,3 +367,5 @@ export default function BarChart({
     </div>
   )
 }
+
+export default React.memo(BarChart)

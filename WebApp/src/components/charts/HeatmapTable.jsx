@@ -19,7 +19,7 @@
  * @param {Function} [formatValue] — formatter for cell values
  * @param {Map} [airportIndex] — IATA → {name, lat, lng} lookup for tooltips
  */
-import { useMemo, useState, useRef, useCallback } from 'react'
+import React, { useMemo, useState, useRef, useCallback } from 'react'
 import { formatCompact as fmtCompact } from '@/lib/chartColors'
 
 /* Shared opaque background for sticky cells (must not be transparent) */
@@ -32,7 +32,7 @@ const HL_BORDER = `rgba(${HL_COLOR}, 0.6)` /* visible border lines */
 const HL_BG     = `rgba(${HL_COLOR}, 0.10)` /* subtle warm tint on empty cells */
 const HL_HEADER = `rgba(${HL_COLOR}, 0.18)` /* header cell highlight */
 
-export default function HeatmapTable({
+function HeatmapTableInner({
   data = { rowLabels: [], colLabels: [], cells: [] },
   formatValue = fmtCompact,
   airportIndex,
@@ -102,7 +102,7 @@ export default function HeatmapTable({
       style={{ position: 'relative' }}
       onMouseLeave={() => { setHovered(null); setTooltip(null) }}
     >
-      <table className="border-collapse text-base" style={{ position: 'relative' }}>
+      <table className="border-collapse text-base" role="table" aria-label="Heatmap table showing origin-destination flow intensity" style={{ position: 'relative' }}>
         {/* ── Header row (sticky top) ── */}
         <thead>
           <tr>
@@ -258,6 +258,7 @@ export default function HeatmapTable({
           }}
         >
           <div
+            role="tooltip"
             className="rounded-lg shadow-lg border border-border-light text-base leading-snug"
             style={{
               background: 'rgba(255,255,255,0.97)',
@@ -286,3 +287,5 @@ export default function HeatmapTable({
     </div>
   )
 }
+
+export default React.memo(HeatmapTableInner)

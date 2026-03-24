@@ -55,12 +55,12 @@
  * - The tooltip shows layers in reverse stack order (top-of-stack first)
  *   and filters out layers with value 0.
  */
-import { useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 
-export default function StackedBarChart({
+function StackedBarChart({
   data = [],
   xKey = 'year',
   stackKeys = [],
@@ -199,6 +199,7 @@ export default function StackedBarChart({
     if (!tipDiv) {
       tipDiv = document.createElement('div')
       tipDiv.id = tipId
+      tipDiv.setAttribute('role', 'tooltip')
       Object.assign(tipDiv.style, {
         position: 'fixed', pointerEvents: 'none', display: 'none',
         background: 'white', border: '1px solid #e2e5e9', borderRadius: '8px',
@@ -367,7 +368,7 @@ export default function StackedBarChart({
     }
 
     return () => { document.getElementById(tipId)?.remove() }
-  }, [data, width, containerHeight, isFullscreen, xKey, stackKeys, animate, normalize])
+  }, [data, width, containerHeight, isFullscreen, xKey, stackKeys, animate, normalize, formatValue])
 
   // Ensure container expands for legend rows
   const estLegendRows = stackKeys.length > 0 ? Math.max(1, Math.ceil(stackKeys.length / 4)) : 0
@@ -375,7 +376,9 @@ export default function StackedBarChart({
 
   return (
     <div ref={containerRef} className="w-full" style={{ minHeight: minH }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label="Stacked bar chart visualization" />
     </div>
   )
 }
+
+export default React.memo(StackedBarChart)

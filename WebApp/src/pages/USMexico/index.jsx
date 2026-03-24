@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { DollarSign, ArrowUpRight, ArrowDownLeft, MapPin, Truck, TrendingUp } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, buildFilterOptions, getAxisFormatter } from '@/lib/transborderHelpers'
+import { formatCurrency, buildFilterOptions, applyStandardFilters, getAxisFormatter } from '@/lib/transborderHelpers'
 import { CHART_COLORS } from '@/lib/chartColors'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
@@ -55,30 +55,22 @@ export default function USMexicoPage() {
   }, [portsData])
 
   /* ── apply filters to port data ──────────────────────────────────── */
-  const filteredPorts = useMemo(() => {
-    let data = portsData
-    if (yearFilter.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
-    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
-    if (modeFilter.length) data = data.filter((d) => modeFilter.includes(d.Mode))
-    return data
-  }, [portsData, yearFilter, tradeTypeFilter, modeFilter])
+  const filteredPorts = useMemo(
+    () => applyStandardFilters(portsData, { Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter }),
+    [portsData, yearFilter, tradeTypeFilter, modeFilter],
+  )
 
   /* ── apply filters to summary data ───────────────────────────────── */
-  const filteredSummary = useMemo(() => {
-    let data = usMexicoData
-    if (yearFilter.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
-    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
-    if (modeFilter.length) data = data.filter((d) => modeFilter.includes(d.Mode))
-    return data
-  }, [usMexicoData, yearFilter, tradeTypeFilter, modeFilter])
+  const filteredSummary = useMemo(
+    () => applyStandardFilters(usMexicoData, { Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter }),
+    [usMexicoData, yearFilter, tradeTypeFilter, modeFilter],
+  )
 
   /* ── filteredNoYear: same filters except year (for trend charts) ── */
-  const filteredSummaryNoYear = useMemo(() => {
-    let data = usMexicoData
-    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
-    if (modeFilter.length) data = data.filter((d) => modeFilter.includes(d.Mode))
-    return data
-  }, [usMexicoData, tradeTypeFilter, modeFilter])
+  const filteredSummaryNoYear = useMemo(
+    () => applyStandardFilters(usMexicoData, { TradeType: tradeTypeFilter, Mode: modeFilter }),
+    [usMexicoData, tradeTypeFilter, modeFilter],
+  )
 
   /* ── latest year ─────────────────────────────────────────────────── */
   const latestYear = useMemo(() => {

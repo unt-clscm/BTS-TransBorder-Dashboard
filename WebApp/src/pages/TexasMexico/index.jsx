@@ -7,12 +7,11 @@
  */
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { BarChart3, MapPin, ShoppingCart, Truck, CalendarDays, DollarSign, ArrowUpDown, Package, Activity } from 'lucide-react'
+import { BarChart3, MapPin, ShoppingCart, Truck, CalendarDays, DollarSign, ArrowUpDown, Package } from 'lucide-react'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, CHART_COLORS } from '@/lib/chartColors'
+import { formatCurrency } from '@/lib/chartColors'
 import DatasetError from '@/components/ui/DatasetError'
-const trackTabSwitch = () => {}
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterSelect from '@/components/filters/FilterSelect'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
@@ -64,8 +63,6 @@ export default function TexasMexicoPage() {
   const rawTab = searchParams.get('tab')
   const activeTab = VALID_TABS.has(rawTab) ? rawTab : 'overview'
   const handleTabChange = useCallback((key) => {
-    const tab = TAB_CONFIG.find((t) => t.key === key)
-    trackTabSwitch(key, tab?.label || key, '/texas-mexico-freight')
     setSearchParams({ tab: key }, { replace: true })
   }, [setSearchParams])
   const tabBarRef = useRef(null)

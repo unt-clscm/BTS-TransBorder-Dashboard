@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { DollarSign, MapPin, Award, Truck } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, buildFilterOptions, getAxisFormatter } from '@/lib/transborderHelpers'
+import { formatCurrency, buildFilterOptions, applyStandardFilters, getAxisFormatter } from '@/lib/transborderHelpers'
 import { CHART_COLORS } from '@/lib/chartColors'
 import { MEXICAN_CROSSINGS } from '@/lib/portUtils'
 import DashboardLayout from '@/components/layout/DashboardLayout'
@@ -31,11 +31,19 @@ export default function USMexicoPortsPage() {
 
   /* ── port coordinates (fetched once from static JSON) ──────────── */
   const [portCoords, setPortCoords] = useState(null)
+  const [portCoordsError, setPortCoordsError] = useState(null)
   useEffect(() => {
     fetch(`${import.meta.env.BASE_URL}data/port_coordinates.json`)
-      .then((r) => r.json())
+      .then((r) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
       .then(setPortCoords)
-      .catch(() => setPortCoords({}))
+      .catch((err) => {
+        console.error('Failed to load port coordinates:', err)
+        setPortCoordsError(err.message || 'Unknown error')
+        setPortCoords({})
+      })
   }, [])
 
   /* ── local filter state ──────────────────────────────────────────── */
@@ -59,23 +67,16 @@ export default function USMexicoPortsPage() {
   }, [portsData])
 
   /* ── filtered data ───────────────────────────────────────────────── */
-  const filtered = useMemo(() => {
-    let data = portsData
-    if (yearFilter.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
-    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
-    if (modeFilter.length) data = data.filter((d) => modeFilter.includes(d.Mode))
-    if (stateFilter.length) data = data.filter((d) => stateFilter.includes(d.State))
-    return data
-  }, [portsData, yearFilter, tradeTypeFilter, modeFilter, stateFilter])
+  const filtered = useMemo(
+    () => applyStandardFilters(portsData, { Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter, State: stateFilter }),
+    [portsData, yearFilter, tradeTypeFilter, modeFilter, stateFilter],
+  )
 
   /* ── filteredNoYear (for trend charts) ───────────────────────────── */
-  const filteredNoYear = useMemo(() => {
-    let data = portsData
-    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
-    if (modeFilter.length) data = data.filter((d) => modeFilter.includes(d.Mode))
-    if (stateFilter.length) data = data.filter((d) => stateFilter.includes(d.State))
-    return data
-  }, [portsData, tradeTypeFilter, modeFilter, stateFilter])
+  const filteredNoYear = useMemo(
+    () => applyStandardFilters(portsData, { TradeType: tradeTypeFilter, Mode: modeFilter, State: stateFilter }),
+    [portsData, tradeTypeFilter, modeFilter, stateFilter],
+  )
 
   /* ── latest year ─────────────────────────────────────────────────── */
   const latestYear = useMemo(() => {
@@ -340,6 +341,11 @@ export default function USMexicoPortsPage() {
       {/* Interactive port map */}
       <SectionBlock>
         <ChartCard title="Port Locations" subtitle="U.S.–Mexico border ports of entry — bubble size reflects trade value">
+          {portCoordsError && (
+            <div className="mb-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+              Port coordinates failed to load ({portCoordsError}). Map markers may be missing.
+            </div>
+          )}
           <PortMap
             ports={mapPorts}
             mexicanCrossings={MEXICAN_CROSSINGS}

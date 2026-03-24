@@ -34,10 +34,12 @@
 import { Component } from 'react'
 import { AlertTriangle } from 'lucide-react'
 
+const MAX_RETRIES = 3
+
 export default class ErrorBoundary extends Component {
   constructor(props) {
     super(props)
-    this.state = { hasError: false, error: null }
+    this.state = { hasError: false, error: null, retryCount: 0 }
   }
 
   static getDerivedStateFromError(error) {
@@ -48,8 +50,19 @@ export default class ErrorBoundary extends Component {
     console.error('ErrorBoundary caught:', error, errorInfo)
   }
 
+  handleRetry = () => {
+    this.setState((prev) => ({
+      hasError: false,
+      error: null,
+      retryCount: prev.retryCount + 1,
+    }))
+    if (this.props.onRetry) this.props.onRetry()
+  }
+
   render() {
     if (this.state.hasError) {
+      const exhausted = this.state.retryCount >= MAX_RETRIES
+
       return (
         <div className="flex items-center justify-center min-h-[40vh]">
           <div className="text-center max-w-md px-6">
@@ -57,19 +70,33 @@ export default class ErrorBoundary extends Component {
             <h2 className="text-xl font-semibold text-text-primary mb-2">
               Something went wrong
             </h2>
-            <p className="text-base text-text-secondary mb-4">
-              An error occurred while rendering this section. Try refreshing the page.
-            </p>
-            <button
-              onClick={() => {
-                this.setState({ hasError: false, error: null })
-                if (this.props.onRetry) this.props.onRetry()
-              }}
-              className="px-4 py-2 text-base font-medium text-white bg-brand-blue rounded-lg
-                         hover:bg-brand-blue-dark transition-colors"
-            >
-              Try again
-            </button>
+            {exhausted ? (
+              <>
+                <p className="text-base text-text-secondary mb-4">
+                  This section failed to load after several attempts. Please reload the page to try again.
+                </p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 text-base font-medium text-white bg-brand-blue rounded-lg
+                             hover:bg-brand-blue-dark transition-colors"
+                >
+                  Reload page
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="text-base text-text-secondary mb-4">
+                  An error occurred while rendering this section. Try refreshing the page.
+                </p>
+                <button
+                  onClick={this.handleRetry}
+                  className="px-4 py-2 text-base font-medium text-white bg-brand-blue rounded-lg
+                             hover:bg-brand-blue-dark transition-colors"
+                >
+                  Try again
+                </button>
+              </>
+            )}
           </div>
         </div>
       )

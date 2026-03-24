@@ -1,8 +1,8 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency } from '@/lib/chartColors'
+import { buildFilterOptions, applyStandardFilters } from '@/lib/transborderHelpers'
 import DashboardLayout from '@/components/layout/DashboardLayout'
-import FilterSidebar from '@/components/filters/FilterSidebar'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
 import FilterSelect from '@/components/filters/FilterSelect'
 import SectionBlock from '@/components/ui/SectionBlock'
@@ -49,22 +49,14 @@ function TradeByStateInner({ data }) {
   const [country, setCountry] = useState('')
 
   /* ── derived filter options ─────────────────────────────────────── */
-  const yearOptions = useMemo(() => {
-    const years = [...new Set(data.map((d) => d.Year).filter(Number.isFinite))]
-    return years.sort((a, b) => b - a).map(String)
-  }, [data])
-
-  const tradeTypeOptions = useMemo(() => {
-    return [...new Set(data.map((d) => d.TradeType).filter(Boolean))].sort()
-  }, [data])
-
-  const modeOptions = useMemo(() => {
-    return [...new Set(data.map((d) => d.Mode).filter(Boolean))].sort()
-  }, [data])
-
-  const countryOptions = useMemo(() => {
-    return [...new Set(data.map((d) => d.Country).filter(Boolean))].sort()
-  }, [data])
+  const filterOpts = useMemo(
+    () => buildFilterOptions(data, ['Year', 'TradeType', 'Mode', 'Country']),
+    [data],
+  )
+  const yearOptions = useMemo(() => (filterOpts.Year || []).map(String).reverse(), [filterOpts])
+  const tradeTypeOptions = filterOpts.TradeType || []
+  const modeOptions = filterOpts.Mode || []
+  const countryOptions = filterOpts.Country || []
 
   /* ── latest year ────────────────────────────────────────────────── */
   const latestYear = useMemo(() => {
@@ -73,23 +65,16 @@ function TradeByStateInner({ data }) {
   }, [selectedYears, data])
 
   /* ── filtered data (all filters applied) ────────────────────────── */
-  const filtered = useMemo(() => {
-    let rows = data
-    if (selectedYears.length) rows = rows.filter((d) => selectedYears.includes(String(d.Year)))
-    if (tradeType) rows = rows.filter((d) => d.TradeType === tradeType)
-    if (selectedModes.length) rows = rows.filter((d) => selectedModes.includes(d.Mode))
-    if (country) rows = rows.filter((d) => d.Country === country)
-    return rows
-  }, [data, selectedYears, tradeType, selectedModes, country])
+  const filtered = useMemo(
+    () => applyStandardFilters(data, { Year: selectedYears, TradeType: tradeType, Mode: selectedModes, Country: country }),
+    [data, selectedYears, tradeType, selectedModes, country],
+  )
 
   /* ── filtered without year (for trend charts) ───────────────────── */
-  const filteredNoYear = useMemo(() => {
-    let rows = data
-    if (tradeType) rows = rows.filter((d) => d.TradeType === tradeType)
-    if (selectedModes.length) rows = rows.filter((d) => selectedModes.includes(d.Mode))
-    if (country) rows = rows.filter((d) => d.Country === country)
-    return rows
-  }, [data, tradeType, selectedModes, country])
+  const filteredNoYear = useMemo(
+    () => applyStandardFilters(data, { TradeType: tradeType, Mode: selectedModes, Country: country }),
+    [data, tradeType, selectedModes, country],
+  )
 
   /* ── latest-year filtered data ──────────────────────────────────── */
   const latestFiltered = useMemo(() => {

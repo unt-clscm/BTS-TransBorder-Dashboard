@@ -44,9 +44,6 @@ import { RotateCcw, Image as ImageIcon, Maximize2 } from 'lucide-react'
 import DownloadButton from '@/components/ui/DownloadButton'
 import FullscreenChart from '@/components/ui/FullscreenChart'
 import { exportChartPng } from '@/lib/exportPng'
-// Analytics removed — no-op
-const trackExportPng = () => {}
-const trackFullscreen = () => {}
 
 /** Child charts (e.g. LineChart) call setZoomRange({ xKey, min, max }) during zoom
  *  and setZoomRange(null) on reset so ChartCard can filter download data. */
@@ -90,14 +87,17 @@ export default function ChartCard({
     }
   }, [children, title])
 
-  const handleExportPng = () => {
-    trackExportPng(title)
-    exportChartPng(
-      chartAreaRef.current,
-      title?.replace(/\s+/g, '-').toLowerCase() || 'chart',
-      title,
-      subtitle,
-    )
+  const handleExportPng = async () => {
+    try {
+      await exportChartPng(
+        chartAreaRef.current,
+        title?.replace(/\s+/g, '-').toLowerCase() || 'chart',
+        title,
+        subtitle,
+      )
+    } catch (err) {
+      console.error('PNG export failed:', err)
+    }
   }
 
   // Filter download data to the visible zoom range
@@ -160,7 +160,7 @@ export default function ChartCard({
               <ImageIcon size={14} />
             </button>
             <button
-              onClick={() => { trackFullscreen(title); setIsFullscreen(true) }}
+              onClick={() => setIsFullscreen(true)}
               className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded-md text-text-secondary hover:text-brand-blue
                          hover:bg-surface-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue transition-all duration-150"
               aria-label="Full screen"

@@ -21,14 +21,14 @@
  * @param {string}   [scaleType='symlog'] — 'symlog' | 'linear' | 'log'
  * @param {boolean}  [animate=true]
  */
-import { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useMemo, useCallback } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 
 const TICK_HALF = 5
 
-export default function ScatterPlot({
+function ScatterPlotInner({
   data = [],
   xKey = 'x',
   yKey = 'y',
@@ -49,6 +49,26 @@ export default function ScatterPlot({
   const svgRef = useRef(null)
   const { width, height: containerHeight, isFullscreen } = useChartResize(containerRef)
 
+  // Memoize categories and color scale to avoid recreating on every render/getColor call
+  const categories = useMemo(
+    () => (colorKey ? [...new Set(data.map((d) => d[colorKey]))] : []),
+    [data, colorKey],
+  )
+
+  const colorScale = useMemo(
+    () => (categories.length ? d3.scaleOrdinal().domain(categories).range(CHART_COLORS) : null),
+    [categories],
+  )
+
+  const getColor = useCallback(
+    (d) => {
+      if (!colorKey) return CHART_COLORS[0]
+      if (colorMap) return colorMap[d[colorKey]] || CHART_COLORS[0]
+      return colorScale(d[colorKey])
+    },
+    [colorKey, colorMap, colorScale],
+  )
+
   useEffect(() => {
     if (!data.length || !width) return
 
@@ -64,9 +84,6 @@ export default function ScatterPlot({
       : { top: 20, right: 32, bottom: 80, left: 104 }
 
     // Reserve space for legend if colorKey has categories
-    const categories = colorKey
-      ? [...new Set(data.map((d) => d[colorKey]))]
-      : []
     const legendSpace = categories.length >= 2 ? 48 : 0
 
     const defaultH = 380 + legendSpace
@@ -113,13 +130,6 @@ export default function ScatterPlot({
       ? d3.scaleSqrt().domain([0, sizeExtent[1] || 1]).range([minR, maxR])
       : null
     const getR = (d) => rScale ? rScale(d[sizeKey]) : 6
-
-    // Color
-    const getColor = (d) => {
-      if (!colorKey) return CHART_COLORS[0]
-      if (colorMap) return colorMap[d[colorKey]] || CHART_COLORS[0]
-      return d3.scaleOrdinal().domain(categories).range(CHART_COLORS)(d[colorKey])
-    }
 
     /* ── tick generation (avoid symlog overlap) ─────────────────── */
     const makeTicks = (scale, maxVal, _pixelRange) => {
@@ -236,6 +246,7 @@ export default function ScatterPlot({
     if (!tipDiv) {
       tipDiv = document.createElement('div')
       tipDiv.id = tipId
+      tipDiv.setAttribute('role', 'tooltip')
       Object.assign(tipDiv.style, {
         position: 'fixed', pointerEvents: 'none', display: 'none',
         background: 'white', border: '1px solid #e2e5e9', borderRadius: '8px',
@@ -450,11 +461,13 @@ export default function ScatterPlot({
     return () => {
       document.getElementById(tipId)?.remove()
     }
-  }, [data, width, containerHeight, isFullscreen, xKey, yKey, labelKey, nameKey, colorKey, sizeKey, formatX, formatY, colorMap, xLabel, yLabel, labelThreshold, scaleType, animate])
+  }, [data, width, containerHeight, isFullscreen, xKey, yKey, labelKey, nameKey, colorKey, sizeKey, formatX, formatY, colorMap, xLabel, yLabel, labelThreshold, scaleType, animate, getColor, categories])
 
   return (
     <div ref={containerRef} className="w-full" style={{ minHeight: 380 }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label="Scatter plot chart showing data point distributions across two axes" />
     </div>
   )
 }
+
+export default React.memo(ScatterPlotInner)

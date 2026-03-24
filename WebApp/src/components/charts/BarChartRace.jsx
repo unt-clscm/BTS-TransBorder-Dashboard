@@ -30,7 +30,7 @@
  * @param {Object} [originColors={}]
  *   Map of airport code → hex color for bar fill.
  */
-import { useRef, useEffect, useCallback } from 'react'
+import React, { useRef, useEffect, useCallback } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
@@ -38,7 +38,7 @@ import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 const TICK_HALF = 5
 const TRANSITION_MS = 750
 
-export default function BarChartRace({
+function BarChartRaceInner({
   frames = [],
   currentYear,
   globalMax = 1,
@@ -347,9 +347,10 @@ export default function BarChartRace({
 
   return (
     <div ref={containerRef} className="w-full h-full relative" style={{ minHeight: minH }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label={`Animated bar chart race showing ranked items over time, currently displaying year ${currentYear}`} />
       <div
         ref={tooltipRef}
+        role="tooltip"
         style={{
           position: 'absolute',
           pointerEvents: 'none',
@@ -370,3 +371,5 @@ export default function BarChartRace({
     </div>
   )
 }
+
+export default React.memo(BarChartRaceInner)

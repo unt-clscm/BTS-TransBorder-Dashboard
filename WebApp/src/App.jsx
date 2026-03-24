@@ -1,21 +1,21 @@
-import { useEffect } from 'react'
+import { useEffect, lazy, Suspense } from 'react'
 import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
 import ErrorBoundary from '@/components/ui/ErrorBoundary'
 import PageTransition from '@/components/ui/PageTransition'
 import PageWrapper from '@/components/layout/PageWrapper'
-import OverviewPage from '@/pages/Overview'
-import USMexicoPage from '@/pages/USMexico'
-import USMexicoPortsPage from '@/pages/USMexicoPorts'
-import TexasMexicoPage from '@/pages/TexasMexico'
-import TradeByModePage from '@/pages/TradeByMode'
-import TradeByCommodityPage from '@/pages/TradeByCommodity'
-import TradeByStatePage from '@/pages/TradeByState'
-import AboutPage from '@/pages/About'
 
-import EmbedPage from '@/pages/EmbedPage'
-import NotFoundPage from '@/pages/NotFound'
+const OverviewPage = lazy(() => import('@/pages/Overview'))
+const USMexicoPage = lazy(() => import('@/pages/USMexico'))
+const USMexicoPortsPage = lazy(() => import('@/pages/USMexicoPorts'))
+const TexasMexicoPage = lazy(() => import('@/pages/TexasMexico'))
+const TradeByModePage = lazy(() => import('@/pages/TradeByMode'))
+const TradeByCommodityPage = lazy(() => import('@/pages/TradeByCommodity'))
+const TradeByStatePage = lazy(() => import('@/pages/TradeByState'))
+const AboutPage = lazy(() => import('@/pages/About'))
+const EmbedPage = lazy(() => import('@/pages/EmbedPage'))
+const NotFoundPage = lazy(() => import('@/pages/NotFound'))
 
 function ScrollToTop() {
   const { pathname } = useLocation()
@@ -69,6 +69,11 @@ function AppContent() {
         <DataLoadError error={error} onRetry={init} retrying={loading} />
       ) : (
         <ErrorBoundary onRetry={init}>
+          <Suspense fallback={
+            <div className="flex items-center justify-center min-h-[60vh]">
+              <div className="w-10 h-10 border-3 border-brand-blue border-t-transparent rounded-full animate-spin" />
+            </div>
+          }>
           <PageTransition>
             <Routes>
               <Route path="/" element={<OverviewPage />} />
@@ -84,6 +89,7 @@ function AppContent() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </PageTransition>
+          </Suspense>
         </ErrorBoundary>
       )}
     </PageWrapper>

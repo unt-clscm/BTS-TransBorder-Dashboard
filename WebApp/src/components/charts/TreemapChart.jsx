@@ -1,9 +1,9 @@
-import { useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 
-export default function TreemapChart({
+function TreemapChart({
   data = [],
   nameKey = 'label',
   valueKey = 'value',
@@ -106,6 +106,7 @@ export default function TreemapChart({
     if (!tipDiv) {
       tipDiv = document.createElement('div')
       tipDiv.id = 'treemap-tooltip'
+      tipDiv.setAttribute('role', 'tooltip')
       Object.assign(tipDiv.style, {
         position: 'fixed', pointerEvents: 'none', display: 'none',
         background: 'white', border: '1px solid #e2e5e9', borderRadius: '8px',
@@ -155,11 +156,13 @@ export default function TreemapChart({
       .style('cursor', onCellClick ? 'pointer' : 'default')
 
     return () => { document.getElementById('treemap-tooltip')?.remove() }
-  }, [data, width, containerHeight, isFullscreen, nameKey, valueKey, animate, onCellClick])
+  }, [data, width, containerHeight, isFullscreen, nameKey, valueKey, animate, onCellClick, formatValue])
 
   return (
     <div ref={containerRef} className="w-full relative" style={{ minHeight: 320 }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label="Treemap chart visualization" />
     </div>
   )
 }
+
+export default React.memo(TreemapChart)

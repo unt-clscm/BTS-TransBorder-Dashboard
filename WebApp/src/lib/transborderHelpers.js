@@ -216,3 +216,37 @@ export function buildFilterOptions(data, keys) {
 
   return result;
 }
+
+/**
+ * Apply a set of standard filters to a data array.
+ *
+ * `filterSpec` is an object mapping data-column names to the current filter
+ * value.  For each entry:
+ *   - **Array** value (multi-select):  keeps rows where `String(row[key])` is
+ *     in the array.  Empty array = no filter.
+ *   - **String** value (single-select): keeps rows where `row[key]` exactly
+ *     matches.  Empty string = no filter.
+ *
+ * @param {Array<Object>} data
+ * @param {Object<string, string|string[]>} filterSpec
+ * @returns {Array<Object>}
+ *
+ * @example
+ *   applyStandardFilters(rows, {
+ *     Year:      selectedYears,   // string[]  — multi-select
+ *     TradeType: tradeType,       // string    — single-select
+ *     Mode:      selectedModes,   // string[]  — multi-select
+ *   })
+ */
+export function applyStandardFilters(data, filterSpec) {
+  if (!data?.length || !filterSpec) return data || [];
+  let result = data;
+  for (const [key, value] of Object.entries(filterSpec)) {
+    if (Array.isArray(value)) {
+      if (value.length) result = result.filter((d) => value.includes(String(d[key])));
+    } else if (value) {
+      result = result.filter((d) => d[key] === value);
+    }
+  }
+  return result;
+}

@@ -21,14 +21,14 @@
  * @param {number} [maxBars=15]
  * @param {boolean} [animate=true]
  */
-import { useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 
 const TICK_HALF = 5
 
-export default function DivergingBarChart({
+function DivergingBarChartInner({
   data = [],
   labelKey = 'label',
   leftKey = 'left',
@@ -202,7 +202,9 @@ export default function DivergingBarChart({
 
   return (
     <div ref={containerRef} className="w-full" style={{ minHeight: minH }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label={`Diverging bar chart comparing ${leftLabel} and ${rightLabel}`} />
     </div>
   )
 }
+
+export default React.memo(DivergingBarChartInner)

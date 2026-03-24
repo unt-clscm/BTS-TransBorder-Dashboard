@@ -15,12 +15,12 @@
  * @param {boolean} [animate=true]   Animate stems and dots on mount
  * @param {number}  [dotRadius=7]    Radius of the lollipop dot
  */
-import { useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 
-export default function LollipopChart({
+function LollipopChart({
   data = [],
   xKey = 'label',
   yKey = 'value',
@@ -179,16 +179,17 @@ export default function LollipopChart({
         })
     })
 
-  }, [data, width, containerHeight, isFullscreen, xKey, yKey, color, maxBars, animate, dotRadius])
+  }, [data, width, containerHeight, isFullscreen, xKey, yKey, color, maxBars, animate, dotRadius, formatValue])
 
   const displayCount = Math.min(data.length, maxBars)
   const minH = Math.max(220, displayCount * 52 + 24)
 
   return (
     <div ref={containerRef} className="w-full h-full relative" style={{ minHeight: minH }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label="Lollipop chart visualization" />
       <div
         ref={tooltipRef}
+        role="tooltip"
         style={{
           position: 'absolute',
           pointerEvents: 'none',
@@ -209,3 +210,5 @@ export default function LollipopChart({
     </div>
   )
 }
+
+export default React.memo(LollipopChart)

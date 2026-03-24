@@ -17,22 +17,49 @@ const DATASET_FILES = {
   monthlyTrends: 'monthly_trends.json',
 }
 
+const FETCH_TIMEOUT_MS = 30_000
+
 const NUMERIC_FIELDS = ['TradeValue', 'Weight', 'FreightCharges', 'Year', 'Month', 'Lat', 'Lon']
 const STRING_FIELDS = ['Port', 'State', 'Mode', 'CommodityGroup', 'Commodity', 'Country', 'TradeType', 'Region', 'HSCode', 'PortCode', 'StateCode']
 
 function normalizeRow(d) {
+  const out = { ...d }
   for (const key of NUMERIC_FIELDS) {
-    if (key in d) {
-      const v = d[key]
-      d[key] = v === null || v === '' ? null : +v
+    if (key in out) {
+      const v = out[key]
+      out[key] = v === null || v === '' ? null : +v
     }
   }
   for (const key of STRING_FIELDS) {
-    if (typeof d[key] === 'string') {
-      d[key] = d[key].trim() || null
+    if (typeof out[key] === 'string') {
+      out[key] = out[key].trim() || null
     }
   }
-  return d
+  return out
+}
+
+/** Fetch with an AbortSignal and a timeout. Rejects on timeout with a user-friendly message. */
+function fetchWithTimeout(url, signal) {
+  const timeout = AbortSignal.timeout(FETCH_TIMEOUT_MS)
+  const combined = AbortSignal.any([signal, timeout])
+  return fetch(url, { signal: combined }).catch((err) => {
+    if (err.name === 'TimeoutError') {
+      throw new Error('Request timed out — the server took too long to respond. Please try again.')
+    }
+    throw err
+  })
+}
+
+// Active AbortControllers keyed by dataset name (or '__init__' for init)
+const abortControllers = {}
+
+function getOrReplaceController(key) {
+  if (abortControllers[key]) {
+    abortControllers[key].abort()
+  }
+  const controller = new AbortController()
+  abortControllers[key] = controller
+  return controller
 }
 
 export const useTransborderStore = create((set, get) => ({
@@ -51,45 +78,21 @@ export const useTransborderStore = create((set, get) => ({
   datasetLoading: {},
   datasetErrors: {},
 
-  // Filter state
-  filters: {
-    year: [],
-    country: '',
-    tradeType: '',
-    mode: [],
-    state: [],
-    commodityGroup: [],
-    port: [],
-    region: '',
-  },
-
-  setFilter: (key, value) => {
-    set((s) => ({ filters: { ...s.filters, [key]: value } }))
-  },
-
-  setFilters: (updates) => {
-    set((s) => ({ filters: { ...s.filters, ...updates } }))
-  },
-
-  resetFilters: () => {
-    set({
-      filters: {
-        year: [], country: '', tradeType: '', mode: [],
-        state: [], commodityGroup: [], port: [], region: '',
-      },
-    })
-  },
-
   // Init — load only usTransborder (~0.2 MB)
   init: async () => {
+    const controller = getOrReplaceController('__init__')
     set({ loading: true, error: null })
     try {
-      const resp = await fetch(`${base}data/${DATASET_FILES.usTransborder}`)
+      const resp = await fetchWithTimeout(
+        `${base}data/${DATASET_FILES.usTransborder}`,
+        controller.signal,
+      )
       if (!resp.ok) throw new Error(`Failed to load us_transborder.json: ${resp.status}`)
       const raw = await resp.json()
-      raw.forEach(normalizeRow)
-      set({ usTransborder: raw, loading: false })
+      const normalized = raw.map(normalizeRow)
+      set({ usTransborder: normalized, loading: false })
     } catch (err) {
+      if (err.name === 'AbortError') return // silently ignore cancelled requests
       console.error('Failed to load initial data:', err)
       set({ error: err.message, loading: false })
     }
@@ -97,32 +100,47 @@ export const useTransborderStore = create((set, get) => ({
 
   // Lazy-load any dataset on demand
   loadDataset: async (name) => {
+    // Guard: already loaded or already in-flight
     const state = get()
     if (state[name] !== null || state.datasetLoading[name]) return
-    const nextErrors = { ...state.datasetErrors }
-    delete nextErrors[name]
-    set({ datasetLoading: { ...state.datasetLoading, [name]: true }, datasetErrors: nextErrors })
+
+    const controller = getOrReplaceController(name)
+
+    // Use functional set() to avoid stale state when clearing prior error
+    set((s) => {
+      const nextErrors = { ...s.datasetErrors }
+      delete nextErrors[name]
+      return {
+        datasetLoading: { ...s.datasetLoading, [name]: true },
+        datasetErrors: nextErrors,
+      }
+    })
+
     try {
       const file = DATASET_FILES[name]
       if (!file) throw new Error(`Unknown dataset: ${name}`)
-      const resp = await fetch(`${base}data/${file}`)
+      const resp = await fetchWithTimeout(`${base}data/${file}`, controller.signal)
       if (!resp.ok) throw new Error(`Failed to load ${file}: ${resp.status}`)
       const raw = await resp.json()
-      raw.forEach(normalizeRow)
-      const { datasetErrors, ...rest } = get()
-      const nextErrors = { ...datasetErrors }
-      delete nextErrors[name]
-      set({
-        [name]: raw,
-        datasetLoading: { ...rest.datasetLoading, [name]: false },
-        datasetErrors: nextErrors,
+      const normalized = raw.map(normalizeRow)
+
+      // Functional set() reads fresh state — no stale-state race
+      set((s) => {
+        const nextErrors = { ...s.datasetErrors }
+        delete nextErrors[name]
+        return {
+          [name]: normalized,
+          datasetLoading: { ...s.datasetLoading, [name]: false },
+          datasetErrors: nextErrors,
+        }
       })
     } catch (err) {
+      if (err.name === 'AbortError') return // silently ignore cancelled requests
       console.error(`Failed to load dataset ${name}:`, err)
-      set({
-        datasetLoading: { ...get().datasetLoading, [name]: false },
-        datasetErrors: { ...get().datasetErrors, [name]: err.message },
-      })
+      set((s) => ({
+        datasetLoading: { ...s.datasetLoading, [name]: false },
+        datasetErrors: { ...s.datasetErrors, [name]: err.message },
+      }))
     }
   },
 }))

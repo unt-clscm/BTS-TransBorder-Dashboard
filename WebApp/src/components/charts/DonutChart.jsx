@@ -62,12 +62,12 @@
  *   to prevent overflow.
  * - The donut hole ratio is fixed at 55% of the radius (innerRadius = 0.55r).
  */
-import { useRef, useEffect } from 'react'
+import React, { useRef, useEffect } from 'react'
 import * as d3 from 'd3'
 import { useChartResize, getResponsiveFontSize } from '@/lib/useChartResize'
 import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
 
-export default function DonutChart({
+function DonutChart({
   data = [],
   nameKey = 'label',
   valueKey = 'value',
@@ -300,11 +300,11 @@ export default function DonutChart({
     const centerOffset = (width - bbox.width) / 2 - bbox.x
     if (centerOffset > 0) wrapper.attr('transform', `translate(${centerOffset}, 0)`)
 
-  }, [data, width, containerHeight, isFullscreen, nameKey, valueKey, selectedSlice, animate, showLegendRight, maxSizeProp])
+  }, [data, width, containerHeight, isFullscreen, nameKey, valueKey, selectedSlice, animate, showLegendRight, maxSizeProp, formatValue, legendMaxW, onSliceClick])
 
   return (
     <div ref={containerRef} className="w-full" style={{ minHeight: maxSizeProp || 300 }}>
-      <svg ref={svgRef} className="w-full" />
+      <svg ref={svgRef} className="w-full" role="img" aria-label="Donut chart visualization" />
       {showBottomLegend && (
         <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 mt-2 px-2">
           {data.map((d, i) => {
@@ -332,3 +332,5 @@ export default function DonutChart({
     </div>
   )
 }
+
+export default React.memo(DonutChart)

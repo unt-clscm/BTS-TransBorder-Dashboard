@@ -36,7 +36,7 @@
  *   label text, value formatting, and trend calculations in the PAGE components
  *   that use StatCard — not here. This file does not need modification.
  */
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
 
 /**
@@ -105,7 +105,7 @@ function useCountUp(displayValue, duration = 1200, startDelay = 0) {
       clearTimeout(timerId)
       cancelAnimationFrame(rafRef.current)
     }
-  }, [displayValue, duration])
+  }, [displayValue, duration, startDelay])
 
   return shown
 }
@@ -123,6 +123,26 @@ export default function StatCard({
 }) {
   // Start count-up after the fade-up animation completes (500ms base + stagger delay)
   const animatedValue = useCountUp(typeof value === 'string' ? value : null, 1200, 500 + delay)
+  const tooltipRef = useRef(null)
+  const cardRef = useRef(null)
+
+  // Clamp tooltip so it doesn't overflow the viewport
+  const clampTooltip = useCallback(() => {
+    const tip = tooltipRef.current
+    if (!tip) return
+    // Reset any previous adjustment
+    tip.style.left = '50%'
+    tip.style.transform = 'translateX(-50%)'
+    const rect = tip.getBoundingClientRect()
+    const pad = 8
+    if (rect.left < pad) {
+      const shift = pad - rect.left
+      tip.style.transform = `translateX(calc(-50% + ${shift}px))`
+    } else if (rect.right > window.innerWidth - pad) {
+      const shift = rect.right - (window.innerWidth - pad)
+      tip.style.transform = `translateX(calc(-50% - ${shift}px))`
+    }
+  }, [])
 
   const trendIcon =
     trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus
@@ -145,8 +165,11 @@ export default function StatCard({
 
   return (
     <div
+      ref={cardRef}
       className={`group rounded-xl p-5 transition-all duration-300 animate-fade-up row-span-3 grid grid-rows-subgrid gap-y-0 relative hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-blue ${cardClass}`}
       style={{ animationDelay: `${delay}ms` }}
+      onMouseEnter={clampTooltip}
+      onFocus={clampTooltip}
       {...(title ? { tabIndex: 0, role: 'group', 'aria-label': `${label}: ${typeof value === 'string' ? value : ''}${trendLabel ? `, ${trendLabel}` : ''}. ${title}` } : {})}
     >
       {/* Row 1 — label */}
@@ -191,8 +214,8 @@ export default function StatCard({
       )}
       {/* Tooltip — shown on hover or focus-within when title is provided */}
       {title && (
-        <div className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 z-50">
-          <div className="bg-gray-900 text-white text-sm rounded-lg px-3 py-2 whitespace-nowrap shadow-lg">
+        <div ref={tooltipRef} className="pointer-events-none absolute left-1/2 -translate-x-1/2 bottom-full mb-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200 z-50">
+          <div className="bg-gray-900 text-white text-sm rounded-lg px-3 py-2 whitespace-nowrap shadow-lg max-w-[90vw]">
             {title}
           </div>
           <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-x-[6px] border-x-transparent border-t-[6px] border-t-gray-900" />

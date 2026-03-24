@@ -5,9 +5,10 @@
  * 3. Sankey Diagram — "How does trade route through the border?"
  * 4. Heatmap Matrix — "Explore the full trade matrix"
  */
-import { useMemo, useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { formatCurrency } from '@/lib/transborderHelpers'
-import { formatCompact } from '@/lib/chartColors'
+import { formatCompact, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import TopNSelector from '@/components/filters/TopNSelector'
 import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import BarChart from '@/components/charts/BarChart'
@@ -23,9 +24,17 @@ export default function TradeFlowsTab({
   yearFilter,
   tradeTypeFilter,
   modeFilter,
+  stateFilter,
+  mexStateFilter,
   datasetError,
+  metric = 'value',
 }) {
   useEffect(() => { loadDataset('odStateFlows') }, [loadDataset])
+
+  const valueField = getMetricField(metric)
+  const fmtValue = getMetricFormatter(metric)
+  const metricLabel = getMetricLabel(metric)
+  const [topPairsN, setTopPairsN] = useState(15)
 
   /* ── filter data (without year — for map animation) ───────────────── */
   const filteredNoYear = useMemo(() => {
@@ -33,8 +42,10 @@ export default function TradeFlowsTab({
     let data = odStateFlows
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (stateFilter?.length) data = data.filter((d) => stateFilter.includes(d.State))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return data
-  }, [odStateFlows, tradeTypeFilter, modeFilter])
+  }, [odStateFlows, tradeTypeFilter, modeFilter, stateFilter, mexStateFilter])
 
   /* ── filter data ───────────────────────────────────────────────────── */
   const filtered = useMemo(() => {
@@ -49,7 +60,7 @@ export default function TradeFlowsTab({
     const pairMap = new Map()
     filtered.forEach((d) => {
       const key = `${d.State}|${d.MexState}`
-      pairMap.set(key, (pairMap.get(key) || 0) + (d.TradeValue || 0))
+      pairMap.set(key, (pairMap.get(key) || 0) + (d[valueField] || 0))
     })
     return Array.from(pairMap, ([key, value]) => {
       const [source, target] = key.split('|')
@@ -57,8 +68,8 @@ export default function TradeFlowsTab({
     })
       .filter((d) => d.value > 0)
       .sort((a, b) => b.value - a.value)
-      .slice(0, 15)
-  }, [filtered])
+      .slice(0, topPairsN)
+  }, [filtered, valueField, topPairsN])
 
   /* ── Sankey data: US State → Port → MX State ──────────────────────── */
   const sankeyData = useMemo(() => {
@@ -69,9 +80,9 @@ export default function TradeFlowsTab({
     const mxTotals = new Map()
     const portTotals = new Map()
     filtered.forEach((d) => {
-      usTotals.set(d.State, (usTotals.get(d.State) || 0) + (d.TradeValue || 0))
-      mxTotals.set(d.MexState, (mxTotals.get(d.MexState) || 0) + (d.TradeValue || 0))
-      portTotals.set(d.Port, (portTotals.get(d.Port) || 0) + (d.TradeValue || 0))
+      usTotals.set(d.State, (usTotals.get(d.State) || 0) + (d[valueField] || 0))
+      mxTotals.set(d.MexState, (mxTotals.get(d.MexState) || 0) + (d[valueField] || 0))
+      portTotals.set(d.Port, (portTotals.get(d.Port) || 0) + (d[valueField] || 0))
     })
 
     const topUS = [...usTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([n]) => n)
@@ -96,8 +107,8 @@ export default function TradeFlowsTab({
       if (!topUSSet.has(d.State) || !topPortSet.has(d.Port) || !topMXSet.has(d.MexState)) return
       const upKey = `us-${d.State}|port-${d.Port}`
       const pmKey = `port-${d.Port}|mx-${d.MexState}`
-      usPortMap.set(upKey, (usPortMap.get(upKey) || 0) + (d.TradeValue || 0))
-      portMxMap.set(pmKey, (portMxMap.get(pmKey) || 0) + (d.TradeValue || 0))
+      usPortMap.set(upKey, (usPortMap.get(upKey) || 0) + (d[valueField] || 0))
+      portMxMap.set(pmKey, (portMxMap.get(pmKey) || 0) + (d[valueField] || 0))
     })
 
     const links = [
@@ -112,7 +123,7 @@ export default function TradeFlowsTab({
     ].filter((l) => l.value > 0)
 
     return { nodes, links }
-  }, [filtered])
+  }, [filtered, valueField])
 
   /* ── Heatmap data: US State x MX State matrix ─────────────────────── */
   const heatmapData = useMemo(() => {
@@ -124,7 +135,7 @@ export default function TradeFlowsTab({
     const mxTotals = new Map()
     filtered.forEach((d) => {
       const key = `${d.State}|${d.MexState}`
-      const val = d.TradeValue || 0
+      const val = d[valueField] || 0
       pairMap.set(key, (pairMap.get(key) || 0) + val)
       usTotals.set(d.State, (usTotals.get(d.State) || 0) + val)
       mxTotals.set(d.MexState, (mxTotals.get(d.MexState) || 0) + val)
@@ -139,7 +150,7 @@ export default function TradeFlowsTab({
     )
 
     return { rowLabels, colLabels, cells }
-  }, [filtered])
+  }, [filtered, valueField])
 
   if (datasetError) {
     return (
@@ -165,7 +176,7 @@ export default function TradeFlowsTab({
       {/* Narrative Intro */}
       <SectionBlock>
         <div className="max-w-4xl mx-auto">
-          <p className="text-base text-text-secondary leading-relaxed">
+          <p className="text-lg text-text-secondary leading-relaxed">
             Trade between the U.S. and Mexico flows through specific corridors built over decades.
             The <strong>Texas–Nuevo Le&oacute;n corridor</strong> via Laredo is the single largest
             trade relationship. <strong>Michigan–Chihuahua</strong> reflects the auto industry's
@@ -184,7 +195,7 @@ export default function TradeFlowsTab({
           >
             <LinkedStateMaps
               odFlows={filtered}
-              formatValue={formatCurrency}
+              formatValue={fmtValue}
             />
           </ChartCard>
         </div>
@@ -200,7 +211,7 @@ export default function TradeFlowsTab({
             <TradeFlowChoropleth
               data={filteredNoYear}
               yearFilter={yearFilter}
-              formatValue={formatCurrency}
+              formatValue={fmtValue}
               center={[30, -100]}
               zoom={4}
               height="580px"
@@ -213,9 +224,10 @@ export default function TradeFlowsTab({
       <SectionBlock>
         <ChartCard
           title="Top Trading Partners"
-          subtitle="Largest bilateral trade flows between U.S. and Mexican states by total value"
+          subtitle={`Largest bilateral ${metricLabel.toLowerCase()} flows between U.S. and Mexican states`}
+          headerRight={<TopNSelector value={topPairsN} onChange={setTopPairsN} />}
         >
-          <BarChart data={topPairsData} horizontal formatValue={formatCompact} maxBars={15} />
+          <BarChart data={topPairsData} horizontal formatValue={fmtValue} maxBars={topPairsN} />
         </ChartCard>
       </SectionBlock>
 
@@ -228,7 +240,7 @@ export default function TradeFlowsTab({
           <SankeyDiagram
             nodes={sankeyData.nodes}
             links={sankeyData.links}
-            formatValue={formatCompact}
+            formatValue={fmtValue}
             height={550}
           />
         </ChartCard>
@@ -238,10 +250,10 @@ export default function TradeFlowsTab({
       <SectionBlock>
         <ChartCard
           title="Trade Matrix"
-          subtitle="U.S. states (rows) vs. Mexican states (columns) — darker = higher trade value"
+          subtitle={`U.S. states (rows) vs. Mexican states (columns) — darker = higher ${metricLabel.toLowerCase()}`}
         >
           {heatmapData ? (
-            <HeatmapTable data={heatmapData} formatValue={formatCurrency} />
+            <HeatmapTable data={heatmapData} formatValue={fmtValue} />
           ) : (
             <div className="text-center py-8 text-text-secondary">No data to display.</div>
           )}

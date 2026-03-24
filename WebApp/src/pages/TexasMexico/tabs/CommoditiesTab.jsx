@@ -14,8 +14,10 @@ import DataTable from '@/components/ui/DataTable'
 import DivergingBarChart from '@/components/charts/DivergingBarChart'
 import BarChartRace from '@/components/charts/BarChartRace'
 import InsightCallout from '@/components/ui/InsightCallout'
-import { Factory, Play, Pause, ArrowRight } from 'lucide-react'
-import { formatCurrency, formatNumber } from '@/lib/chartColors'
+import { Factory, Play, Pause, SkipBack, SkipForward, ArrowRight } from 'lucide-react'
+import { formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import YearRangeFilter from '@/components/filters/YearRangeFilter'
+import TopNSelector from '@/components/filters/TopNSelector'
 import DatasetError from '@/components/ui/DatasetError'
 import { DL, PAGE_COMMODITY_COLS } from '@/lib/downloadColumns'
 
@@ -24,17 +26,38 @@ const ANNOTATIONS = [
   { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
 ]
 
-export default function CommoditiesTab({ filteredCommodities, loadDataset, _latestYear, datasetError }) {
+export default function CommoditiesTab({ filteredCommodities, loadDataset, _latestYear, datasetError, metric = 'value' }) {
   /* ── ensure dataset is loaded ────────────────────────────────────── */
   useEffect(() => {
     loadDataset('texasMexicoCommodities')
   }, [loadDataset])
+
+  const valueField = getMetricField(metric)
+  const fmtValue = getMetricFormatter(metric)
+  const metricLabel = getMetricLabel(metric)
 
   if (datasetError) {
     return <DatasetError datasetName="Commodity Data" error={datasetError} onRetry={() => loadDataset('texasMexicoCommodities')} />
   }
 
   const [treemapDrill, setTreemapDrill] = useState(null)
+  const [topCommodityN, setTopCommodityN] = useState(10)
+  const [groupTrendTopN, setGroupTrendTopN] = useState(5)
+  const [divergingTopN, setDivergingTopN] = useState(12)
+
+  const allCommodityYears = useMemo(() => {
+    if (!filteredCommodities) return []
+    const ys = new Set()
+    filteredCommodities.forEach((d) => { if (d.Year) ys.add(d.Year) })
+    return [...ys].sort((a, b) => a - b)
+  }, [filteredCommodities])
+  const [trendYearRange, setTrendYearRange] = useState({ startYear: 0, endYear: 9999 })
+
+  useEffect(() => {
+    if (allCommodityYears.length) {
+      setTrendYearRange({ startYear: allCommodityYears[0], endYear: allCommodityYears[allCommodityYears.length - 1] })
+    }
+  }, [allCommodityYears])
 
   /* ── Treemap: top commodity groups or drilled-down HS codes ─────── */
   const commodityGroups = useMemo(() => {
@@ -44,7 +67,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       filteredCommodities.forEach((d) => {
         if (d.CommodityGroup !== treemapDrill) return
         const label = d.Commodity || d.HSCode || 'Unknown'
-        map.set(label, (map.get(label) || 0) + (d.TradeValue || 0))
+        map.set(label, (map.get(label) || 0) + (d[valueField] || 0))
       })
       return Array.from(map, ([label, value]) => ({ label, value }))
         .sort((a, b) => b.value - a.value)
@@ -52,48 +75,49 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
     const byGroup = new Map()
     filteredCommodities.forEach((d) => {
       if (!d.CommodityGroup) return
-      byGroup.set(d.CommodityGroup, (byGroup.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+      byGroup.set(d.CommodityGroup, (byGroup.get(d.CommodityGroup) || 0) + (d[valueField] || 0))
     })
     return Array.from(byGroup, ([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-  }, [filteredCommodities, treemapDrill])
+  }, [filteredCommodities, treemapDrill, valueField])
 
-  /* ── Top 10 individual commodities (bar) ─────────────────────────── */
+  /* ── Top N individual commodities (bar) ──────────────────────────── */
   const topCommodities = useMemo(() => {
     if (!filteredCommodities) return []
     const byCommodity = new Map()
     filteredCommodities.forEach((d) => {
       if (!d.Commodity) return
-      byCommodity.set(d.Commodity, (byCommodity.get(d.Commodity) || 0) + (d.TradeValue || 0))
+      byCommodity.set(d.Commodity, (byCommodity.get(d.Commodity) || 0) + (d[valueField] || 0))
     })
     return Array.from(byCommodity, ([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 10)
-  }, [filteredCommodities])
+      .slice(0, topCommodityN)
+  }, [filteredCommodities, valueField, topCommodityN])
 
-  /* ── Top 5 commodity group trends (multi-series line) ────────────── */
+  /* ── Top N commodity group trends (multi-series line) ───────────── */
   const groupTrends = useMemo(() => {
     if (!filteredCommodities) return []
     const totals = new Map()
     filteredCommodities.forEach((d) => {
       if (!d.CommodityGroup) return
-      totals.set(d.CommodityGroup, (totals.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+      totals.set(d.CommodityGroup, (totals.get(d.CommodityGroup) || 0) + (d[valueField] || 0))
     })
-    const top5 = Array.from(totals.entries())
+    const topN = Array.from(totals.entries())
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
+      .slice(0, groupTrendTopN)
       .map(([name]) => name)
-    const top5Set = new Set(top5)
+    const topNSet = new Set(topN)
 
     const byYG = new Map()
     filteredCommodities.forEach((d) => {
-      if (!d.CommodityGroup || !top5Set.has(d.CommodityGroup)) return
+      if (!d.CommodityGroup || !topNSet.has(d.CommodityGroup)) return
+      if (d.Year < trendYearRange.startYear || d.Year > trendYearRange.endYear) return
       const key = `${d.Year}|${d.CommodityGroup}`
       if (!byYG.has(key)) byYG.set(key, { year: d.Year, value: 0, CommodityGroup: d.CommodityGroup })
-      byYG.get(key).value += d.TradeValue || 0
+      byYG.get(key).value += d[valueField] || 0
     })
     return Array.from(byYG.values()).sort((a, b) => a.year - b.year || a.CommodityGroup.localeCompare(b.CommodityGroup))
-  }, [filteredCommodities])
+  }, [filteredCommodities, valueField, groupTrendTopN, trendYearRange])
 
   /* ── Import/export direction by commodity group (diverging bar) ── */
   const directionData = useMemo(() => {
@@ -103,19 +127,23 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       if (!d.CommodityGroup) return
       if (!byGroup.has(d.CommodityGroup)) byGroup.set(d.CommodityGroup, { label: d.CommodityGroup, exports: 0, imports: 0 })
       const row = byGroup.get(d.CommodityGroup)
-      if (d.TradeType === 'Export') row.exports += d.TradeValue || 0
-      if (d.TradeType === 'Import') row.imports += d.TradeValue || 0
+      if (d.TradeType === 'Export') row.exports += d[valueField] || 0
+      if (d.TradeType === 'Import') row.imports += d[valueField] || 0
     })
     return Array.from(byGroup.values())
       .filter((d) => d.exports + d.imports > 0)
       .sort((a, b) => (b.exports + b.imports) - (a.exports + a.imports))
-      .slice(0, 12)
-  }, [filteredCommodities])
+      .slice(0, divergingTopN)
+  }, [filteredCommodities, valueField, divergingTopN])
 
   /* ── Bar chart race: commodity group rankings by year ──────────── */
   const [raceYear, setRaceYear] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
-  const playTimerRef = useRef(null)
+
+  /* ── year pop overlay state ─────────────────────────────────────── */
+  const [popYear, setPopYear] = useState(null)
+  const popTimerRef = useRef(null)
+  const prevRaceYearRef = useRef(raceYear)
 
   const raceFrames = useMemo(() => {
     if (!filteredCommodities) return []
@@ -126,7 +154,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       years.add(d.Year)
       const key = `${d.Year}|${d.CommodityGroup}`
       if (!byYearGroup.has(key)) byYearGroup.set(key, { year: d.Year, group: d.CommodityGroup, value: 0 })
-      byYearGroup.get(key).value += d.TradeValue || 0
+      byYearGroup.get(key).value += d[valueField] || 0
     })
     const sortedYears = [...years].sort((a, b) => a - b)
     return sortedYears.map((year) => {
@@ -138,7 +166,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
         routes: yearData.map((d) => ({ route: d.group, value: d.value, origin: d.group })),
       }
     })
-  }, [filteredCommodities])
+  }, [filteredCommodities, valueField])
 
   const raceGlobalMax = useMemo(() => {
     let max = 0
@@ -147,37 +175,59 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
   }, [raceFrames])
 
   // Initialize race year
-  useMemo(() => {
+  useEffect(() => {
     if (raceFrames.length && raceYear == null) {
       setRaceYear(raceFrames[raceFrames.length - 1].year)
     }
   }, [raceFrames]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Play/pause logic
-  const togglePlay = useCallback(() => {
-    if (isPlaying) {
-      clearInterval(playTimerRef.current)
-      setIsPlaying(false)
-    } else {
-      if (!raceFrames.length) return
-      const years = raceFrames.map((f) => f.year)
-      let idx = years.indexOf(raceYear)
-      if (idx < 0 || idx >= years.length - 1) idx = -1
-      setIsPlaying(true)
-      playTimerRef.current = setInterval(() => {
-        idx++
-        if (idx >= years.length) {
-          clearInterval(playTimerRef.current)
-          setIsPlaying(false)
-          return
-        }
-        setRaceYear(years[idx])
-      }, 1200)
-    }
-  }, [isPlaying, raceFrames, raceYear])
+  const raceYears = useMemo(() => raceFrames.map((f) => f.year), [raceFrames])
 
-  // Cleanup timer on unmount
-  useEffect(() => () => clearInterval(playTimerRef.current), [])
+  // Play animation via useEffect (no stale closure)
+  useEffect(() => {
+    if (!isPlaying || !raceYears.length) return
+    const timer = setInterval(() => {
+      setRaceYear((y) => {
+        const idx = raceYears.indexOf(y ?? raceYears[0])
+        if (idx + 1 >= raceYears.length) { setIsPlaying(false); return raceYears[raceYears.length - 1] }
+        return raceYears[idx + 1]
+      })
+    }, 1200)
+    return () => clearInterval(timer)
+  }, [isPlaying, raceYears])
+
+  const handlePlayPause = useCallback(() => {
+    if (isPlaying) { setIsPlaying(false); return }
+    if (raceYear == null || raceYear === raceYears[raceYears.length - 1]) setRaceYear(raceYears[0])
+    setIsPlaying(true)
+  }, [isPlaying, raceYear, raceYears])
+
+  const handleSkipBack = useCallback(() => {
+    setIsPlaying(false)
+    setRaceYear((y) => {
+      const idx = raceYears.indexOf(y)
+      return idx > 0 ? raceYears[idx - 1] : raceYears[0]
+    })
+  }, [raceYears])
+
+  const handleSkipForward = useCallback(() => {
+    setIsPlaying(false)
+    setRaceYear((y) => {
+      const idx = raceYears.indexOf(y)
+      return idx < raceYears.length - 1 ? raceYears[idx + 1] : raceYears[raceYears.length - 1]
+    })
+  }, [raceYears])
+
+  // Year pop overlay effect
+  useEffect(() => {
+    if (raceYear != null && raceYear !== prevRaceYearRef.current) {
+      prevRaceYearRef.current = raceYear
+      setPopYear(raceYear)
+      clearTimeout(popTimerRef.current)
+      popTimerRef.current = setTimeout(() => setPopYear(null), 800)
+    }
+    return () => clearTimeout(popTimerRef.current)
+  }, [raceYear])
 
   /* ── Commodity detail table ──────────────────────────────────────── */
   const tableData = useMemo(() => {
@@ -194,12 +244,12 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
           Port: d.Port || '—',
           TradeType: d.TradeType || '—',
           TradeValue: 0,
-          Weight: 0,
+          WeightLb: 0,
         })
       }
       const row = byKey.get(key)
       row.TradeValue += d.TradeValue || 0
-      row.Weight += d.Weight || 0
+      row.WeightLb += d.WeightLb || 0
     })
     return Array.from(byKey.values()).sort((a, b) => b.TradeValue - a.TradeValue)
   }, [filteredCommodities])
@@ -213,8 +263,8 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       if (!d.Port || !d.CommodityGroup) return
       if (!portGroupMap.has(d.Port)) portGroupMap.set(d.Port, new Map())
       const gm = portGroupMap.get(d.Port)
-      gm.set(d.CommodityGroup, (gm.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
-      allGroups.set(d.CommodityGroup, (allGroups.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+      gm.set(d.CommodityGroup, (gm.get(d.CommodityGroup) || 0) + (d[valueField] || 0))
+      allGroups.set(d.CommodityGroup, (allGroups.get(d.CommodityGroup) || 0) + (d[valueField] || 0))
     })
     // Top 5 commodity groups overall
     const topGroups = [...allGroups.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
@@ -239,7 +289,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
     const keys = [...topGroups]
     if (data.some((d) => d['Other'] > 0)) keys.push('Other')
     return { data, keys }
-  }, [filteredCommodities])
+  }, [filteredCommodities, valueField])
 
   /* ── spinner while loading ───────────────────────────────────────── */
   if (!filteredCommodities) {
@@ -254,14 +304,14 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
   }
 
   const tableColumns = [
-    { key: 'Year', label: 'Year' },
-    { key: 'HSCode', label: 'HS Code' },
-    { key: 'Commodity', label: 'Commodity', wrap: true, minWidth: 260 },
-    { key: 'CommodityGroup', label: 'Group', wrap: true },
-    { key: 'Port', label: 'Port', wrap: true },
-    { key: 'TradeType', label: 'Trade Type' },
-    { key: 'TradeValue', label: 'Trade Value ($)', render: (v) => formatCurrency(v) },
-    { key: 'Weight', label: 'Weight (kg)', render: (v) => formatNumber(v) },
+    { key: 'Year', label: 'Year', width: '5%' },
+    { key: 'HSCode', label: 'HS Code', width: '6%' },
+    { key: 'Commodity', label: 'Commodity', wrap: true, width: '32%' },
+    { key: 'CommodityGroup', label: 'Group', wrap: true, width: '16%' },
+    { key: 'Port', label: 'Port', wrap: true, width: '12%' },
+    { key: 'TradeType', label: 'Trade Type', width: '7%' },
+    { key: 'TradeValue', label: 'Trade Value ($)', render: (v) => formatCurrency(v), width: '12%' },
+    { key: 'WeightLb', label: 'Weight (lb)', render: (v) => v ? formatWeight(v) : '—', width: '10%' },
   ]
 
   return (
@@ -269,7 +319,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       {/* Narrative Intro */}
       <SectionBlock>
         <div className="max-w-4xl mx-auto">
-          <p className="text-base text-text-secondary leading-relaxed">
+          <p className="text-lg text-text-secondary leading-relaxed">
             What crosses the Texas–Mexico border tells the story of an integrated manufacturing economy.{' '}
             <strong>Machinery and vehicle parts</strong> flow south to Mexican assembly plants;{' '}
             <strong>finished vehicles, electronics, and consumer goods</strong> flow north.
@@ -282,50 +332,49 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
 
       {/* Treemap of commodity groups with drilldown */}
       <SectionBlock>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard
-            title={treemapDrill ? `${treemapDrill} — HS 2-Digit Detail` : 'Commodity Groups'}
-            subtitle={treemapDrill ? 'Individual commodities within group' : 'Trade value by commodity group — click to drill down'}
-            downloadData={{ summary: { data: commodityGroups, filename: 'tx-mx-commodity-groups', columns: DL.commodityGroupRank } }}
-          >
-            {treemapDrill && (
-              <div className="text-sm text-text-secondary mb-2">
-                <button onClick={() => setTreemapDrill(null)} className="text-brand-blue hover:underline font-medium">
-                  All Groups
-                </button>
-                <span className="mx-1.5">&gt;</span>
-                <span className="text-text-primary font-medium">{treemapDrill}</span>
-              </div>
-            )}
-            <TreemapChart
-              data={commodityGroups}
-              nameKey="label"
-              valueKey="value"
-              formatValue={formatCurrency}
-              onCellClick={treemapDrill ? undefined : (name) => setTreemapDrill(name)}
-            />
-          </ChartCard>
-          <div className="max-w-4xl mx-auto mt-6">
-            <InsightCallout
-              finding="Energy is Texas's biggest export to Mexico. Nearly all pipeline trade is petroleum and natural gas flowing south — over $12 billion per year."
-              context="Texas exports more energy to Mexico than most U.S. states export in total goods."
-              variant="default"
-            />
-          </div>
+        <ChartCard
+          title={treemapDrill ? `${treemapDrill} — HS 2-Digit Detail` : 'Commodity Groups'}
+          subtitle={treemapDrill ? 'Individual commodities within group' : `${metricLabel} by commodity group — click to drill down`}
+          downloadData={{ summary: { data: commodityGroups, filename: 'tx-mx-commodity-groups', columns: DL.commodityGroupRank } }}
+        >
+          {treemapDrill && (
+            <div className="text-sm text-text-secondary mb-2">
+              <button onClick={() => setTreemapDrill(null)} className="text-brand-blue hover:underline font-medium">
+                All Groups
+              </button>
+              <span className="mx-1.5">&gt;</span>
+              <span className="text-text-primary font-medium">{treemapDrill}</span>
+            </div>
+          )}
+          <TreemapChart
+            data={commodityGroups}
+            nameKey="label"
+            valueKey="value"
+            formatValue={fmtValue}
+            onCellClick={treemapDrill ? undefined : (name) => setTreemapDrill(name)}
+          />
+        </ChartCard>
+        <div className="max-w-4xl mx-auto mt-6">
+          <InsightCallout
+            finding="Energy is Texas's biggest export to Mexico. Nearly all pipeline trade is petroleum and natural gas flowing south — over $12 billion per year."
+            context="Texas exports more energy to Mexico than most U.S. states export in total goods."
+            variant="default"
+          />
         </div>
       </SectionBlock>
 
       {/* Top 10 individual commodities */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Top 10 Commodities" subtitle="Individual commodities ranked by trade value"
+          <ChartCard title={`Top ${topCommodityN} Commodities`} subtitle={`Individual commodities ranked by ${metricLabel}`}
+            headerRight={<TopNSelector value={topCommodityN} onChange={setTopCommodityN} />}
             downloadData={{ summary: { data: topCommodities, filename: 'tx-mx-top-commodities', columns: DL.commodityRank } }}>
             <BarChart
               data={topCommodities}
               xKey="label"
               yKey="value"
               horizontal
-              formatValue={formatCurrency}
+              formatValue={fmtValue}
             />
           </ChartCard>
         </div>
@@ -338,6 +387,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
             <ChartCard
               title="Cross-Border Manufacturing Pattern"
               subtitle="Imports (left) vs. exports (right) by commodity group — reveals supply chain direction"
+              headerRight={<TopNSelector value={divergingTopN} onChange={setDivergingTopN} />}
             >
               <DivergingBarChart
                 data={directionData}
@@ -346,8 +396,8 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
                 rightKey="exports"
                 leftLabel="Imports (from Mexico)"
                 rightLabel="Exports (to Mexico)"
-                formatValue={formatCurrency}
-                maxBars={12}
+                formatValue={fmtValue}
+                maxBars={divergingTopN}
               />
             </ChartCard>
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -369,14 +419,15 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       {/* Top 5 commodity group trends */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Top 5 Commodity Group Trends" subtitle="Annual trade value for leading groups"
+          <ChartCard title={`Top ${groupTrendTopN} Commodity Group Trends`} subtitle={`Annual ${metricLabel} for leading groups`}
+            headerRight={<><TopNSelector value={groupTrendTopN} onChange={setGroupTrendTopN} /><YearRangeFilter years={allCommodityYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} /></>}
             downloadData={{ summary: { data: groupTrends, filename: 'tx-mx-commodity-group-trends', columns: DL.tradeTrendSeries } }}>
             <LineChart
               data={groupTrends}
               xKey="year"
               yKey="value"
               seriesKey="CommodityGroup"
-              formatValue={formatCurrency}
+              formatValue={fmtValue}
               annotations={ANNOTATIONS}
             />
           </ChartCard>
@@ -391,34 +442,84 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
               title="Commodity Rankings Over Time"
               subtitle="Watch how commodity groups have shifted in importance since 2007"
             >
-              <div className="flex items-center gap-4 mb-4 px-2">
-                <button
-                  onClick={togglePlay}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-brand-blue text-white hover:bg-brand-blue/90 transition-colors text-sm font-medium"
-                >
-                  {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                  {isPlaying ? 'Pause' : 'Play'}
-                </button>
-                <input
-                  type="range"
-                  min={raceFrames[0].year}
-                  max={raceFrames[raceFrames.length - 1].year}
-                  value={raceYear}
-                  onChange={(e) => {
-                    if (isPlaying) { clearInterval(playTimerRef.current); setIsPlaying(false) }
-                    setRaceYear(Number(e.target.value))
-                  }}
-                  className="flex-1 accent-brand-blue"
-                />
-                <span className="text-2xl font-bold text-text-primary tabular-nums min-w-[4ch]">{raceYear}</span>
+              {/* Playback controls */}
+              <div className="flex flex-wrap items-center gap-3 mb-4 bg-white rounded-xl border border-border-light px-4 py-3 shadow-sm">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={handleSkipBack}
+                    disabled={!raceYears.length || raceYear === raceYears[0]}
+                    className="p-2 rounded-lg hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    title="Previous year"
+                  >
+                    <SkipBack size={18} className="text-text-primary" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePlayPause}
+                    className="p-2 rounded-lg bg-brand-blue text-white hover:bg-brand-blue/90 transition-colors"
+                    title={isPlaying ? 'Pause' : 'Play'}
+                  >
+                    {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSkipForward}
+                    disabled={!raceYears.length || raceYear === raceYears[raceYears.length - 1]}
+                    className="p-2 rounded-lg hover:bg-surface-alt disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                    title="Next year"
+                  >
+                    <SkipForward size={18} className="text-text-primary" />
+                  </button>
+                </div>
+                <div className="flex-1 min-w-[200px] flex items-center gap-3">
+                  <span className="text-base text-text-secondary whitespace-nowrap">{raceYears[0]}</span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={raceYears.length - 1}
+                    value={raceYears.indexOf(raceYear)}
+                    onChange={(e) => {
+                      setIsPlaying(false)
+                      setRaceYear(raceYears[Number(e.target.value)])
+                    }}
+                    className="flex-1 accent-brand-blue cursor-pointer"
+                    style={{ height: '6px' }}
+                  />
+                  <span className="text-base text-text-secondary whitespace-nowrap">{raceYears[raceYears.length - 1]}</span>
+                </div>
+                <div className="text-2xl font-bold text-brand-blue tabular-nums min-w-[60px] text-center">
+                  {raceYear}
+                </div>
               </div>
+
+              {/* Year pop overlay */}
+              <div className="relative">
+                {popYear != null && (
+                  <div
+                    key={popYear}
+                    className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+                  >
+                    <span
+                      className="text-brand-blue font-extrabold tabular-nums select-none"
+                      style={{
+                        fontSize: 'clamp(80px, 12vw, 160px)',
+                        opacity: 0,
+                        animation: 'yearPop 0.8s ease-out forwards',
+                      }}
+                    >
+                      {popYear}
+                    </span>
+                  </div>
+                )}
               <BarChartRace
                 frames={raceFrames}
                 currentYear={raceYear}
                 globalMax={raceGlobalMax}
                 maxBars={10}
-                formatValue={formatCurrency}
+                formatValue={fmtValue}
               />
+              </div>
             </ChartCard>
           </div>
         </SectionBlock>
@@ -436,7 +537,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
                 data={portSpecialization.data}
                 xKey="port"
                 stackKeys={portSpecialization.keys}
-                formatValue={formatCurrency}
+                formatValue={fmtValue}
               />
             </ChartCard>
             <div className="mt-4">
@@ -451,12 +552,10 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
 
       {/* Commodity detail table */}
       <SectionBlock alt>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title="Commodity Detail" subtitle="Aggregated by year, commodity, port, and trade type"
-            downloadData={{ summary: { data: tableData, filename: 'tx-mx-commodity-detail', columns: PAGE_COMMODITY_COLS } }}>
-            <DataTable data={tableData} columns={tableColumns} pageSize={15} />
-          </ChartCard>
-        </div>
+        <ChartCard title="Commodity Detail" subtitle="Aggregated by year, commodity, port, and trade type"
+          downloadData={{ summary: { data: tableData, filename: 'tx-mx-commodity-detail', columns: PAGE_COMMODITY_COLS } }}>
+          <DataTable data={tableData} columns={tableColumns} pageSize={15} fullWidth />
+        </ChartCard>
       </SectionBlock>
     </>
   )

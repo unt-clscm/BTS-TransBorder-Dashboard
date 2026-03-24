@@ -19,13 +19,14 @@ const DATASET_FILES = {
   mexicanStateTrade: 'mexican_state_trade.json',
   texasMexicanStateTrade: 'texas_mexican_state_trade.json',
   odStateFlows: 'od_state_flows.json',
+  odCanadaProvFlows: 'od_canada_prov_flows.json',
   texasOdStateFlows: 'texas_od_state_flows.json',
 }
 
 const FETCH_TIMEOUT_MS = 30_000
 
-const NUMERIC_FIELDS = ['TradeValue', 'Weight', 'FreightCharges', 'Year', 'Month', 'Lat', 'Lon']
-const STRING_FIELDS = ['Port', 'State', 'Mode', 'CommodityGroup', 'Commodity', 'Country', 'TradeType', 'Region', 'HSCode', 'PortCode', 'StateCode', 'MexState']
+const NUMERIC_FIELDS = ['TradeValue', 'Weight', 'WeightLb', 'FreightCharges', 'Year', 'Month', 'Lat', 'Lon']
+const STRING_FIELDS = ['Port', 'State', 'Mode', 'CommodityGroup', 'Commodity', 'Country', 'TradeType', 'Region', 'HSCode', 'PortCode', 'StateCode', 'MexState', 'CanProv']
 
 function normalizeRow(d) {
   const out = { ...d }
@@ -80,6 +81,7 @@ export const useTransborderStore = create((set, get) => ({
   mexicanStateTrade: null,
   texasMexicanStateTrade: null,
   odStateFlows: null,
+  odCanadaProvFlows: null,
   texasOdStateFlows: null,
 
   // Loading state

@@ -2,9 +2,11 @@
  * USMexico States Tab — US states + Mexican states choropleth maps, rankings, trends.
  * Uses usStateTrade (DOT1) and mexicanStateTrade (DOT1) datasets.
  */
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { formatCurrency, getAxisFormatter } from '@/lib/transborderHelpers'
-import { CHART_COLORS } from '@/lib/chartColors'
+import { CHART_COLORS, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import TopNSelector from '@/components/filters/TopNSelector'
+import YearRangeFilter from '@/components/filters/YearRangeFilter'
 import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import ChoroplethMap from '@/components/maps/ChoroplethMap'
@@ -27,12 +29,25 @@ export default function StatesTab({
   yearFilter,
   tradeTypeFilter,
   modeFilter,
+  stateFilter,
+  mexStateFilter,
   datasetErrors,
+  metric = 'value',
 }) {
   useEffect(() => {
     loadDataset('usStateTrade')
     loadDataset('mexicanStateTrade')
   }, [loadDataset])
+
+  const valueField = getMetricField(metric)
+  const fmtValue = getMetricFormatter(metric)
+  const metricLabel = getMetricLabel(metric)
+
+  const [usTopN, setUsTopN] = useState(15)
+  const [mxTopN, setMxTopN] = useState(15)
+  const [usTrendTopN, setUsTrendTopN] = useState(5)
+  const [mxTrendTopN, setMxTrendTopN] = useState(5)
+  const [growthTopN, setGrowthTopN] = useState(15)
 
   /* ── filter US state data to Mexico only ──────────────────────────── */
   const filteredUS = useMemo(() => {
@@ -41,16 +56,18 @@ export default function StatesTab({
     if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (stateFilter?.length) data = data.filter((d) => stateFilter.includes(d.State))
     return data
-  }, [usStateTrade, yearFilter, tradeTypeFilter, modeFilter])
+  }, [usStateTrade, yearFilter, tradeTypeFilter, modeFilter, stateFilter])
 
   const filteredUSNoYear = useMemo(() => {
     if (!usStateTrade) return []
     let data = usStateTrade.filter((d) => d.Country === 'Mexico')
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (stateFilter?.length) data = data.filter((d) => stateFilter.includes(d.State))
     return data
-  }, [usStateTrade, tradeTypeFilter, modeFilter])
+  }, [usStateTrade, tradeTypeFilter, modeFilter, stateFilter])
 
   /* ── filter Mexican state data ────────────────────────────────────── */
   const filteredMX = useMemo(() => {
@@ -59,84 +76,178 @@ export default function StatesTab({
     if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return data
-  }, [mexicanStateTrade, yearFilter, tradeTypeFilter, modeFilter])
+  }, [mexicanStateTrade, yearFilter, tradeTypeFilter, modeFilter, mexStateFilter])
 
   const filteredMXNoYear = useMemo(() => {
     if (!mexicanStateTrade) return []
     let data = mexicanStateTrade
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return data
-  }, [mexicanStateTrade, tradeTypeFilter, modeFilter])
+  }, [mexicanStateTrade, tradeTypeFilter, modeFilter, mexStateFilter])
+
+  /* ── year ranges for trend charts ───────────────────────────────── */
+  const allUSYears = useMemo(() => {
+    const ys = new Set()
+    filteredUSNoYear.forEach((d) => { if (d.Year) ys.add(d.Year) })
+    return [...ys].sort((a, b) => a - b)
+  }, [filteredUSNoYear])
+
+  const allMXYears = useMemo(() => {
+    const ys = new Set()
+    filteredMXNoYear.forEach((d) => { if (d.Year) ys.add(d.Year) })
+    return [...ys].sort((a, b) => a - b)
+  }, [filteredMXNoYear])
+
+  const [usTrendYearRange, setUsTrendYearRange] = useState({ startYear: 0, endYear: 9999 })
+  const [mxTrendYearRange, setMxTrendYearRange] = useState({ startYear: 0, endYear: 9999 })
+  useEffect(() => {
+    if (allUSYears.length) setUsTrendYearRange({ startYear: allUSYears[0], endYear: allUSYears[allUSYears.length - 1] })
+  }, [allUSYears])
+  useEffect(() => {
+    if (allMXYears.length) setMxTrendYearRange({ startYear: allMXYears[0], endYear: allMXYears[allMXYears.length - 1] })
+  }, [allMXYears])
 
   /* ── US state choropleth data ─────────────────────────────────────── */
   const usMapData = useMemo(() => {
     const byState = new Map()
     filteredUS.forEach((d) => {
       const st = d.State || 'Unknown'
-      byState.set(st, (byState.get(st) || 0) + (d.TradeValue || 0))
+      byState.set(st, (byState.get(st) || 0) + (d[valueField] || 0))
     })
     return Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
-  }, [filteredUS])
+  }, [filteredUS, valueField])
 
   /* ── Mexican state choropleth data ────────────────────────────────── */
   const mxMapData = useMemo(() => {
     const byState = new Map()
     filteredMX.forEach((d) => {
       const st = d.MexState || 'Unknown'
-      byState.set(st, (byState.get(st) || 0) + (d.TradeValue || 0))
+      byState.set(st, (byState.get(st) || 0) + (d[valueField] || 0))
     })
     return Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
-  }, [filteredMX])
+  }, [filteredMX, valueField])
 
-  /* ── US top 15 states bar data ────────────────────────────────────── */
-  const usBarData = useMemo(() => usMapData.slice(0, 15).map((d) => ({ label: d.name, value: d.value })), [usMapData])
+  /* ── US top N states bar data ───────────────────────────────────── */
+  const usBarData = useMemo(() => usMapData.slice(0, usTopN).map((d) => ({ label: d.name, value: d.value })), [usMapData, usTopN])
 
-  /* ── MX top 15 states bar data ────────────────────────────────────── */
-  const mxBarData = useMemo(() => mxMapData.slice(0, 15).map((d) => ({ label: d.name, value: d.value })), [mxMapData])
+  /* ── MX top N states bar data ───────────────────────────────────── */
+  const mxBarData = useMemo(() => mxMapData.slice(0, mxTopN).map((d) => ({ label: d.name, value: d.value })), [mxMapData, mxTopN])
 
-  /* ── US top 5 state trends ────────────────────────────────────────── */
+  /* ── US top N state trends ──────────────────────────────────────── */
   const usStateTrends = useMemo(() => {
+    const rangeData = filteredUSNoYear.filter((d) => d.Year >= usTrendYearRange.startYear && d.Year <= usTrendYearRange.endYear)
     const totals = new Map()
-    filteredUSNoYear.forEach((d) => {
+    rangeData.forEach((d) => {
       const st = d.State || 'Unknown'
-      totals.set(st, (totals.get(st) || 0) + (d.TradeValue || 0))
+      totals.set(st, (totals.get(st) || 0) + (d[valueField] || 0))
     })
-    const top5 = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
-    const top5Set = new Set(top5)
+    const topN = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, usTrendTopN).map(([n]) => n)
+    const topNSet = new Set(topN)
 
     const byYearState = new Map()
-    filteredUSNoYear.forEach((d) => {
+    rangeData.forEach((d) => {
       const st = d.State || 'Unknown'
-      if (!top5Set.has(st)) return
+      if (!topNSet.has(st)) return
       const key = `${d.Year}|${st}`
       if (!byYearState.has(key)) byYearState.set(key, { year: d.Year, value: 0, State: st })
-      byYearState.get(key).value += (d.TradeValue || 0)
+      byYearState.get(key).value += (d[valueField] || 0)
     })
     return Array.from(byYearState.values()).sort((a, b) => a.year - b.year)
-  }, [filteredUSNoYear])
+  }, [filteredUSNoYear, valueField, usTrendTopN, usTrendYearRange])
 
-  /* ── MX top 5 state trends ───────────────────────────────────────── */
+  /* ── MX top N state trends ─────────────────────────────────────── */
   const mxStateTrends = useMemo(() => {
+    const rangeData = filteredMXNoYear.filter((d) => d.Year >= mxTrendYearRange.startYear && d.Year <= mxTrendYearRange.endYear)
     const totals = new Map()
-    filteredMXNoYear.forEach((d) => {
+    rangeData.forEach((d) => {
       const st = d.MexState || 'Unknown'
-      totals.set(st, (totals.get(st) || 0) + (d.TradeValue || 0))
+      totals.set(st, (totals.get(st) || 0) + (d[valueField] || 0))
     })
-    const top5 = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
-    const top5Set = new Set(top5)
+    const topN = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, mxTrendTopN).map(([n]) => n)
+    const topNSet = new Set(topN)
 
+    const byYearState = new Map()
+    rangeData.forEach((d) => {
+      const st = d.MexState || 'Unknown'
+      if (!topNSet.has(st)) return
+      const key = `${d.Year}|${st}`
+      if (!byYearState.has(key)) byYearState.set(key, { year: d.Year, value: 0, MexState: st })
+      byYearState.get(key).value += (d[valueField] || 0)
+    })
+    return Array.from(byYearState.values()).sort((a, b) => a.year - b.year)
+  }, [filteredMXNoYear, valueField, mxTrendTopN, mxTrendYearRange])
+
+  /* ── US state growth rates (earliest vs latest 3-year avg) ─────── */
+  const usStateGrowth = useMemo(() => {
+    if (!filteredUSNoYear.length) return []
+    const byYearState = new Map()
+    filteredUSNoYear.forEach((d) => {
+      const st = d.State || 'Unknown'
+      const key = `${d.Year}|${st}`
+      if (!byYearState.has(key)) byYearState.set(key, { year: d.Year, state: st, value: 0 })
+      byYearState.get(key).value += d.TradeValue || 0
+    })
+    const years = [...new Set(filteredUSNoYear.map((d) => d.Year))].sort((a, b) => a - b)
+    if (years.length < 4) return []
+    const earlyYears = years.slice(0, 3)
+    const lateYears = years.slice(-3)
+
+    const states = new Map()
+    Array.from(byYearState.values()).forEach((d) => {
+      if (!states.has(d.state)) states.set(d.state, { early: 0, late: 0, earlyCount: 0, lateCount: 0 })
+      const s = states.get(d.state)
+      if (earlyYears.includes(d.year)) { s.early += d.value; s.earlyCount++ }
+      if (lateYears.includes(d.year)) { s.late += d.value; s.lateCount++ }
+    })
+
+    return Array.from(states, ([state, v]) => {
+      const earlyAvg = v.earlyCount > 0 ? v.early / v.earlyCount : 0
+      const lateAvg = v.lateCount > 0 ? v.late / v.lateCount : 0
+      const growth = earlyAvg > 0 ? ((lateAvg - earlyAvg) / earlyAvg) * 100 : 0
+      return { label: state, value: growth }
+    })
+      .filter((d) => d.value > 0 && d.value < 10000)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, growthTopN)
+  }, [filteredUSNoYear, growthTopN])
+
+  /* ── MX state growth rates (earliest vs latest 3-year avg) ─────── */
+  const mxStateGrowth = useMemo(() => {
+    if (!filteredMXNoYear.length) return []
     const byYearState = new Map()
     filteredMXNoYear.forEach((d) => {
       const st = d.MexState || 'Unknown'
-      if (!top5Set.has(st)) return
       const key = `${d.Year}|${st}`
-      if (!byYearState.has(key)) byYearState.set(key, { year: d.Year, value: 0, MexState: st })
-      byYearState.get(key).value += (d.TradeValue || 0)
+      if (!byYearState.has(key)) byYearState.set(key, { year: d.Year, state: st, value: 0 })
+      byYearState.get(key).value += d.TradeValue || 0
     })
-    return Array.from(byYearState.values()).sort((a, b) => a.year - b.year)
-  }, [filteredMXNoYear])
+    const years = [...new Set(filteredMXNoYear.map((d) => d.Year))].sort((a, b) => a - b)
+    if (years.length < 4) return []
+    const earlyYears = years.slice(0, 3)
+    const lateYears = years.slice(-3)
+
+    const states = new Map()
+    Array.from(byYearState.values()).forEach((d) => {
+      if (!states.has(d.state)) states.set(d.state, { early: 0, late: 0, earlyCount: 0, lateCount: 0 })
+      const s = states.get(d.state)
+      if (earlyYears.includes(d.year)) { s.early += d.value; s.earlyCount++ }
+      if (lateYears.includes(d.year)) { s.late += d.value; s.lateCount++ }
+    })
+
+    return Array.from(states, ([state, v]) => {
+      const earlyAvg = v.earlyCount > 0 ? v.early / v.earlyCount : 0
+      const lateAvg = v.lateCount > 0 ? v.late / v.lateCount : 0
+      const growth = earlyAvg > 0 ? ((lateAvg - earlyAvg) / earlyAvg) * 100 : 0
+      return { label: state, value: growth }
+    })
+      .filter((d) => d.value > 0 && d.value < 10000)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, growthTopN)
+  }, [filteredMXNoYear, growthTopN])
 
   /* ── US detail table ──────────────────────────────────────────────── */
   const usTableData = useMemo(() => {
@@ -145,12 +256,12 @@ export default function StatesTab({
       const st = d.State || 'Unknown'
       if (!byState.has(st)) byState.set(st, { State: st, Total: 0, Exports: 0, Imports: 0 })
       const row = byState.get(st)
-      row.Total += (d.TradeValue || 0)
-      if (d.TradeType === 'Export') row.Exports += (d.TradeValue || 0)
-      if (d.TradeType === 'Import') row.Imports += (d.TradeValue || 0)
+      row.Total += (d[valueField] || 0)
+      if (d.TradeType === 'Export') row.Exports += (d[valueField] || 0)
+      if (d.TradeType === 'Import') row.Imports += (d[valueField] || 0)
     })
     return Array.from(byState.values()).sort((a, b) => b.Total - a.Total)
-  }, [filteredUS])
+  }, [filteredUS, valueField])
 
   /* ── MX detail table ──────────────────────────────────────────────── */
   const mxTableData = useMemo(() => {
@@ -159,18 +270,25 @@ export default function StatesTab({
       const st = d.MexState || 'Unknown'
       if (!byState.has(st)) byState.set(st, { State: st, Total: 0, Exports: 0, Imports: 0 })
       const row = byState.get(st)
-      row.Total += (d.TradeValue || 0)
-      if (d.TradeType === 'Export') row.Exports += (d.TradeValue || 0)
-      if (d.TradeType === 'Import') row.Imports += (d.TradeValue || 0)
+      row.Total += (d[valueField] || 0)
+      if (d.TradeType === 'Export') row.Exports += (d[valueField] || 0)
+      if (d.TradeType === 'Import') row.Imports += (d[valueField] || 0)
     })
     return Array.from(byState.values()).sort((a, b) => b.Total - a.Total)
-  }, [filteredMX])
+  }, [filteredMX, valueField])
 
-  const stateTableColumns = [
-    { key: 'State', label: 'State' },
-    { key: 'Total', label: 'Total Trade', render: (v) => formatCurrency(v) },
-    { key: 'Exports', label: 'Exports', render: (v) => formatCurrency(v) },
-    { key: 'Imports', label: 'Imports', render: (v) => formatCurrency(v) },
+  const usTableColumns = [
+    { key: 'State', label: 'U.S. State' },
+    { key: 'Total', label: `Total ${metricLabel}`, render: (v) => fmtValue(v) },
+    { key: 'Exports', label: 'Exports', render: (v) => fmtValue(v) },
+    { key: 'Imports', label: 'Imports', render: (v) => fmtValue(v) },
+  ]
+
+  const mxTableColumns = [
+    { key: 'State', label: 'Mexican State' },
+    { key: 'Total', label: `Total ${metricLabel}`, render: (v) => fmtValue(v) },
+    { key: 'Exports', label: 'Exports', render: (v) => fmtValue(v) },
+    { key: 'Imports', label: 'Imports', render: (v) => fmtValue(v) },
   ]
 
   const isLoading = !usStateTrade || !mexicanStateTrade
@@ -190,13 +308,15 @@ export default function StatesTab({
   const mxBarMax = Math.max(...mxBarData.map((d) => d.value), 0)
   const usTrendMax = Math.max(...usStateTrends.map((d) => d.value), 0)
   const mxTrendMax = Math.max(...mxStateTrends.map((d) => d.value), 0)
+  const axisPrefix = metric === 'weight' ? '' : '$'
+  const axisSuffix = metric === 'weight' ? ' lb' : ''
 
   return (
     <>
       {/* Narrative Intro */}
       <SectionBlock>
         <div className="max-w-4xl mx-auto">
-          <p className="text-base text-text-secondary leading-relaxed">
+          <p className="text-lg text-text-secondary leading-relaxed">
             Trade with Mexico reaches far beyond the border. On the U.S. side, <strong>Texas</strong> is
             the dominant origin and destination, but <strong>Michigan</strong> (auto parts),{' '}
             <strong>California</strong> (electronics, agriculture), and <strong>Illinois</strong> (machinery)
@@ -209,13 +329,13 @@ export default function StatesTab({
       {/* Choropleth Maps — side by side */}
       <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ChartCard title="U.S. States" subtitle="Trade value with Mexico by U.S. state">
+          <ChartCard title="U.S. States" subtitle={`${metricLabel} with Mexico by U.S. state`}>
             <ChoroplethMap
               geojsonUrl={`${BASE}data/us_states.geojson`}
               data={usMapData}
               nameProperty="name"
-              formatValue={formatCurrency}
-              metricLabel="Trade Value"
+              formatValue={fmtValue}
+              metricLabel={metricLabel}
               colorRange={['#deebf7', '#08519c']}
               center={[39.5, -98.0]}
               zoom={4}
@@ -223,13 +343,13 @@ export default function StatesTab({
               title="U.S. States"
             />
           </ChartCard>
-          <ChartCard title="Mexican States" subtitle="Trade value with the U.S. by Mexican state">
+          <ChartCard title="Mexican States" subtitle={`${metricLabel} with the U.S. by Mexican state`}>
             <ChoroplethMap
               geojsonUrl={`${BASE}data/mexican_states.geojson`}
               data={mxMapData}
               nameProperty="name"
-              formatValue={formatCurrency}
-              metricLabel="Trade Value"
+              formatValue={fmtValue}
+              metricLabel={metricLabel}
               colorRange={['#fee0d2', '#de2d26']}
               center={[23.5, -102.0]}
               zoom={5}
@@ -248,14 +368,14 @@ export default function StatesTab({
         </div>
       </SectionBlock>
 
-      {/* US Top 15 States + MX Top 15 States */}
+      {/* US Top N States + MX Top N States */}
       <SectionBlock>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ChartCard title="Top 15 U.S. States" subtitle="Ranked by trade value with Mexico">
-            <BarChart data={usBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(usBarMax, '$')} color={CHART_COLORS[0]} />
+          <ChartCard title={`Top ${usTopN} U.S. States`} subtitle={`Ranked by ${metricLabel.toLowerCase()} with Mexico`} headerRight={<TopNSelector value={usTopN} onChange={setUsTopN} />}>
+            <BarChart data={usBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(usBarMax, axisPrefix, axisSuffix)} color={CHART_COLORS[0]} />
           </ChartCard>
-          <ChartCard title="Top 15 Mexican States" subtitle="Ranked by trade value with the U.S.">
-            <BarChart data={mxBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(mxBarMax, '$')} color={CHART_COLORS[3]} />
+          <ChartCard title={`Top ${mxTopN} Mexican States`} subtitle={`Ranked by ${metricLabel.toLowerCase()} with the U.S.`} headerRight={<TopNSelector value={mxTopN} onChange={setMxTopN} />}>
+            <BarChart data={mxBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(mxBarMax, axisPrefix, axisSuffix)} color={CHART_COLORS[3]} />
           </ChartCard>
         </div>
       </SectionBlock>
@@ -263,23 +383,41 @@ export default function StatesTab({
       {/* US State Trends + MX State Trends */}
       <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <ChartCard title="Top 5 U.S. State Trends" subtitle="Annual trade with Mexico">
-            <LineChart data={usStateTrends} xKey="year" yKey="value" seriesKey="State" formatY={getAxisFormatter(usTrendMax, '$')} annotations={HISTORICAL_ANNOTATIONS} />
+          <ChartCard title={`Top ${usTrendTopN} U.S. State Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} with Mexico`} headerRight={<><TopNSelector value={usTrendTopN} onChange={setUsTrendTopN} /><YearRangeFilter years={allUSYears} value={usTrendYearRange} onChange={setUsTrendYearRange} /></>}>
+            <LineChart data={usStateTrends} xKey="year" yKey="value" seriesKey="State" formatY={getAxisFormatter(usTrendMax, axisPrefix, axisSuffix)} annotations={HISTORICAL_ANNOTATIONS} />
           </ChartCard>
-          <ChartCard title="Top 5 Mexican State Trends" subtitle="Annual trade with the U.S.">
-            <LineChart data={mxStateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(mxTrendMax, '$')} annotations={HISTORICAL_ANNOTATIONS} />
+          <ChartCard title={`Top ${mxTrendTopN} Mexican State Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} with the U.S.`} headerRight={<><TopNSelector value={mxTrendTopN} onChange={setMxTrendTopN} /><YearRangeFilter years={allMXYears} value={mxTrendYearRange} onChange={setMxTrendYearRange} /></>}>
+            <LineChart data={mxStateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(mxTrendMax, axisPrefix, axisSuffix)} annotations={HISTORICAL_ANNOTATIONS} />
           </ChartCard>
         </div>
       </SectionBlock>
 
+      {/* Growth Rates */}
+      {(usStateGrowth.length > 0 || mxStateGrowth.length > 0) && (
+        <SectionBlock>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {usStateGrowth.length > 0 && (
+              <ChartCard title="Fastest-Growing U.S. States" subtitle="Growth in avg annual trade value (earliest 3 yrs vs. latest 3 yrs)" headerRight={<TopNSelector value={growthTopN} onChange={setGrowthTopN} />}>
+                <BarChart data={usStateGrowth} xKey="label" yKey="value" horizontal formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" />
+              </ChartCard>
+            )}
+            {mxStateGrowth.length > 0 && (
+              <ChartCard title="Fastest-Growing Mexican States" subtitle="Growth in avg annual trade value (earliest 3 yrs vs. latest 3 yrs)" headerRight={<TopNSelector value={growthTopN} onChange={setGrowthTopN} />}>
+                <BarChart data={mxStateGrowth} xKey="label" yKey="value" horizontal formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" />
+              </ChartCard>
+            )}
+          </div>
+        </SectionBlock>
+      )}
+
       {/* Detail Tables */}
-      <SectionBlock>
+      <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard title="U.S. State Detail" subtitle="State-level trade summary">
-            <DataTable columns={stateTableColumns} data={usTableData} />
+            <DataTable columns={usTableColumns} data={usTableData} />
           </ChartCard>
           <ChartCard title="Mexican State Detail" subtitle="State-level trade summary">
-            <DataTable columns={stateTableColumns} data={mxTableData} />
+            <DataTable columns={mxTableColumns} data={mxTableData} />
           </ChartCard>
         </div>
       </SectionBlock>

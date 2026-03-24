@@ -4,7 +4,7 @@
  * Sections: Map, Trade Trends + Mode Donut, Port Rankings, Port Trends,
  *           Mode Composition, Monthly Patterns, Detail Table.
  */
-import { useMemo, useEffect, useCallback } from 'react'
+import { useMemo, useState, useEffect, useCallback } from 'react'
 import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import BarChart from '@/components/charts/BarChart'
@@ -13,7 +13,9 @@ import DonutChart from '@/components/charts/DonutChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import PortMap from '@/components/maps/PortMap'
-import { formatCurrency, formatNumber } from '@/lib/chartColors'
+import { formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import YearRangeFilter from '@/components/filters/YearRangeFilter'
+import TopNSelector from '@/components/filters/TopNSelector'
 import InsightCallout from '@/components/ui/InsightCallout'
 import { TrendingDown, AlertTriangle, Zap } from 'lucide-react'
 import { DL, PAGE_PORT_COLS } from '@/lib/downloadColumns'
@@ -35,8 +37,30 @@ export default function PortsTab({
   loadDataset,
   latestYear,
   datasetError,
+  metric = 'value',
 }) {
   useEffect(() => { loadDataset('monthlyTrends') }, [loadDataset])
+
+  const valueField = getMetricField(metric)
+  const fmtValue = getMetricFormatter(metric)
+  const metricLabel = getMetricLabel(metric)
+
+  // Chart-level controls
+  const allYears = useMemo(() => {
+    const ys = new Set()
+    filteredPortsNoYear.forEach((d) => { if (d.Year) ys.add(d.Year) })
+    return [...ys].sort((a, b) => a - b)
+  }, [filteredPortsNoYear])
+  const [trendYearRange, setTrendYearRange] = useState({ startYear: 0, endYear: 9999 })
+  const [portTopN, setPortTopN] = useState(15)
+  const [portTrendTopN, setPortTrendTopN] = useState(5)
+
+  // Initialize year range when years change
+  useEffect(() => {
+    if (allYears.length) {
+      setTrendYearRange({ startYear: allYears[0], endYear: allYears[allYears.length - 1] })
+    }
+  }, [allYears])
 
   /* ── Map markers ───────────────────────────────────────────────────── */
   const mapPorts = useMemo(() => {
@@ -46,10 +70,10 @@ export default function PortsTab({
       if (!byPort.has(d.Port)) {
         byPort.set(d.Port, { name: d.Port, lat: d.Lat, lng: d.Lon, value: 0, portCode: d.PortCode })
       }
-      byPort.get(d.Port).value += d.TradeValue || 0
+      byPort.get(d.Port).value += d[valueField] || 0
     })
     return Array.from(byPort.values())
-  }, [filteredPorts])
+  }, [filteredPorts, valueField])
 
   /* ── Trade trend by Year + TradeType ───────────────────────────────── */
   const tradeTrend = useMemo(() => {
@@ -58,53 +82,55 @@ export default function PortsTab({
       if (!d.Year || !d.TradeType) return
       const key = `${d.Year}|${d.TradeType}`
       if (!byYT.has(key)) byYT.set(key, { year: d.Year, value: 0, TradeType: d.TradeType })
-      byYT.get(key).value += d.TradeValue || 0
+      byYT.get(key).value += d[valueField] || 0
     })
     return Array.from(byYT.values()).sort((a, b) => a.year - b.year)
-  }, [filteredPortsNoYear])
+      .filter(d => d.year >= trendYearRange.startYear && d.year <= trendYearRange.endYear)
+  }, [filteredPortsNoYear, valueField, trendYearRange])
 
   /* ── Trade by mode (donut) ─────────────────────────────────────────── */
   const tradeByMode = useMemo(() => {
     const byMode = new Map()
     filteredPorts.forEach((d) => {
       if (!d.Mode) return
-      byMode.set(d.Mode, (byMode.get(d.Mode) || 0) + (d.TradeValue || 0))
+      byMode.set(d.Mode, (byMode.get(d.Mode) || 0) + (d[valueField] || 0))
     })
     return Array.from(byMode, ([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-  }, [filteredPorts])
+  }, [filteredPorts, valueField])
 
   /* ── Port ranking (bar) ────────────────────────────────────────────── */
   const portRanking = useMemo(() => {
     const byPort = new Map()
     filteredPorts.forEach((d) => {
       if (!d.Port) return
-      byPort.set(d.Port, (byPort.get(d.Port) || 0) + (d.TradeValue || 0))
+      byPort.set(d.Port, (byPort.get(d.Port) || 0) + (d[valueField] || 0))
     })
     return Array.from(byPort, ([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 15)
-  }, [filteredPorts])
+      .slice(0, portTopN)
+  }, [filteredPorts, valueField, portTopN])
 
   /* ── Top 5 port trends (multi-series line) ─────────────────────────── */
   const portTrends = useMemo(() => {
     const totals = new Map()
     filteredPortsNoYear.forEach((d) => {
       if (!d.Port) return
-      totals.set(d.Port, (totals.get(d.Port) || 0) + (d.TradeValue || 0))
+      totals.set(d.Port, (totals.get(d.Port) || 0) + (d[valueField] || 0))
     })
-    const top5 = Array.from(totals.entries()).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
-    const top5Set = new Set(top5)
+    const topN = Array.from(totals.entries()).sort((a, b) => b[1] - a[1]).slice(0, portTrendTopN).map(([n]) => n)
+    const topNSet = new Set(topN)
 
     const byYP = new Map()
     filteredPortsNoYear.forEach((d) => {
-      if (!d.Port || !top5Set.has(d.Port)) return
+      if (!d.Port || !topNSet.has(d.Port)) return
       const key = `${d.Year}|${d.Port}`
       if (!byYP.has(key)) byYP.set(key, { year: d.Year, value: 0, Port: d.Port })
-      byYP.get(key).value += d.TradeValue || 0
+      byYP.get(key).value += d[valueField] || 0
     })
     return Array.from(byYP.values()).sort((a, b) => a.year - b.year)
-  }, [filteredPortsNoYear])
+      .filter(d => d.year >= trendYearRange.startYear && d.year <= trendYearRange.endYear)
+  }, [filteredPortsNoYear, valueField, portTrendTopN, trendYearRange])
 
   /* ── Mode composition by year (stacked bar) ────────────────────────── */
   const modeByYear = useMemo(() => {
@@ -114,7 +140,7 @@ export default function PortsTab({
       if (!d.Mode || !d.Year) return
       modes.add(d.Mode)
       if (!byYear.has(d.Year)) byYear.set(d.Year, { year: d.Year })
-      byYear.get(d.Year)[d.Mode] = (byYear.get(d.Year)[d.Mode] || 0) + (d.TradeValue || 0)
+      byYear.get(d.Year)[d.Mode] = (byYear.get(d.Year)[d.Mode] || 0) + (d[valueField] || 0)
     })
     const modeTotals = new Map()
     modes.forEach((m) => {
@@ -126,8 +152,9 @@ export default function PortsTab({
     const data = Array.from(byYear.values())
       .map((row) => { sortedModes.forEach((m) => { if (!(m in row)) row[m] = 0 }); return row })
       .sort((a, b) => a.year - b.year)
+      .filter(d => d.year >= trendYearRange.startYear && d.year <= trendYearRange.endYear)
     return { data, keys: sortedModes }
-  }, [filteredPortsNoYear])
+  }, [filteredPortsNoYear, valueField, trendYearRange])
 
   /* ── Monthly time series ───────────────────────────────────────────── */
   const monthlyTimeSeries = useMemo(() => {
@@ -140,12 +167,12 @@ export default function PortsTab({
         const monthStr = String(d.Month).padStart(2, '0')
         byYM.set(key, { date: `${d.Year}-${monthStr}`, value: 0 })
       }
-      byYM.get(key).value += d.TradeValue || 0
+      byYM.get(key).value += d[valueField] || 0
     })
     const sorted = Array.from(byYM.values()).sort((a, b) => a.date.localeCompare(b.date))
     sorted.forEach((d, i) => { d.idx = i })
     return sorted
-  }, [filteredMonthly])
+  }, [filteredMonthly, valueField])
 
   const formatX = useCallback((idx) => {
     const d = monthlyTimeSeries[idx]
@@ -163,7 +190,7 @@ export default function PortsTab({
       years.add(yr)
       const monthLabel = MONTH_LABELS[d.Month] || `M${d.Month}`
       if (!byMonth.has(monthLabel)) byMonth.set(monthLabel, { month: monthLabel, _order: d.Month })
-      byMonth.get(monthLabel)[yr] = (byMonth.get(monthLabel)[yr] || 0) + (d.TradeValue || 0)
+      byMonth.get(monthLabel)[yr] = (byMonth.get(monthLabel)[yr] || 0) + (d[valueField] || 0)
     })
     const sortedYears = [...years].sort()
     const data = Array.from(byMonth.values())
@@ -171,7 +198,7 @@ export default function PortsTab({
       .sort((a, b) => a._order - b._order)
     data.forEach((row) => { delete row._order })
     return { data, keys: sortedYears }
-  }, [filteredMonthly])
+  }, [filteredMonthly, valueField])
 
   /* ── COVID monthly zoom (2019-2021) ────────────────────────────── */
   const covidZoom = useMemo(() => {
@@ -185,12 +212,12 @@ export default function PortsTab({
         const monthStr = String(d.Month).padStart(2, '0')
         byYM.set(key, { date: `${d.Year}-${monthStr}`, value: 0 })
       }
-      byYM.get(key).value += d.TradeValue || 0
+      byYM.get(key).value += d[valueField] || 0
     })
     const sorted = Array.from(byYM.values()).sort((a, b) => a.date.localeCompare(b.date))
     sorted.forEach((d, i) => { d.idx = i })
     return sorted
-  }, [filteredMonthly])
+  }, [filteredMonthly, valueField])
 
   const formatCovidX = useCallback((idx) => {
     const d = covidZoom[idx]
@@ -206,12 +233,12 @@ export default function PortsTab({
         byKey.set(key, {
           Year: d.Year, Port: d.Port || '—', Region: d.Region || '—',
           Mode: d.Mode || '—', TradeType: d.TradeType || '—',
-          TradeValue: 0, Weight: 0,
+          TradeValue: 0, WeightLb: 0,
         })
       }
       const row = byKey.get(key)
       row.TradeValue += d.TradeValue || 0
-      row.Weight += d.Weight || 0
+      row.WeightLb += d.WeightLb || 0
     })
     return Array.from(byKey.values()).sort((a, b) => b.TradeValue - a.TradeValue)
   }, [filteredPorts])
@@ -256,7 +283,7 @@ export default function PortsTab({
     { key: 'Mode', label: 'Mode' },
     { key: 'TradeType', label: 'Trade Type' },
     { key: 'TradeValue', label: 'Trade Value ($)', render: (v) => formatCurrency(v) },
-    { key: 'Weight', label: 'Weight (kg)', render: (v) => formatNumber(v) },
+    { key: 'WeightLb', label: 'Weight (lb)', render: (v) => v ? formatWeight(v) : '—' },
   ]
 
   return (
@@ -277,8 +304,8 @@ export default function PortsTab({
       {/* Port Map */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Texas-Mexico Ports of Entry" subtitle="Bubble size reflects total trade value for selected filters">
-            <PortMap ports={mapPorts} formatValue={formatCurrency} center={[28.5, -100.0]} zoom={6} height="520px" />
+          <ChartCard title="Texas-Mexico Ports of Entry" subtitle={`Bubble size reflects total ${metricLabel.toLowerCase()} for selected filters`}>
+            <PortMap ports={mapPorts} formatValue={fmtValue} center={[28.5, -100.0]} zoom={6} height="520px" />
           </ChartCard>
         </div>
       </SectionBlock>
@@ -301,13 +328,14 @@ export default function PortsTab({
       {/* Trade Trends + Mode Donut (2-col) */}
       <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
-          <ChartCard title="TX-MX Trade Trends" subtitle="Annual trade value by direction"
+          <ChartCard title="TX-MX Trade Trends" subtitle={`Annual ${metricLabel.toLowerCase()} by direction`}
+            headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}
             downloadData={{ summary: { data: tradeTrend, filename: 'tx-mx-trade-trends', columns: DL.tradeTrendSeries } }}>
-            <LineChart data={tradeTrend} xKey="year" yKey="value" seriesKey="TradeType" formatValue={formatCurrency} annotations={HISTORICAL_ANNOTATIONS} />
+            <LineChart data={tradeTrend} xKey="year" yKey="value" seriesKey="TradeType" formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
           </ChartCard>
           <ChartCard title="Trade by Mode" subtitle="All selected years combined"
             downloadData={{ summary: { data: tradeByMode, filename: 'tx-mx-trade-by-mode', columns: DL.modeRank } }}>
-            <DonutChart data={tradeByMode} nameKey="label" valueKey="value" formatValue={formatCurrency} />
+            <DonutChart data={tradeByMode} nameKey="label" valueKey="value" formatValue={fmtValue} />
           </ChartCard>
         </div>
       </SectionBlock>
@@ -331,9 +359,10 @@ export default function PortsTab({
       {/* Port Ranking */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Port Ranking" subtitle="Top 15 ports by total trade value"
+          <ChartCard title="Port Ranking" subtitle={`Top ${portTopN} ports by ${metricLabel.toLowerCase()}`}
+            headerRight={<TopNSelector value={portTopN} onChange={setPortTopN} />}
             downloadData={{ summary: { data: portRanking, filename: 'tx-mx-port-ranking', columns: DL.portRank } }}>
-            <BarChart data={portRanking} xKey="label" yKey="value" horizontal formatValue={formatCurrency} />
+            <BarChart data={portRanking} xKey="label" yKey="value" horizontal formatValue={fmtValue} />
           </ChartCard>
         </div>
       </SectionBlock>
@@ -357,9 +386,10 @@ export default function PortsTab({
       {/* Top 5 Port Trends */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Top 5 Port Trends" subtitle="Annual trade value for the five largest ports"
+          <ChartCard title={`Top ${portTrendTopN} Port Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} for the largest ports`}
+            headerRight={<><TopNSelector value={portTrendTopN} onChange={setPortTrendTopN} /><YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} /></>}
             downloadData={{ summary: { data: portTrends, filename: 'tx-mx-top5-port-trends', columns: DL.tradeTrendSeries } }}>
-            <LineChart data={portTrends} xKey="year" yKey="value" seriesKey="Port" formatValue={formatCurrency} annotations={HISTORICAL_ANNOTATIONS} />
+            <LineChart data={portTrends} xKey="year" yKey="value" seriesKey="Port" formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
           </ChartCard>
         </div>
       </SectionBlock>
@@ -367,8 +397,9 @@ export default function PortsTab({
       {/* Mode Composition by Year */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Mode Composition by Year" subtitle="Annual trade value stacked by transport mode">
-            <StackedBarChart data={modeByYear.data} xKey="year" stackKeys={modeByYear.keys} formatValue={formatCurrency} />
+          <ChartCard title="Mode Composition by Year" subtitle={`Annual ${metricLabel.toLowerCase()} stacked by transport mode`}
+            headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}>
+            <StackedBarChart data={modeByYear.data} xKey="year" stackKeys={modeByYear.keys} formatValue={fmtValue} />
           </ChartCard>
         </div>
       </SectionBlock>
@@ -380,7 +411,7 @@ export default function PortsTab({
             <SectionBlock>
               <div className="max-w-7xl mx-auto">
                 <ChartCard title="COVID-19 Impact & Recovery" subtitle="Monthly trade, January 2019 – December 2021">
-                  <LineChart data={covidZoom} xKey="idx" yKey="value" formatValue={formatCurrency} formatX={formatCovidX} showArea />
+                  <LineChart data={covidZoom} xKey="idx" yKey="value" formatValue={fmtValue} formatX={formatCovidX} showArea />
                 </ChartCard>
                 <div className="mt-4">
                   <InsightCallout
@@ -396,10 +427,10 @@ export default function PortsTab({
             <div className="flex flex-col gap-6 max-w-7xl mx-auto">
               <ChartCard title="Monthly Trade Trends" subtitle="Continuous monthly time series"
                 downloadData={{ summary: { data: monthlyTimeSeries, filename: 'tx-mx-monthly-trends', columns: DL.tradeTrend } }}>
-                <LineChart data={monthlyTimeSeries} xKey="idx" yKey="value" formatValue={formatCurrency} formatX={formatX} />
+                <LineChart data={monthlyTimeSeries} xKey="idx" yKey="value" formatValue={fmtValue} formatX={formatX} />
               </ChartCard>
-              <ChartCard title="Seasonal Patterns" subtitle="Trade value by month, stacked by year">
-                <StackedBarChart data={seasonalData.data} xKey="month" stackKeys={seasonalData.keys} formatValue={formatCurrency} />
+              <ChartCard title="Seasonal Patterns" subtitle={`${metricLabel} by month, stacked by year`}>
+                <StackedBarChart data={seasonalData.data} xKey="month" stackKeys={seasonalData.keys} formatValue={fmtValue} />
               </ChartCard>
             </div>
           </SectionBlock>

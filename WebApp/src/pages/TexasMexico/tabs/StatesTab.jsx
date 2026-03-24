@@ -3,9 +3,11 @@
  * Uses texasMexicanStateTrade dataset (DOT1, filtered to TX ports).
  * Shows choropleth map of Mexico, rankings, trends, and detail table.
  */
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { formatCurrency, getAxisFormatter } from '@/lib/transborderHelpers'
-import { CHART_COLORS, formatCompact } from '@/lib/chartColors'
+import { CHART_COLORS, formatCompact, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import YearRangeFilter from '@/components/filters/YearRangeFilter'
+import TopNSelector from '@/components/filters/TopNSelector'
 import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import InteractiveFlowMap from '@/components/maps/InteractiveFlowMap'
@@ -31,11 +33,21 @@ export default function StatesTab({
   yearFilter,
   tradeTypeFilter,
   modeFilter,
+  mexStateFilter,
   datasetError,
+  metric = 'value',
 }) {
   useEffect(() => { loadDataset('texasMexicanStateTrade'); loadDataset('texasOdStateFlows') }, [loadDataset])
 
   const { portCoords } = usePortCoordinates()
+
+  const valueField = getMetricField(metric)
+  const fmtValue = getMetricFormatter(metric)
+  const metricLabel = getMetricLabel(metric)
+
+  const [stateTopN, setStateTopN] = useState(15)
+  const [stateTrendTopN, setStateTrendTopN] = useState(5)
+  const [growthTopN, setGrowthTopN] = useState(15)
 
   /* ── filter data ───────────────────────────────────────────────────── */
   const filtered = useMemo(() => {
@@ -44,26 +56,38 @@ export default function StatesTab({
     if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return data
-  }, [texasMexicanStateTrade, yearFilter, tradeTypeFilter, modeFilter])
+  }, [texasMexicanStateTrade, yearFilter, tradeTypeFilter, modeFilter, mexStateFilter])
 
   const filteredNoYear = useMemo(() => {
     if (!texasMexicanStateTrade) return []
     let data = texasMexicanStateTrade
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return data
-  }, [texasMexicanStateTrade, tradeTypeFilter, modeFilter])
+  }, [texasMexicanStateTrade, tradeTypeFilter, modeFilter, mexStateFilter])
+
+  const allStateYears = useMemo(() => {
+    const ys = new Set()
+    filteredNoYear.forEach((d) => { if (d.Year) ys.add(d.Year) })
+    return [...ys].sort((a, b) => a - b)
+  }, [filteredNoYear])
+  const [trendYearRange, setTrendYearRange] = useState({ startYear: 0, endYear: 9999 })
+  useEffect(() => {
+    if (allStateYears.length) setTrendYearRange({ startYear: allStateYears[0], endYear: allStateYears[allStateYears.length - 1] })
+  }, [allStateYears])
 
   /* ── choropleth data ───────────────────────────────────────────────── */
   const mapData = useMemo(() => {
     const byState = new Map()
     filtered.forEach((d) => {
       const st = d.MexState || 'Unknown'
-      byState.set(st, (byState.get(st) || 0) + (d.TradeValue || 0))
+      byState.set(st, (byState.get(st) || 0) + (d[valueField] || 0))
     })
     return Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
-  }, [filtered])
+  }, [filtered, valueField])
 
   /* ── port bubble data for the interactive map ─────────────────────── */
   const portMapData = useMemo(() => {
@@ -72,8 +96,9 @@ export default function StatesTab({
     if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return buildMapPorts(data, portCoords)
-  }, [texasOdStateFlows, portCoords, yearFilter, tradeTypeFilter, modeFilter])
+  }, [texasOdStateFlows, portCoords, yearFilter, tradeTypeFilter, modeFilter, mexStateFilter])
 
   /* ── connectivity: state ↔ port with per-pair trade values ──────── */
   const connections = useMemo(() => {
@@ -85,11 +110,12 @@ export default function StatesTab({
     if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
 
     for (const d of data) {
       if (!d.MexState || !d.PortCode) continue
       const code = d.PortCode.replace(/\D/g, '')
-      const val = d.TradeValue || 0
+      const val = d[valueField] || 0
       if (!stateToPort.has(d.MexState)) stateToPort.set(d.MexState, new Map())
       const sp = stateToPort.get(d.MexState)
       sp.set(code, (sp.get(code) || 0) + val)
@@ -98,34 +124,35 @@ export default function StatesTab({
       ps.set(d.MexState, (ps.get(d.MexState) || 0) + val)
     }
     return { stateToPort, portToState }
-  }, [texasOdStateFlows, yearFilter, tradeTypeFilter, modeFilter])
+  }, [texasOdStateFlows, yearFilter, tradeTypeFilter, modeFilter, mexStateFilter, valueField])
 
   /* ── bar chart data ────────────────────────────────────────────────── */
   const barData = useMemo(
-    () => mapData.slice(0, 15).map((d) => ({ label: d.name, value: d.value })),
-    [mapData],
+    () => mapData.slice(0, stateTopN).map((d) => ({ label: d.name, value: d.value })),
+    [mapData, stateTopN],
   )
 
   /* ── top 5 state trends ────────────────────────────────────────────── */
   const stateTrends = useMemo(() => {
+    const rangeData = filteredNoYear.filter((d) => d.Year >= trendYearRange.startYear && d.Year <= trendYearRange.endYear)
     const totals = new Map()
-    filteredNoYear.forEach((d) => {
+    rangeData.forEach((d) => {
       const st = d.MexState || 'Unknown'
-      totals.set(st, (totals.get(st) || 0) + (d.TradeValue || 0))
+      totals.set(st, (totals.get(st) || 0) + (d[valueField] || 0))
     })
-    const top5 = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
-    const top5Set = new Set(top5)
+    const topN = [...totals.entries()].sort((a, b) => b[1] - a[1]).slice(0, stateTrendTopN).map(([n]) => n)
+    const topNSet = new Set(topN)
 
     const byYearState = new Map()
-    filteredNoYear.forEach((d) => {
+    rangeData.forEach((d) => {
       const st = d.MexState || 'Unknown'
-      if (!top5Set.has(st)) return
+      if (!topNSet.has(st)) return
       const key = `${d.Year}|${st}`
       if (!byYearState.has(key)) byYearState.set(key, { year: d.Year, value: 0, MexState: st })
-      byYearState.get(key).value += (d.TradeValue || 0)
+      byYearState.get(key).value += (d[valueField] || 0)
     })
     return Array.from(byYearState.values()).sort((a, b) => a.year - b.year)
-  }, [filteredNoYear])
+  }, [filteredNoYear, valueField, stateTrendTopN, trendYearRange])
 
   /* ── detail table ──────────────────────────────────────────────────── */
   const tableData = useMemo(() => {
@@ -134,12 +161,12 @@ export default function StatesTab({
       const st = d.MexState || 'Unknown'
       if (!byState.has(st)) byState.set(st, { State: st, Total: 0, Exports: 0, Imports: 0 })
       const row = byState.get(st)
-      row.Total += (d.TradeValue || 0)
-      if (d.TradeType === 'Export') row.Exports += (d.TradeValue || 0)
-      if (d.TradeType === 'Import') row.Imports += (d.TradeValue || 0)
+      row.Total += (d[valueField] || 0)
+      if (d.TradeType === 'Export') row.Exports += (d[valueField] || 0)
+      if (d.TradeType === 'Import') row.Imports += (d[valueField] || 0)
     })
     return Array.from(byState.values()).sort((a, b) => b.Total - a.Total)
-  }, [filtered])
+  }, [filtered, valueField])
 
   /* ── Sankey: Port → Mexican State ──────────────────────────────── */
   const sankeyData = useMemo(() => {
@@ -148,12 +175,13 @@ export default function StatesTab({
     if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
 
     const portTotals = new Map()
     const mxTotals = new Map()
     data.forEach((d) => {
-      portTotals.set(d.Port, (portTotals.get(d.Port) || 0) + (d.TradeValue || 0))
-      mxTotals.set(d.MexState, (mxTotals.get(d.MexState) || 0) + (d.TradeValue || 0))
+      portTotals.set(d.Port, (portTotals.get(d.Port) || 0) + (d[valueField] || 0))
+      mxTotals.set(d.MexState, (mxTotals.get(d.MexState) || 0) + (d[valueField] || 0))
     })
 
     const topPorts = [...portTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 10).map(([n]) => n)
@@ -170,7 +198,7 @@ export default function StatesTab({
     data.forEach((d) => {
       if (!topPortSet.has(d.Port) || !topMXSet.has(d.MexState)) return
       const key = `port-${d.Port}|mx-${d.MexState}`
-      linkMap.set(key, (linkMap.get(key) || 0) + (d.TradeValue || 0))
+      linkMap.set(key, (linkMap.get(key) || 0) + (d[valueField] || 0))
     })
 
     const links = Array.from(linkMap, ([key, value]) => {
@@ -179,7 +207,7 @@ export default function StatesTab({
     }).filter((l) => l.value > 0)
 
     return { nodes, links }
-  }, [texasOdStateFlows, yearFilter, tradeTypeFilter, modeFilter])
+  }, [texasOdStateFlows, yearFilter, tradeTypeFilter, modeFilter, mexStateFilter, valueField])
 
   /* ── Mexican state growth rates (earliest vs latest 3-year avg) ── */
   const stateGrowth = useMemo(() => {
@@ -212,14 +240,14 @@ export default function StatesTab({
     })
       .filter((d) => d.value > 0 && d.value < 10000)
       .sort((a, b) => b.value - a.value)
-      .slice(0, 15)
-  }, [filteredNoYear])
+      .slice(0, growthTopN)
+  }, [filteredNoYear, growthTopN])
 
   const tableColumns = [
     { key: 'State', label: 'Mexican State' },
-    { key: 'Total', label: 'Total Trade', render: (v) => formatCurrency(v) },
-    { key: 'Exports', label: 'Exports', render: (v) => formatCurrency(v) },
-    { key: 'Imports', label: 'Imports', render: (v) => formatCurrency(v) },
+    { key: 'Total', label: 'Total Trade', render: (v) => fmtValue(v) },
+    { key: 'Exports', label: 'Exports', render: (v) => fmtValue(v) },
+    { key: 'Imports', label: 'Imports', render: (v) => fmtValue(v) },
   ]
 
   if (datasetError) {
@@ -251,7 +279,7 @@ export default function StatesTab({
       {/* Narrative Intro */}
       <SectionBlock>
         <div className="max-w-4xl mx-auto">
-          <p className="text-base text-text-secondary leading-relaxed">
+          <p className="text-lg text-text-secondary leading-relaxed">
             Each Texas port serves specific Mexican states, creating distinct trade corridors along the border.{' '}
             <strong>Chihuahua</strong> trades primarily through El Paso/Ysleta, <strong>Nuevo Le&oacute;n</strong> routes
             through Laredo, and <strong>Tamaulipas</strong> connects via Pharr and Brownsville. Beyond these traditional
@@ -270,8 +298,8 @@ export default function StatesTab({
               stateData={mapData}
               portData={portMapData}
               connections={connections}
-              formatValue={formatCurrency}
-              metricLabel="Trade Value"
+              formatValue={fmtValue}
+              metricLabel={metricLabel}
               colorRange={['#fee0d2', '#de2d26']}
               center={[26.0, -102.0]}
               zoom={5}
@@ -289,7 +317,7 @@ export default function StatesTab({
             <SankeyDiagram
               nodes={sankeyData.nodes}
               links={sankeyData.links}
-              formatValue={formatCompact}
+              formatValue={fmtValue}
               height={520}
               columnHeaders={['Border Ports', 'Mexican States']}
             />
@@ -300,8 +328,8 @@ export default function StatesTab({
       {/* Top 15 bar + Detail table side by side */}
       <SectionBlock>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
-          <ChartCard title="Top 15 Mexican States" subtitle="Ranked by trade value through Texas ports">
-            <BarChart data={barData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(barMax, '$')} color={CHART_COLORS[3]} />
+          <ChartCard title={`Top ${stateTopN} Mexican States`} subtitle={`Ranked by ${metricLabel.toLowerCase()} through Texas ports`} headerRight={<TopNSelector value={stateTopN} onChange={setStateTopN} />}>
+            <BarChart data={barData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(barMax, metric === 'weight' ? '' : '$')} color={CHART_COLORS[3]} />
           </ChartCard>
           <ChartCard title="Mexican State Detail" subtitle="Trade summary by Mexican state">
             <DataTable columns={tableColumns} data={tableData} />
@@ -325,7 +353,7 @@ export default function StatesTab({
       {stateGrowth.length > 0 && (
         <SectionBlock alt>
           <div className="max-w-7xl mx-auto">
-            <ChartCard title="Fastest-Growing Mexican States" subtitle="Growth in average annual trade value (earliest 3 years vs. latest 3 years)">
+            <ChartCard title="Fastest-Growing Mexican States" subtitle="Growth in average annual trade value (earliest 3 years vs. latest 3 years)" headerRight={<TopNSelector value={growthTopN} onChange={setGrowthTopN} />}>
               <BarChart data={stateGrowth} xKey="label" yKey="value" horizontal formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" />
             </ChartCard>
             <div className="mt-4">
@@ -343,8 +371,8 @@ export default function StatesTab({
       {/* Top 5 State Trends */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Top 5 State Trends" subtitle="Annual trade value through Texas ports">
-            <LineChart data={stateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(trendMax, '$')} annotations={ANNOTATIONS} />
+          <ChartCard title={`Top ${stateTrendTopN} State Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} through Texas ports`} headerRight={<><TopNSelector value={stateTrendTopN} onChange={setStateTrendTopN} /><YearRangeFilter years={allStateYears} value={trendYearRange} onChange={setTrendYearRange} /></>}>
+            <LineChart data={stateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(trendMax, metric === 'weight' ? '' : '$')} annotations={ANNOTATIONS} />
           </ChartCard>
         </div>
       </SectionBlock>

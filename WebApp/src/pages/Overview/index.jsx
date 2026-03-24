@@ -6,8 +6,11 @@ import {
   Globe, Map as MapIcon, Scale, ArrowUpDown, Lightbulb,
 } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency } from '@/lib/chartColors'
+import { formatCurrency, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
 import { generateInsights } from '@/lib/insightEngine'
+import MetricToggle from '@/components/filters/MetricToggle'
+import YearRangeFilter from '@/components/filters/YearRangeFilter'
+import TopNSelector from '@/components/filters/TopNSelector'
 import { PORT_REGION_MAP } from '@/lib/portUtils'
 import { usePortCoordinates, useCanadianPortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import HeroStardust from '@/components/ui/HeroStardust'
@@ -73,10 +76,20 @@ const MAP_LEGEND = [
 export default function OverviewPage() {
   const { usTransborder, usMexicoPorts, usCanadaPorts, usStateTrade, odStateFlows, odCanadaProvFlows, loading, loadDataset } = useTransborderStore()
 
+  /* ── metric toggle state ──────────────────────────────────────── */
+  const [metric, setMetric] = useState('value')
+  const valueField = getMetricField(metric)
+  const fmtValue = getMetricFormatter(metric)
+  const metricLabel = getMetricLabel(metric)
+
   /* ── country filter state (per-section) ───────────────────────── */
   const [countryFilter, setCountryFilter] = useState('')      // stat cards
   const [trendCountry, setTrendCountry] = useState('')         // line chart
   const [modeCountry, setModeCountry] = useState('')           // donut chart
+
+  /* ── chart-level controls ────────────────────────────────────── */
+  const [trendYearRange, setTrendYearRange] = useState(null)   // { startYear, endYear }
+  const [stackYearRange, setStackYearRange] = useState(null)   // { startYear, endYear }
 
   /* ── lazy-load port + state data for map ───────────────────────── */
   useEffect(() => {
@@ -112,10 +125,10 @@ export default function OverviewPage() {
     for (const d of usStateTrade) {
       const st = d.State
       if (!st || st === 'Unknown') continue
-      byState.set(st, (byState.get(st) || 0) + (d.TradeValue || 0))
+      byState.set(st, (byState.get(st) || 0) + (d[valueField] || 0))
     }
     return Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
-  }, [usStateTrade])
+  }, [usStateTrade, valueField])
 
   /* ── Choropleth: Mexican states by total trade value ─────────── */
   const mexStateMapData = useMemo(() => {
@@ -124,10 +137,10 @@ export default function OverviewPage() {
     for (const d of odStateFlows) {
       const st = d.MexState
       if (!st || st === 'Unknown') continue
-      byState.set(st, (byState.get(st) || 0) + (d.TradeValue || 0))
+      byState.set(st, (byState.get(st) || 0) + (d[valueField] || 0))
     }
     return Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
-  }, [odStateFlows])
+  }, [odStateFlows, valueField])
 
   /* ── Choropleth: Canadian provinces by total trade value ──────── */
   const canProvMapData = useMemo(() => {
@@ -136,10 +149,10 @@ export default function OverviewPage() {
     for (const d of odCanadaProvFlows) {
       const prov = d.CanProv
       if (!prov || prov === 'Unknown') continue
-      byProv.set(prov, (byProv.get(prov) || 0) + (d.TradeValue || 0))
+      byProv.set(prov, (byProv.get(prov) || 0) + (d[valueField] || 0))
     }
     return Array.from(byProv, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
-  }, [odCanadaProvFlows])
+  }, [odCanadaProvFlows, valueField])
 
   /* ── Map layers config ─────────────────────────────────────────── */
   const mapLayers = useMemo(() => {
@@ -175,7 +188,7 @@ export default function OverviewPage() {
       for (const d of odStateFlows) {
         if (!d.PortCode) continue
         const code = d.PortCode.replace(/\D/g, '')
-        const val = d.TradeValue || 0
+        const val = d[valueField] || 0
         if (d.State && d.State !== 'Unknown') addConnection(d.State, code, val)
         if (d.MexState && d.MexState !== 'Unknown') addConnection(d.MexState, code, val)
       }
@@ -186,14 +199,14 @@ export default function OverviewPage() {
       for (const d of odCanadaProvFlows) {
         if (!d.PortCode) continue
         const code = d.PortCode.replace(/\D/g, '')
-        const val = d.TradeValue || 0
+        const val = d[valueField] || 0
         if (d.State && d.State !== 'Unknown') addConnection(d.State, code, val)
         if (d.CanProv && d.CanProv !== 'Unknown') addConnection(d.CanProv, code, val)
       }
     }
 
     return { stateToPort, portToState }
-  }, [odStateFlows, odCanadaProvFlows])
+  }, [odStateFlows, odCanadaProvFlows, valueField])
 
   /* ── filtered data based on country selection ──────────────────── */
   const filteredData = useMemo(() => {
@@ -228,7 +241,7 @@ export default function OverviewPage() {
     if (!filteredData.length || !latestYear) return null
     const latestRows = filteredData.filter((d) => d.Year === latestYear)
 
-    const sum = (rows) => rows.reduce((s, d) => s + (d.TradeValue || 0), 0)
+    const sum = (rows) => rows.reduce((s, d) => s + (d[valueField] || 0), 0)
 
     const totalLatest = sum(latestRows)
     const exports = sum(latestRows.filter((d) => /export/i.test(d.TradeType)))
@@ -236,7 +249,7 @@ export default function OverviewPage() {
     const tradeBalance = exports - imports
 
     return { totalLatest, exports, imports, tradeBalance }
-  }, [filteredData, latestYear])
+  }, [filteredData, latestYear, valueField])
 
   /* ── Per-chart filtered data ─────────────────────────────────────── */
   const trendFiltered = useMemo(() => {
@@ -251,20 +264,30 @@ export default function OverviewPage() {
     return usTransborder.filter((d) => d.Country === modeCountry)
   }, [usTransborder, modeCountry])
 
+  /* ── Available years for year-range selectors ─────────────────── */
+  const availableYears = useMemo(() => {
+    if (!usTransborder?.length) return []
+    const yrs = [...new Set(usTransborder.map((d) => d.Year).filter(Number.isFinite))].sort((a, b) => a - b)
+    return yrs
+  }, [usTransborder])
+
   /* ── LineChart: Annual trade trends (Exports vs Imports) ─────────── */
   const trendData = useMemo(() => {
     if (!trendFiltered.length) return []
+    const startYr = trendYearRange?.startYear ?? minYear
+    const endYr = trendYearRange?.endYear ?? latestYear
     const map = {}
     for (const d of trendFiltered) {
       const yr = d.Year
+      if (yr < startYr || yr > endYr) continue
       const type = /export/i.test(d.TradeType) ? 'Exports' : /import/i.test(d.TradeType) ? 'Imports' : null
       if (!yr || !type) continue
       const key = `${yr}_${type}`
       if (!map[key]) map[key] = { year: yr, value: 0, series: type }
-      map[key].value += d.TradeValue || 0
+      map[key].value += d[valueField] || 0
     }
     return Object.values(map).sort((a, b) => a.year - b.year || a.series.localeCompare(b.series))
-  }, [trendFiltered])
+  }, [trendFiltered, valueField, trendYearRange, minYear, latestYear])
 
   /* ── DonutChart: Trade by Mode (latest year) ─────────────────────── */
   const modeData = useMemo(() => {
@@ -272,23 +295,26 @@ export default function OverviewPage() {
     const map = {}
     for (const d of modeFiltered) {
       if (d.Year !== latestYear || !d.Mode) continue
-      map[d.Mode] = (map[d.Mode] || 0) + (d.TradeValue || 0)
+      map[d.Mode] = (map[d.Mode] || 0) + (d[valueField] || 0)
     }
     return Object.entries(map)
       .map(([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-  }, [modeFiltered, latestYear])
+  }, [modeFiltered, latestYear, valueField])
 
   /* ── StackedBarChart: Canada vs Mexico trade by year ─────────────── */
   const countryStackData = useMemo(() => {
     if (!usTransborder?.length) return { data: [], keys: [] }
+    const startYr = stackYearRange?.startYear ?? minYear
+    const endYr = stackYearRange?.endYear ?? latestYear
     const map = {}
     const countries = new Set()
     for (const d of usTransborder) {
       if (!d.Year || !d.Country) continue
+      if (d.Year < startYr || d.Year > endYr) continue
       countries.add(d.Country)
       if (!map[d.Year]) map[d.Year] = { year: d.Year }
-      map[d.Year][d.Country] = (map[d.Year][d.Country] || 0) + (d.TradeValue || 0)
+      map[d.Year][d.Country] = (map[d.Year][d.Country] || 0) + (d[valueField] || 0)
     }
     const keys = [...countries].sort()
     const data = Object.values(map).sort((a, b) => a.year - b.year)
@@ -299,7 +325,7 @@ export default function OverviewPage() {
       }
     }
     return { data, keys }
-  }, [usTransborder])
+  }, [usTransborder, valueField, stackYearRange, minYear, latestYear])
 
   /* ── Loading state ───────────────────────────────────────────────── */
   if (loading) {
@@ -353,8 +379,8 @@ export default function OverviewPage() {
                   layers={mapLayers}
                   ports={mapPorts}
                   connections={mapConnections}
-                  formatValue={formatCurrency}
-                  center={[33.5, -100.0]}
+                  formatValue={fmtValue}
+                  center={[33.5, -82.0]}
                   zoom={4}
                   height="572px"
                   groupColors={MAP_GROUP_COLORS}
@@ -373,28 +399,31 @@ export default function OverviewPage() {
       {/* ── Stat Cards + Country Filter (grouped) ────────────────────── */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-2">
         <section className="rounded-xl border border-border-light bg-surface-alt/50 p-5">
-          <div className="flex items-center gap-3 mb-4">
-            <label htmlFor="country-filter" className="text-base font-semibold text-text-primary">
-              Trading Partner
-            </label>
-            <select
-              id="country-filter"
-              value={countryFilter}
-              onChange={(e) => setCountryFilter(e.target.value)}
-              className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary
-                         shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
-            >
-              {COUNTRY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
+          <div className="flex flex-wrap items-center gap-4 mb-4">
+            <div className="flex items-center gap-3">
+              <label htmlFor="country-filter" className="text-base font-semibold text-text-primary">
+                Trading Partner
+              </label>
+              <select
+                id="country-filter"
+                value={countryFilter}
+                onChange={(e) => setCountryFilter(e.target.value)}
+                className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary
+                           shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
+              >
+                {COUNTRY_OPTIONS.map((opt) => (
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <MetricToggle value={metric} onChange={setMetric} />
           </div>
 
           {stats && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
                 label={`Total Trade (${latestYear})`}
-                value={formatCurrency(stats.totalLatest)}
+                value={fmtValue(stats.totalLatest)}
                 icon={DollarSign}
                 highlight
                 variant="primary"
@@ -402,19 +431,19 @@ export default function OverviewPage() {
               />
               <StatCard
                 label="Exports"
-                value={formatCurrency(stats.exports)}
+                value={fmtValue(stats.exports)}
                 icon={ArrowRight}
                 delay={100}
               />
               <StatCard
                 label="Imports"
-                value={formatCurrency(stats.imports)}
+                value={fmtValue(stats.imports)}
                 icon={ArrowRight}
                 delay={200}
               />
               <StatCard
                 label={`Trade Balance (${latestYear})`}
-                value={formatCurrency(Math.abs(stats.tradeBalance))}
+                value={fmtValue(Math.abs(stats.tradeBalance))}
                 trend={stats.tradeBalance >= 0 ? 'up' : 'down'}
                 trendLabel={stats.tradeBalance >= 0 ? 'Surplus (Exports > Imports)' : 'Deficit (Imports > Exports)'}
                 icon={Scale}
@@ -460,8 +489,18 @@ export default function OverviewPage() {
         <div className="grid grid-cols-1 gap-6">
           <ChartCard
             title={`${trendCountry || 'U.S. TransBorder'} Exports vs Imports`}
-            subtitle={`Annual trade value, ${minYear || 1993}\u2013${latestYear || 2025}`}
-            headerRight={<CountrySelect value={trendCountry} onChange={setTrendCountry} id="trend-country" />}
+            subtitle={`Annual ${metricLabel.toLowerCase()}, ${trendYearRange?.startYear ?? minYear ?? 1993}\u2013${trendYearRange?.endYear ?? latestYear ?? 2025}`}
+            headerRight={
+              <div className="flex items-center gap-3">
+                <YearRangeFilter
+                  years={availableYears}
+                  startYear={trendYearRange?.startYear ?? minYear ?? 1993}
+                  endYear={trendYearRange?.endYear ?? latestYear ?? 2025}
+                  onChange={setTrendYearRange}
+                />
+                <CountrySelect value={trendCountry} onChange={setTrendCountry} id="trend-country" />
+              </div>
+            }
             downloadData={{
               summary: { data: trendData, filename: 'us-transborder-exports-vs-imports', columns: DL.tradeTrendSeries },
               detail:  { data: trendFiltered, filename: 'us-transborder-detail', columns: PAGE_TRANSBORDER_COLS },
@@ -472,7 +511,7 @@ export default function OverviewPage() {
               xKey="year"
               yKey="value"
               seriesKey="series"
-              formatValue={formatCurrency}
+              formatValue={fmtValue}
               annotations={HISTORICAL_ANNOTATIONS}
             />
           </ChartCard>
@@ -488,7 +527,7 @@ export default function OverviewPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard
             title={`${modeCountry || 'All'} Trade by Mode (${latestYear || ''})`}
-            subtitle="Share of total trade value by transportation mode"
+            subtitle={`Share of total ${metricLabel.toLowerCase()} by transportation mode`}
             headerRight={<CountrySelect value={modeCountry} onChange={setModeCountry} id="mode-country" />}
             downloadData={{
               summary: { data: modeData, filename: 'trade-by-mode', columns: DL.modeRank },
@@ -498,13 +537,21 @@ export default function OverviewPage() {
               data={modeData}
               nameKey="label"
               valueKey="value"
-              formatValue={formatCurrency}
+              formatValue={fmtValue}
             />
           </ChartCard>
 
           <ChartCard
             title="Canada vs Mexico Trade Share"
-            subtitle={`Annual trade value by country, ${minYear || 1993}\u2013${latestYear || 2025}`}
+            subtitle={`Annual ${metricLabel.toLowerCase()} by country, ${stackYearRange?.startYear ?? minYear ?? 1993}\u2013${stackYearRange?.endYear ?? latestYear ?? 2025}`}
+            headerRight={
+              <YearRangeFilter
+                years={availableYears}
+                startYear={stackYearRange?.startYear ?? minYear ?? 1993}
+                endYear={stackYearRange?.endYear ?? latestYear ?? 2025}
+                onChange={setStackYearRange}
+              />
+            }
             downloadData={{
               summary: { data: countryStackData.data, filename: 'canada-vs-mexico-trade-share' },
             }}
@@ -513,7 +560,7 @@ export default function OverviewPage() {
               data={countryStackData.data}
               xKey="year"
               stackKeys={countryStackData.keys}
-              formatValue={formatCurrency}
+              formatValue={fmtValue}
             />
           </ChartCard>
         </div>

@@ -53,6 +53,9 @@ CONFIG_DIR = STAGING_DIR / "config"
 # Overview (us_transborder) uses all years for the full 33-year story.
 MODERN_START_YEAR = 2007
 
+# Conversion factor: 1 kg = 2.20462 lb
+KG_TO_LB = 2.20462
+
 
 def load_port_coordinates():
     """Load port coordinates from config JSON."""
@@ -86,6 +89,14 @@ def run_query(conn, sql):
     cols = [desc[0] for desc in cur.description]
     rows = cur.fetchall()
     return [dict(zip(cols, row)) for row in rows]
+
+
+def add_weight_lb(records):
+    """Add WeightLb (pounds) column to records that have a non-null Weight (kg)."""
+    for r in records:
+        w = r.get("Weight")
+        r["WeightLb"] = round(w * KG_TO_LB, 2) if w is not None else None
+    return records
 
 
 def write_outputs(name, records, json_dir, csv_dir):
@@ -281,7 +292,9 @@ def build_us_state_trade(conn):
             "Country",
             "Mode",
             COALESCE("TradeType", 'Unknown') AS "TradeType",
-            ROUND(SUM("TradeValue"), 2) AS "TradeValue"
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight"
         FROM dot1_state_port
         WHERE "Year" >= {MODERN_START_YEAR}
         GROUP BY "Year", "StateCode", "State", "Country", "Mode", COALESCE("TradeType", 'Unknown')
@@ -385,7 +398,9 @@ def build_od_state_flows(conn):
             "Port",
             "Mode",
             COALESCE("TradeType", 'Unknown') AS "TradeType",
-            ROUND(SUM("TradeValue"), 2) AS "TradeValue"
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight"
         FROM dot1_state_port
         WHERE "Country" = 'Mexico' AND "Year" >= {MODERN_START_YEAR}
           AND "State" IS NOT NULL AND "State" != ''
@@ -394,6 +409,32 @@ def build_od_state_flows(conn):
         GROUP BY "Year", "State", "MexState", "PortCode", "Port",
                  "Mode", COALESCE("TradeType", 'Unknown')
         ORDER BY "Year", "State", "MexState", "PortCode", "Mode", "TradeType"
+    """
+    return run_query(conn, sql)
+
+
+def build_od_canada_prov_flows(conn):
+    """Dataset 13: Aggregated origin-destination flows US State x Canadian Province x Port.
+    Source: DOT1, 2007+.
+
+    Aggregated to State x CanProv x Port totals (no year/mode/tradetype breakdown)
+    to keep the JSON small enough for browser use (~2-3 MB vs 87 MB).
+    Used for: Overview map connections for Canadian border ports.
+    """
+    sql = f"""
+        SELECT
+            "State",
+            "CanProv",
+            "PortCode",
+            "Port",
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue"
+        FROM dot1_state_port
+        WHERE "Country" = 'Canada' AND "Year" >= {MODERN_START_YEAR}
+          AND "State" IS NOT NULL AND "State" != ''
+          AND "CanProv" IS NOT NULL AND "CanProv" != ''
+          AND "CanProv" NOT IN ('Province Unknown', 'Unknown')
+        GROUP BY "State", "CanProv", "PortCode", "Port"
+        ORDER BY "State", "CanProv", "PortCode"
     """
     return run_query(conn, sql)
 
@@ -413,7 +454,9 @@ def build_texas_od_state_flows(conn, tx_ports):
             "Port",
             "Mode",
             COALESCE("TradeType", 'Unknown') AS "TradeType",
-            ROUND(SUM("TradeValue"), 2) AS "TradeValue"
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight"
         FROM dot1_state_port
         WHERE "Country" = 'Mexico'
           AND "PortCode" IN ({port_list})
@@ -440,7 +483,9 @@ def build_monthly_trends(conn):
             "Country",
             "Mode",
             COALESCE("TradeType", 'Unknown') AS "TradeType",
-            ROUND(SUM("TradeValue"), 2) AS "TradeValue"
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight"
         FROM dot1_state_port
         WHERE "Year" >= {MODERN_START_YEAR} AND "Month" IS NOT NULL
         GROUP BY "Year", "Month", "Country", "Mode", COALESCE("TradeType", 'Unknown')
@@ -482,6 +527,7 @@ def main():
         ("mexican_state_trade", lambda: build_mexican_state_trade(conn)),
         ("texas_mexican_state_trade", lambda: build_texas_mexican_state_trade(conn, tx_ports)),
         ("od_state_flows", lambda: build_od_state_flows(conn)),
+        ("od_canada_prov_flows", lambda: build_od_canada_prov_flows(conn)),
         ("texas_od_state_flows", lambda: build_texas_od_state_flows(conn, tx_ports)),
     ]
 
@@ -490,6 +536,9 @@ def main():
     for name, builder in datasets:
         print(f"\n  [{name}]")
         records = builder()
+        # Add WeightLb (pounds) wherever Weight (kg) exists
+        if records and "Weight" in records[0]:
+            add_weight_lb(records)
         write_outputs(name, records, JSON_DIR, CSV_DIR)
         total_rows += len(records)
 

@@ -2,9 +2,9 @@
  * USMexico Ports Tab — Port map, rankings, trends, mode breakdown, and detail table.
  * This is the primary port-focused view, emphasizing US-wide vs Texas comparison.
  */
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { formatCurrency, getAxisFormatter } from '@/lib/transborderHelpers'
-import { CHART_COLORS } from '@/lib/chartColors'
+import { CHART_COLORS, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
 import { usePortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
@@ -15,6 +15,8 @@ import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import InsightCallout from '@/components/ui/InsightCallout'
 import PortMap from '@/components/maps/PortMap'
+import YearRangeFilter from '@/components/filters/YearRangeFilter'
+import TopNSelector from '@/components/filters/TopNSelector'
 import { TrendingDown, Globe } from 'lucide-react'
 import { DL, PAGE_PORT_COLS, PAGE_TRANSBORDER_COLS } from '@/lib/downloadColumns'
 
@@ -29,8 +31,31 @@ export default function PortsTab({
   filteredSummary,
   filteredSummaryNoYear,
   latestYear,
+  metric = 'value',
 }) {
   const { portCoords, portCoordsError } = usePortCoordinates()
+
+  /* ── metric derived values ─────────────────────────────────────────── */
+  const valueField = getMetricField(metric)
+  const fmtValue = getMetricFormatter(metric)
+  const metricLabel = getMetricLabel(metric)
+
+  /* ── chart-level state ─────────────────────────────────────────────── */
+  const allYears = useMemo(() => {
+    const ys = new Set()
+    filteredSummaryNoYear.forEach((d) => { if (d.Year) ys.add(d.Year) })
+    return [...ys].sort((a, b) => a - b)
+  }, [filteredSummaryNoYear])
+
+  const [trendYearRange, setTrendYearRange] = useState({ startYear: 0, endYear: 9999 })
+  const [portTopN, setPortTopN] = useState(20)
+  const [portTrendTopN, setPortTrendTopN] = useState(5)
+
+  useEffect(() => {
+    if (allYears.length) {
+      setTrendYearRange({ startYear: allYears[0], endYear: allYears[allYears.length - 1] })
+    }
+  }, [allYears])
 
   /* ── map markers ──────────────────────────────────────────────────── */
   const mapPorts = useMemo(
@@ -44,10 +69,12 @@ export default function PortsTab({
     filteredSummaryNoYear.forEach((d) => {
       const key = `${d.Year}|${d.TradeType}`
       if (!byYearType.has(key)) byYearType.set(key, { year: d.Year, value: 0, TradeType: d.TradeType || 'Total' })
-      byYearType.get(key).value += (d.TradeValue || 0)
+      byYearType.get(key).value += (d[valueField] || 0)
     })
-    return Array.from(byYearType.values()).sort((a, b) => a.year - b.year)
-  }, [filteredSummaryNoYear])
+    return Array.from(byYearType.values())
+      .sort((a, b) => a.year - b.year)
+      .filter(d => d.year >= trendYearRange.startYear && d.year <= trendYearRange.endYear)
+  }, [filteredSummaryNoYear, valueField, trendYearRange])
 
   /* ── donut — trade by mode (latest year) ──────────────────────────── */
   const modeDonutData = useMemo(() => {
@@ -56,48 +83,50 @@ export default function PortsTab({
     const byMode = new Map()
     latestData.forEach((d) => {
       const mode = d.Mode || 'Unknown'
-      byMode.set(mode, (byMode.get(mode) || 0) + (d.TradeValue || 0))
+      byMode.set(mode, (byMode.get(mode) || 0) + (d[valueField] || 0))
     })
     return Array.from(byMode, ([label, value]) => ({ label, value }))
       .filter((d) => d.value > 0)
       .sort((a, b) => b.value - a.value)
-  }, [filteredSummary, latestYear])
+  }, [filteredSummary, latestYear, valueField])
 
-  /* ── top 20 ports (horizontal bar) ────────────────────────────────── */
+  /* ── top N ports (horizontal bar) ──────────────────────────────────── */
   const topPortsData = useMemo(() => {
     const byPort = new Map()
     filteredPorts.forEach((d) => {
       const port = d.Port || 'Unknown'
-      byPort.set(port, (byPort.get(port) || 0) + (d.TradeValue || 0))
+      byPort.set(port, (byPort.get(port) || 0) + (d[valueField] || 0))
     })
     return Array.from(byPort, ([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-      .slice(0, 20)
-  }, [filteredPorts])
+      .slice(0, portTopN)
+  }, [filteredPorts, valueField, portTopN])
 
-  /* ── top 5 port trends (multi-series line) ────────────────────────── */
+  /* ── top N port trends (multi-series line) ──────────────────────────── */
   const topPortTrendData = useMemo(() => {
     const byPort = new Map()
     filteredPortsNoYear.forEach((d) => {
       const port = d.Port || 'Unknown'
-      byPort.set(port, (byPort.get(port) || 0) + (d.TradeValue || 0))
+      byPort.set(port, (byPort.get(port) || 0) + (d[valueField] || 0))
     })
-    const top5 = [...byPort.entries()]
+    const topN = [...byPort.entries()]
       .sort((a, b) => b[1] - a[1])
-      .slice(0, 5)
+      .slice(0, portTrendTopN)
       .map(([name]) => name)
-    const top5Set = new Set(top5)
+    const topNSet = new Set(topN)
 
     const byYearPort = new Map()
     filteredPortsNoYear.forEach((d) => {
       const port = d.Port || 'Unknown'
-      if (!top5Set.has(port)) return
+      if (!topNSet.has(port)) return
       const key = `${d.Year}|${port}`
       if (!byYearPort.has(key)) byYearPort.set(key, { year: d.Year, value: 0, Port: port })
-      byYearPort.get(key).value += (d.TradeValue || 0)
+      byYearPort.get(key).value += (d[valueField] || 0)
     })
-    return Array.from(byYearPort.values()).sort((a, b) => a.year - b.year || a.Port.localeCompare(b.Port))
-  }, [filteredPortsNoYear])
+    return Array.from(byYearPort.values())
+      .sort((a, b) => a.year - b.year || a.Port.localeCompare(b.Port))
+      .filter(d => d.year >= trendYearRange.startYear && d.year <= trendYearRange.endYear)
+  }, [filteredPortsNoYear, valueField, portTrendTopN, trendYearRange])
 
   /* ── mode composition by year (stacked bar) ───────────────────────── */
   const modeByYearData = useMemo(() => {
@@ -109,24 +138,27 @@ export default function PortsTab({
       const key = d.Year
       if (!byYearMode.has(key)) byYearMode.set(key, { year: key })
       const row = byYearMode.get(key)
-      row[mode] = (row[mode] || 0) + (d.TradeValue || 0)
+      row[mode] = (row[mode] || 0) + (d[valueField] || 0)
     })
     const modes = [...allModes].sort()
-    const rows = Array.from(byYearMode.values()).sort((a, b) => a.year - b.year)
+    const rows = Array.from(byYearMode.values())
+      .sort((a, b) => a.year - b.year)
+      .filter(d => d.year >= trendYearRange.startYear && d.year <= trendYearRange.endYear)
     rows.forEach((row) => modes.forEach((m) => { if (!(m in row)) row[m] = 0 }))
     return { data: rows, stackKeys: modes }
-  }, [filteredSummaryNoYear])
+  }, [filteredSummaryNoYear, valueField, trendYearRange])
 
   /* ── port detail table ────────────────────────────────────────────── */
   const portTableData = useMemo(() => {
     const byPort = new Map()
     filteredPorts.forEach((d) => {
       const port = d.Port || 'Unknown'
-      if (!byPort.has(port)) byPort.set(port, { Port: port, State: d.State || '—', Total: 0, Exports: 0, Imports: 0 })
+      if (!byPort.has(port)) byPort.set(port, { Port: port, State: d.State || '—', Total: 0, Exports: 0, Imports: 0, WeightLb: 0 })
       const row = byPort.get(port)
       row.Total += (d.TradeValue || 0)
       if (d.TradeType === 'Export') row.Exports += (d.TradeValue || 0)
       if (d.TradeType === 'Import') row.Imports += (d.TradeValue || 0)
+      row.WeightLb += (d.WeightLb || 0)
     })
     return Array.from(byPort.values()).sort((a, b) => b.Total - a.Total)
   }, [filteredPorts])
@@ -134,9 +166,10 @@ export default function PortsTab({
   const portTableColumns = [
     { key: 'Port', label: 'Port' },
     { key: 'State', label: 'State' },
-    { key: 'Total', label: 'Total Trade', render: (v) => formatCurrency(v) },
-    { key: 'Exports', label: 'Exports', render: (v) => formatCurrency(v) },
-    { key: 'Imports', label: 'Imports', render: (v) => formatCurrency(v) },
+    { key: 'Total', label: 'Total Trade ($)', render: (v) => formatCurrency(v) },
+    { key: 'Exports', label: 'Exports ($)', render: (v) => formatCurrency(v) },
+    { key: 'Imports', label: 'Imports ($)', render: (v) => formatCurrency(v) },
+    { key: 'WeightLb', label: 'Weight (lb)', render: (v) => v ? formatWeight(v) : '—' },
   ]
 
   /* ── Trade balance by year (exports minus imports) ─────────────── */
@@ -163,7 +196,7 @@ export default function PortsTab({
       {/* Narrative Intro */}
       <SectionBlock>
         <div className="max-w-4xl mx-auto">
-          <p className="text-base text-text-secondary leading-relaxed">
+          <p className="text-lg text-text-secondary leading-relaxed">
             U.S.–Mexico surface freight trade exceeded <strong>$840 billion</strong> in 2024, making Mexico
             the United States' largest trading partner. Roughly <strong>66% of this trade</strong> flows
             through Texas border ports, with Laredo alone handling more freight than any other land port
@@ -174,13 +207,13 @@ export default function PortsTab({
 
       {/* Port Map */}
       <SectionBlock alt>
-        <ChartCard title="U.S.-Mexico Border Ports" subtitle="Ports of entry sized by trade value">
+        <ChartCard title="U.S.-Mexico Border Ports" subtitle={`Ports of entry sized by ${metricLabel.toLowerCase()}`}>
           {portCoordsError && (
             <div className="mb-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
               Port coordinates failed to load ({portCoordsError}). Map markers may be missing.
             </div>
           )}
-          <PortMap ports={mapPorts} formatValue={formatCurrency} center={[29.5, -104.0]} zoom={5} height="480px" />
+          <PortMap ports={mapPorts} formatValue={fmtValue} center={[29.5, -104.0]} zoom={5} height="480px" />
         </ChartCard>
       </SectionBlock>
 
@@ -202,17 +235,18 @@ export default function PortsTab({
       <SectionBlock>
         <ChartCard
           title="U.S.-Mexico Trade Trends"
-          subtitle="Annual trade value by trade type"
+          subtitle={`Annual ${metricLabel.toLowerCase()} by trade type`}
+          headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}
           downloadData={{
             summary: { data: tradeTrendData, filename: 'us-mexico-trade-trends', columns: DL.tradeTrendSeries },
             detail: { data: filteredSummary, filename: 'us-mexico-trade-detail', columns: PAGE_TRANSBORDER_COLS },
           }}
         >
-          <LineChart data={tradeTrendData} xKey="year" yKey="value" seriesKey="TradeType" formatY={getAxisFormatter(tradeMax, '$')} annotations={HISTORICAL_ANNOTATIONS} />
+          <LineChart data={tradeTrendData} xKey="year" yKey="value" seriesKey="TradeType" formatY={getAxisFormatter(tradeMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
         </ChartCard>
       </SectionBlock>
 
-      {/* Trade Balance */}
+      {/* Trade Balance — always in dollars */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
           <ChartCard title="U.S.–Mexico Trade Balance" subtitle="Exports minus imports — negative values indicate a trade deficit with Mexico">
@@ -233,43 +267,46 @@ export default function PortsTab({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard
             title={`Trade by Mode (${latestYear || '---'})`}
-            subtitle="Distribution across transportation modes"
+            subtitle={`Distribution of ${metricLabel.toLowerCase()} across transportation modes`}
             downloadData={{ summary: { data: modeDonutData, filename: 'us-mexico-trade-by-mode', columns: DL.modeRank } }}
           >
-            <DonutChart data={modeDonutData} nameKey="label" valueKey="value" formatValue={formatCurrency} />
+            <DonutChart data={modeDonutData} nameKey="label" valueKey="value" formatValue={fmtValue} />
           </ChartCard>
           <ChartCard
             title="Mode Composition by Year"
-            subtitle="How trade is distributed across modes over time"
+            subtitle={`How ${metricLabel.toLowerCase()} is distributed across modes over time`}
+            headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}
             downloadData={{ summary: { data: modeByYearData.data, filename: 'us-mexico-mode-by-year' } }}
           >
-            <StackedBarChart data={modeByYearData.data} xKey="year" stackKeys={modeByYearData.stackKeys} formatY={getAxisFormatter(tradeMax, '$')} />
+            <StackedBarChart data={modeByYearData.data} xKey="year" stackKeys={modeByYearData.stackKeys} formatY={getAxisFormatter(tradeMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} />
           </ChartCard>
         </div>
       </SectionBlock>
 
-      {/* Top 20 Ports */}
+      {/* Top N Ports */}
       <SectionBlock>
         <ChartCard
-          title="Top 20 Ports by Trade Value"
-          subtitle="Ports of entry ranked by total freight value"
+          title={`Top ${portTopN} Ports by ${metricLabel}`}
+          subtitle={`Ports of entry ranked by total ${metricLabel.toLowerCase()}`}
+          headerRight={<TopNSelector value={portTopN} onChange={setPortTopN} />}
           downloadData={{ summary: { data: topPortsData, filename: 'us-mexico-top-ports', columns: DL.portRank } }}
         >
-          <BarChart data={topPortsData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(portMax, '$')} color={CHART_COLORS[0]} />
+          <BarChart data={topPortsData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(portMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} color={CHART_COLORS[0]} />
         </ChartCard>
       </SectionBlock>
 
-      {/* Top 5 Port Trends */}
+      {/* Top N Port Trends */}
       <SectionBlock alt>
         <ChartCard
-          title="Top 5 Port Trends"
-          subtitle="Annual trade value for the five largest ports"
+          title={`Top ${portTrendTopN} Port Trends`}
+          subtitle={`Annual ${metricLabel.toLowerCase()} for the largest ports`}
+          headerRight={<><TopNSelector value={portTrendTopN} onChange={setPortTrendTopN} /><YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} /></>}
           downloadData={{
-            summary: { data: topPortTrendData, filename: 'us-mexico-top5-port-trends', columns: { year: 'Year', value: 'Trade Value ($)', Port: 'Port' } },
+            summary: { data: topPortTrendData, filename: 'us-mexico-top5-port-trends', columns: { year: 'Year', value: metricLabel, Port: 'Port' } },
             detail: { data: filteredPortsNoYear, filename: 'us-mexico-ports-detail', columns: PAGE_PORT_COLS },
           }}
         >
-          <LineChart data={topPortTrendData} xKey="year" yKey="value" seriesKey="Port" formatY={getAxisFormatter(portTrendMax, '$')} annotations={HISTORICAL_ANNOTATIONS} />
+          <LineChart data={topPortTrendData} xKey="year" yKey="value" seriesKey="Port" formatY={getAxisFormatter(portTrendMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
         </ChartCard>
       </SectionBlock>
 
@@ -277,7 +314,7 @@ export default function PortsTab({
       <SectionBlock>
         <ChartCard
           title="All Ports"
-          subtitle="Port-level trade summary with exports and imports"
+          subtitle="Port-level trade summary with exports, imports, and weight"
           downloadData={{
             summary: { data: portTableData, filename: 'us-mexico-port-detail', columns: DL.portDetail },
             detail: { data: filteredPorts, filename: 'us-mexico-ports-raw', columns: PAGE_PORT_COLS },

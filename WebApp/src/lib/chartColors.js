@@ -130,3 +130,35 @@ export const formatNumber = (value) => {
 export const formatPercent = (value) => {
   return `${(value * 100).toFixed(1)}%`
 }
+
+/* ── Metric toggle helpers ──────────────────────────────────────────── */
+
+/**
+ * Format a numeric value as compact weight in pounds (lb).
+ * Examples: 1500000000 → "1.5B lb", -250000 → "-250.0K lb", 0 → "0 lb"
+ */
+export const formatWeight = (value) => {
+  if (value == null || isNaN(value)) return '0 lb'
+  const abs = Math.abs(value)
+  const sign = value < 0 ? '-' : ''
+  if (abs >= 1e12) return `${sign}${(abs / 1e12).toFixed(1)}T lb`
+  if (abs >= 1e9) return `${sign}${(abs / 1e9).toFixed(1)}B lb`
+  if (abs >= 1e6) return `${sign}${(abs / 1e6).toFixed(1)}M lb`
+  if (abs >= 1e3) return `${sign}${(abs / 1e3).toFixed(1)}K lb`
+  return `${sign}${abs.toFixed(0)} lb`
+}
+
+/** Returns the data field name for the selected metric. */
+export const getMetricField = (metric) => metric === 'weight' ? 'WeightLb' : 'TradeValue'
+
+/** Returns the compact formatter for the selected metric. */
+export const getMetricFormatter = (metric) => metric === 'weight' ? formatWeight : formatCurrency
+
+/** Returns the human-readable label for the selected metric. */
+export const getMetricLabel = (metric) => metric === 'weight' ? 'Weight (lb)' : 'Trade Value ($)'
+
+/** Returns axis prefix for the selected metric (used with getAxisFormatter). */
+export const getMetricAxisPrefix = (metric) => metric === 'weight' ? '' : '$'
+
+/** Returns axis suffix for the selected metric. */
+export const getMetricAxisSuffix = (metric) => metric === 'weight' ? ' lb' : ''

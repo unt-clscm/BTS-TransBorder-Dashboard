@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 
 export default defineConfig({
   root: process.cwd(),
-  base: './',
+  base: process.env.VITE_BASE || './',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

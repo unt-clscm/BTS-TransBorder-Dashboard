@@ -11,6 +11,11 @@ import BarChart from '@/components/charts/BarChart'
 import { formatCurrency } from '@/lib/chartColors'
 import { DL } from '@/lib/downloadColumns'
 
+const HISTORICAL_ANNOTATIONS = [
+  { x: 2008.5, x2: 2009.5, label: '2008 Financial Crisis', color: 'rgba(245,158,11,0.08)', labelColor: '#b45309' },
+  { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
+]
+
 export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latestYear }) {
   /* ── Trade trend by Year + TradeType (year-agnostic for trend) ────── */
   const tradeTrend = useMemo(() => {
@@ -52,7 +57,7 @@ export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latest
       {/* Narrative introduction */}
       <SectionBlock>
         <div className="space-y-4">
-          <p className="text-base text-text-secondary leading-relaxed">
+          <p className="text-lg text-text-secondary leading-relaxed">
             Texas and Mexico share the busiest land border in the Western Hemisphere for
             commercial freight. Truck, rail, and pipeline shipments flow through major ports
             of entry concentrated in three regions &mdash; El Paso, Laredo, and the Lower
@@ -73,6 +78,7 @@ export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latest
               yKey="value"
               seriesKey="TradeType"
               formatValue={formatCurrency}
+              annotations={HISTORICAL_ANNOTATIONS}
             />
           </ChartCard>
 

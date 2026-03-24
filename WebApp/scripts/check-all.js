@@ -17,7 +17,12 @@
  */
 
 import { spawnSync } from 'child_process'
+import fs from 'fs'
+import path from 'path'
 import process from 'process'
+import { fileURLToPath } from 'url'
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const baseUrl = process.argv[2] || 'http://localhost:5173'
 
@@ -49,6 +54,18 @@ const steps = [
     ],
   },
 ]
+
+// Clean up screenshot artifacts from previous runs
+const screenshotDirs = [
+  path.join(__dirname, 'screenshots'),
+  path.join(__dirname, '..', 'screenshots'),
+]
+for (const dir of screenshotDirs) {
+  if (fs.existsSync(dir)) {
+    fs.rmSync(dir, { recursive: true, force: true })
+    console.log(`Cleaned: ${path.relative(process.cwd(), dir)}`)
+  }
+}
 
 for (const step of steps) {
   console.log(`\n=== Running ${step.name} checks ===`)

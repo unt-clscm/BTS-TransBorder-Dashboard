@@ -4,6 +4,7 @@ import { DollarSign, ArrowUpRight, ArrowDownLeft, MapPin, Truck, TrendingUp } fr
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency, buildFilterOptions, applyStandardFilters, getAxisFormatter } from '@/lib/transborderHelpers'
 import { CHART_COLORS } from '@/lib/chartColors'
+import { usePortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
 import FilterSelect from '@/components/filters/FilterSelect'
@@ -17,6 +18,7 @@ import BarChart from '@/components/charts/BarChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import DatasetError from '@/components/ui/DatasetError'
+import PortMap from '@/components/maps/PortMap'
 import { DL, PAGE_TRANSBORDER_COLS, PAGE_PORT_COLS } from '@/lib/downloadColumns'
 
 /* ── COVID annotation ─────────────────────────────────────────────── */
@@ -43,6 +45,9 @@ export default function USMexicoPage() {
 
   const portsData = useMemo(() => usMexicoPorts || [], [usMexicoPorts])
 
+  /* ── port coordinates for map ──────────────────────────────────── */
+  const { portCoords, portCoordsError } = usePortCoordinates()
+
   /* ── filter options (computed from data) ─────────────────────────── */
   const filterOptions = useMemo(() => {
     const opts = buildFilterOptions(portsData, ['Year', 'TradeType', 'Mode'])
@@ -57,6 +62,12 @@ export default function USMexicoPage() {
   const filteredPorts = useMemo(
     () => applyStandardFilters(portsData, { Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter }),
     [portsData, yearFilter, tradeTypeFilter, modeFilter],
+  )
+
+  /* ── map markers ────────────────────────────────────────────────── */
+  const mapPorts = useMemo(
+    () => buildMapPorts(filteredPorts, portCoords),
+    [filteredPorts, portCoords],
   )
 
   /* ── apply filters to summary data ───────────────────────────────── */
@@ -294,8 +305,26 @@ export default function USMexicoPage() {
         </div>
       </SectionBlock>
 
-      {/* KPI StatCards */}
+      {/* Port Map */}
       <SectionBlock alt>
+        <ChartCard title="U.S.-Mexico Border Ports" subtitle="Ports of entry sized by trade value — click a port for details">
+          {portCoordsError && (
+            <div className="mb-2 px-3 py-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+              Port coordinates failed to load ({portCoordsError}). Map markers may be missing.
+            </div>
+          )}
+          <PortMap
+            ports={mapPorts}
+            formatValue={formatCurrency}
+            center={[29.5, -104.0]}
+            zoom={5}
+            height="480px"
+          />
+        </ChartCard>
+      </SectionBlock>
+
+      {/* KPI StatCards */}
+      <SectionBlock>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-7xl mx-auto">
           <StatCard
             label={`Total U.S.-Mexico Trade (${latestYear || '---'})`}
@@ -323,7 +352,7 @@ export default function USMexicoPage() {
       </SectionBlock>
 
       {/* Trade Trends (Line Chart) */}
-      <SectionBlock>
+      <SectionBlock alt>
         <ChartCard
           title="U.S.-Mexico Trade Trends"
           subtitle="Annual trade value by trade type"
@@ -344,7 +373,7 @@ export default function USMexicoPage() {
       </SectionBlock>
 
       {/* Trade by Mode (Donut) */}
-      <SectionBlock alt>
+      <SectionBlock>
         <ChartCard
           title={`Trade by Mode (${latestYear || '---'})`}
           subtitle="Distribution of trade value across transportation modes"
@@ -362,7 +391,7 @@ export default function USMexicoPage() {
       </SectionBlock>
 
       {/* Top 15 Ports (Horizontal Bar) */}
-      <SectionBlock>
+      <SectionBlock alt>
         <ChartCard
           title="Top 15 Ports by Trade Value"
           subtitle="Ports of entry ranked by total trade"
@@ -382,7 +411,7 @@ export default function USMexicoPage() {
       </SectionBlock>
 
       {/* Mode Composition by Year (Stacked Bar) */}
-      <SectionBlock alt>
+      <SectionBlock>
         <ChartCard
           title="Mode Composition by Year"
           subtitle="How trade value is distributed across modes over time"
@@ -400,7 +429,7 @@ export default function USMexicoPage() {
       </SectionBlock>
 
       {/* Port Detail Table */}
-      <SectionBlock>
+      <SectionBlock alt>
         <ChartCard
           title="Port Detail"
           subtitle="Trade values by port of entry"

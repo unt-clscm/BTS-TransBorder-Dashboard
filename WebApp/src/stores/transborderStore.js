@@ -10,6 +10,7 @@ const base = import.meta.env.BASE_URL
 const DATASET_FILES = {
   usTransborder: 'us_transborder.json',
   usMexicoPorts: 'us_mexico_ports.json',
+  usCanadaPorts: 'us_canada_ports.json',
   texasMexicoPorts: 'texas_mexico_ports.json',
   texasMexicoCommodities: 'texas_mexico_commodities.json',
   usStateTrade: 'us_state_trade.json',
@@ -66,6 +67,7 @@ export const useTransborderStore = create((set, get) => ({
   // Data — usTransborder loaded at init, rest lazy
   usTransborder: [],
   usMexicoPorts: null,
+  usCanadaPorts: null,
   texasMexicoPorts: null,
   texasMexicoCommodities: null,
   usStateTrade: null,

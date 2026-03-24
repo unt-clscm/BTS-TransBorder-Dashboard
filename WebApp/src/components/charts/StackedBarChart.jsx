@@ -298,10 +298,16 @@ function StackedBarChart({
         g.selectAll('.bar-layer').attr('opacity', 1)
       })
 
-    // X Axis (centered tick marks)
+    // X Axis (centered tick marks, thinned labels when crowded)
+    const nBars = chartData.length
+    const barSlotW = innerW / nBars
+    const minLabelSlot = FS * 2.2          // minimum px per label before thinning
+    const every = barSlotW < minLabelSlot ? Math.ceil(minLabelSlot / barSlotW) : 1
+    const domainVals = chartData.map((d) => d[xKey])
+
     const xAxisG = g.append('g')
       .attr('transform', `translate(0,${innerH})`)
-      .call(d3.axisBottom(x).tickSize(0))
+      .call(d3.axisBottom(x).tickValues(domainVals.filter((_, i) => i % every === 0)).tickSize(0))
     xAxisG.select('.domain').remove()
     xAxisG.selectAll('.tick').append('line')
       .attr('y1', 0).attr('y2', TICK_HALF)

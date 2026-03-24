@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   TrendingUp, TrendingDown, DollarSign, ArrowRight, Database, Layers,
@@ -8,7 +8,7 @@ import {
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency } from '@/lib/chartColors'
 import { generateInsights } from '@/lib/insightEngine'
-import { usePortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
+import { usePortCoordinates, useCanadianPortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import HeroStardust from '@/components/ui/HeroStardust'
 import InsightCallout from '@/components/ui/InsightCallout'
 import SectionBlock from '@/components/ui/SectionBlock'
@@ -27,29 +27,75 @@ const ICON_MAP = {
   Globe, Map, Scale, ArrowUpDown, Lightbulb,
 }
 
+/* ── Country filter options ──────────────────────────────────────────── */
+const COUNTRY_OPTIONS = [
+  { value: '', label: 'All (Mexico + Canada)' },
+  { value: 'Mexico', label: 'Mexico' },
+  { value: 'Canada', label: 'Canada' },
+]
+
+/* ── Map color scheme ────────────────────────────────────────────────── */
+const MAP_GROUP_COLORS = {
+  texas:  { fill: '#d97706', stroke: '#92400e' },  // amber — TX-Mexico ports (focus)
+  mexico: { fill: '#0056a9', stroke: '#003d75' },  // blue — other Mexico border ports
+  canada: { fill: '#16a34a', stroke: '#166534' },  // green — Canada border ports
+}
+const MAP_LEGEND = [
+  { label: 'Texas-Mexico Port', color: '#d97706' },
+  { label: 'Other Mexico Border Port', color: '#0056a9' },
+  { label: 'Canada Border Port', color: '#16a34a' },
+]
+
+const TX_STATES = new Set(['Texas'])
+
 export default function OverviewPage() {
-  const { usTransborder, usMexicoPorts, loading, loadDataset } = useTransborderStore()
+  const { usTransborder, usMexicoPorts, usCanadaPorts, loading, loadDataset } = useTransborderStore()
+
+  /* ── country filter state ──────────────────────────────────────── */
+  const [countryFilter, setCountryFilter] = useState('')
 
   /* ── lazy-load port data for map ───────────────────────────────── */
-  useEffect(() => { loadDataset('usMexicoPorts') }, [loadDataset])
+  useEffect(() => {
+    loadDataset('usMexicoPorts')
+    loadDataset('usCanadaPorts')
+  }, [loadDataset])
 
-  const { portCoords } = usePortCoordinates()
+  const { portCoords: mxCoords } = usePortCoordinates()
+  const { portCoords: caCoords } = useCanadianPortCoordinates()
 
+  /* ── Build map markers with group labels ───────────────────────── */
   const mapPorts = useMemo(() => {
-    if (!usMexicoPorts?.length) return []
-    return buildMapPorts(usMexicoPorts, portCoords)
-  }, [usMexicoPorts, portCoords])
+    const mx = usMexicoPorts?.length ? buildMapPorts(usMexicoPorts, mxCoords) : []
+    const ca = usCanadaPorts?.length ? buildMapPorts(usCanadaPorts, caCoords) : []
+
+    // Tag Mexico ports: Texas ones get 'texas', others get 'mexico'
+    for (const p of mx) {
+      const state = usMexicoPorts.find((d) => d.PortCode === p.portCode)?.State
+      p.group = TX_STATES.has(state) ? 'texas' : 'mexico'
+    }
+    for (const p of ca) {
+      p.group = 'canada'
+    }
+    return [...mx, ...ca]
+  }, [usMexicoPorts, usCanadaPorts, mxCoords, caCoords])
+
+  /* ── filtered data based on country selection ──────────────────── */
+  const filteredData = useMemo(() => {
+    if (!usTransborder?.length) return []
+    if (!countryFilter) return usTransborder
+    return usTransborder.filter((d) => d.Country === countryFilter)
+  }, [usTransborder, countryFilter])
 
   /* ── Derived year bounds ─────────────────────────────────────────── */
   const latestYear = useMemo(() => {
-    if (!usTransborder?.length) return null
-    return Math.max(...usTransborder.map((d) => d.Year).filter(Number.isFinite))
-  }, [usTransborder])
+    if (!filteredData.length) return null
+    return Math.max(...filteredData.map((d) => d.Year).filter(Number.isFinite))
+  }, [filteredData])
 
   const minYear = useMemo(() => {
-    if (!usTransborder?.length) return null
-    return Math.min(...usTransborder.map((d) => d.Year).filter(Number.isFinite))
-  }, [usTransborder])
+    if (!filteredData.length) return null
+    return Math.min(...filteredData.map((d) => d.Year).filter(Number.isFinite))
+  }, [filteredData])
 
   const previousYear = latestYear ? latestYear - 1 : null
 
@@ -65,10 +111,10 @@ export default function OverviewPage() {
 
   /* ── StatCard computations ───────────────────────────────────────── */
   const stats = useMemo(() => {
-    if (!usTransborder?.length || !latestYear) return null
-    const latestRows = usTransborder.filter((d) => d.Year === latestYear)
+    if (!filteredData.length || !latestYear) return null
+    const latestRows = filteredData.filter((d) => d.Year === latestYear)
     const prevRows = previousYear
-      ? usTransborder.filter((d) => d.Year === previousYear)
+      ? filteredData.filter((d) => d.Year === previousYear)
       : []
 
     const sum = (rows) => rows.reduce((s, d) => s + (d.TradeValue || 0), 0)
@@ -80,13 +126,13 @@ export default function OverviewPage() {
     const yoyChange = totalPrev ? ((totalLatest - totalPrev) / totalPrev) * 100 : null
 
     return { totalLatest, exports, imports, yoyChange }
-  }, [usTransborder, latestYear, previousYear])
+  }, [filteredData, latestYear, previousYear])
 
   /* ── LineChart: Annual trade trends (Exports vs Imports) ─────────── */
   const trendData = useMemo(() => {
-    if (!usTransborder?.length) return []
+    if (!filteredData.length) return []
     const map = {}
-    for (const d of usTransborder) {
+    for (const d of filteredData) {
       const yr = d.Year
       const type = /export/i.test(d.TradeType) ? 'Exports' : /import/i.test(d.TradeType) ? 'Imports' : null
       if (!yr || !type) continue
@@ -95,20 +141,20 @@ export default function OverviewPage() {
       map[key].value += d.TradeValue || 0
     }
     return Object.values(map).sort((a, b) => a.year - b.year || a.series.localeCompare(b.series))
-  }, [usTransborder])
+  }, [filteredData])
 
   /* ── DonutChart: Trade by Mode (latest year) ─────────────────────── */
   const modeData = useMemo(() => {
-    if (!usTransborder?.length || !latestYear) return []
+    if (!filteredData.length || !latestYear) return []
     const map = {}
-    for (const d of usTransborder) {
+    for (const d of filteredData) {
       if (d.Year !== latestYear || !d.Mode) continue
       map[d.Mode] = (map[d.Mode] || 0) + (d.TradeValue || 0)
     }
     return Object.entries(map)
       .map(([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-  }, [usTransborder, latestYear])
+  }, [filteredData, latestYear])
 
   /* ── StackedBarChart: Canada vs Mexico trade by year ─────────────── */
   const countryStackData = useMemo(() => {
@@ -143,6 +189,9 @@ export default function OverviewPage() {
       </div>
     )
   }
+
+  /* ── Country label for titles ──────────────────────────────────── */
+  const countryLabel = countryFilter || 'U.S. TransBorder'
 
   /* ── Navigation page cards ───────────────────────────────────────── */
   const navPages = [
@@ -186,9 +235,27 @@ export default function OverviewPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
 
+        {/* ── Country Filter ─────────────────────────────────────── */}
+        <div className="flex items-center gap-3 py-5">
+          <label htmlFor="country-filter" className="text-base font-semibold text-text-primary">
+            Trading Partner
+          </label>
+          <select
+            id="country-filter"
+            value={countryFilter}
+            onChange={(e) => setCountryFilter(e.target.value)}
+            className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary
+                       shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
+          >
+            {COUNTRY_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
         {/* ── Insight Callouts ──────────────────────────────────────── */}
-        {insights.length > 0 && (
-          <section className="py-8">
+        {!countryFilter && insights.length > 0 && (
+          <section className="pb-8">
             <div className="flex items-center gap-2.5 mb-5">
               <TrendingUp size={20} className="text-brand-blue" />
               <h3 className="text-xl font-bold text-text-primary">Key Insights</h3>
@@ -249,14 +316,15 @@ export default function OverviewPage() {
       {/* ── Border Ports Map ────────────────────────────────────────── */}
       {mapPorts.length > 0 && (
         <SectionBlock>
-          <ChartCard title="U.S.-Mexico Border Ports of Entry" subtitle="All ports sized by total trade value — click a port for details">
+          <ChartCard title="U.S. Border Ports of Entry" subtitle="All ports sized by total trade value — Texas-Mexico ports highlighted">
             <PortMap
               ports={mapPorts}
-              showFlowArcs={false}
               formatValue={formatCurrency}
-              center={[29.5, -104.0]}
-              zoom={5}
-              height="480px"
+              center={[42.0, -97.0]}
+              zoom={4}
+              height="520px"
+              groupColors={MAP_GROUP_COLORS}
+              legendGroups={MAP_LEGEND}
             />
           </ChartCard>
         </SectionBlock>
@@ -270,11 +338,11 @@ export default function OverviewPage() {
         </div>
         <div className="grid grid-cols-1 gap-6">
           <ChartCard
-            title="U.S. TransBorder Exports vs Imports"
+            title={`${countryLabel} Exports vs Imports`}
             subtitle={`Annual trade value, ${minYear || 1993}\u2013${latestYear || 2025}`}
             downloadData={{
               summary: { data: trendData, filename: 'us-transborder-exports-vs-imports', columns: DL.tradeTrendSeries },
-              detail:  { data: usTransborder, filename: 'us-transborder-detail', columns: PAGE_TRANSBORDER_COLS },
+              detail:  { data: filteredData, filename: 'us-transborder-detail', columns: PAGE_TRANSBORDER_COLS },
             }}
           >
             <LineChart

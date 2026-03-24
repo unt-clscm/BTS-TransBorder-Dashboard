@@ -2,6 +2,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency } from '@/lib/chartColors'
 import { buildFilterOptions, applyStandardFilters } from '@/lib/transborderHelpers'
+import { usePortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
 import FilterSelect from '@/components/filters/FilterSelect'
@@ -11,6 +12,7 @@ import StatCard from '@/components/ui/StatCard'
 import DataTable from '@/components/ui/DataTable'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
+import PortMap from '@/components/maps/PortMap'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { DollarSign, MapPin, Award, TrendingUp } from 'lucide-react'
 import DatasetError from '@/components/ui/DatasetError'
@@ -19,8 +21,8 @@ import { DL, PAGE_STATE_COLS } from '@/lib/downloadColumns'
 export default function TradeByStatePage() {
   const { usStateTrade, datasetErrors, loadDataset } = useTransborderStore()
 
-  /* ── lazy-load dataset on mount ─────────────────────────────────── */
-  useEffect(() => { loadDataset('usStateTrade') }, [loadDataset])
+  /* ── lazy-load datasets on mount ────────────────────────────────── */
+  useEffect(() => { loadDataset('usStateTrade'); loadDataset('usMexicoPorts') }, [loadDataset])
 
   /* ── loading / error ───────────────────────────────────────────── */
   if (datasetErrors.usStateTrade) {
@@ -42,6 +44,11 @@ export default function TradeByStatePage() {
 
 /* ── Inner component (renders once data is loaded) ────────────────── */
 function TradeByStateInner({ data }) {
+  const { usMexicoPorts } = useTransborderStore()
+
+  /* ── port coordinates for map ──────────────────────────────────── */
+  const { portCoords } = usePortCoordinates()
+
   /* ── local filters ──────────────────────────────────────────────── */
   const [selectedYears, setSelectedYears] = useState([])
   const [tradeType, setTradeType] = useState('')
@@ -81,6 +88,17 @@ function TradeByStateInner({ data }) {
     if (!latestYear) return []
     return filtered.filter((d) => d.Year === latestYear)
   }, [filtered, latestYear])
+
+  /* ── map: filter port data by current filters, build markers ───── */
+  const filteredPortsForMap = useMemo(() => {
+    if (!usMexicoPorts?.length) return []
+    return applyStandardFilters(usMexicoPorts, { Year: selectedYears, TradeType: tradeType, Mode: selectedModes, Country: country })
+  }, [usMexicoPorts, selectedYears, tradeType, selectedModes, country])
+
+  const mapPorts = useMemo(
+    () => buildMapPorts(filteredPortsForMap, portCoords),
+    [filteredPortsForMap, portCoords],
+  )
 
   /* ── state aggregation (latest year) ────────────────────────────── */
   const stateAgg = useMemo(() => {
@@ -261,8 +279,23 @@ function TradeByStateInner({ data }) {
         </div>
       </SectionBlock>
 
+      {/* Border Ports Map */}
+      {mapPorts.length > 0 && (
+        <SectionBlock alt>
+          <ChartCard title="Border Ports of Entry" subtitle="Ports sized by trade value across the U.S.-Mexico border">
+            <PortMap
+              ports={mapPorts}
+              formatValue={formatCurrency}
+              center={[29.5, -104.0]}
+              zoom={5}
+              height="480px"
+            />
+          </ChartCard>
+        </SectionBlock>
+      )}
+
       {/* Bar: States Ranked by Trade Value (horizontal, top 15) */}
-      <SectionBlock alt>
+      <SectionBlock>
         <ChartCard title={`Top 15 States by Trade Value (${latestYear || '—'})`} subtitle="States ranked by total cross-border trade value"
           downloadData={{ summary: { data: barData, filename: 'top-15-states', columns: { State: 'State', TradeValue: 'Trade Value ($)' } } }}
         >
@@ -271,7 +304,7 @@ function TradeByStateInner({ data }) {
       </SectionBlock>
 
       {/* Line: Top 5 State Trends */}
-      <SectionBlock>
+      <SectionBlock alt>
         <ChartCard title="Top 5 State Trends" subtitle="Annual trade value for the five largest trading states"
           downloadData={{
             summary: { data: trendData, filename: 'state-trends', columns: { Year: 'Year', TradeValue: 'Trade Value ($)', State: 'State' } },
@@ -283,7 +316,7 @@ function TradeByStateInner({ data }) {
       </SectionBlock>
 
       {/* Data Table */}
-      <SectionBlock alt>
+      <SectionBlock>
         <ChartCard title={`State Detail (${latestYear || '—'})`}
           downloadData={{
             summary: { data: stateAgg, filename: 'state-detail', columns: DL.stateDetail },

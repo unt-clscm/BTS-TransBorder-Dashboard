@@ -5,9 +5,9 @@
  * It displays the same chart children at full viewport size with enlarged
  * typography and provides its own action buttons (PNG export, CSV download, close).
  *
- * When rendered inside a DashboardLayout (which provides FilterContext), a
- * collapsible filter sidebar appears on the right so users can adjust filters
- * while viewing the chart at full size.
+ * When a parent provides FilterContext (e.g. DashboardLayout with filters), a
+ * collapsible filter sidebar appears on the right. Pages without that provider
+ * still get fullscreen chart + export actions; the sidebar is omitted.
  *
  * Behavior
  *   - Pressing the Escape key closes the overlay (keydown listener)
@@ -26,11 +26,11 @@
  *   This component is fully data-agnostic. No changes are needed when adapting
  *   this boilerplate for a new project or dataset.
  */
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import { X, Image as ImageIcon, Filter, RotateCcw, PanelRightClose, PanelRightOpen } from 'lucide-react'
 import DownloadButton from '@/components/ui/DownloadButton'
 import { exportChartPng } from '@/lib/exportPng'
-import { useFilterContext } from '@/contexts/FilterContext'
+import FilterContext from '@/contexts/FilterContext'
 import ActiveFilterTags from '@/components/filters/ActiveFilterTags'
 
 /**
@@ -45,7 +45,7 @@ export default function FullscreenChart({
   onClose,
 }) {
   const chartAreaRef = useRef(null)
-  const filterCtx = useFilterContext()
+  const filterCtx = useContext(FilterContext)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   // Close on Escape key

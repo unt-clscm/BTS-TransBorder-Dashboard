@@ -22,6 +22,7 @@ Datasets:
   5. us_state_trade           DOT1  Annual  State-level trade (Trade by State, Overview Top 10 States) -- 2007+
   6. commodity_detail         DOT2  Annual  Commodity by country/mode (Commodities page + US-Mexico commodity charts) -- 2007+
   7. monthly_trends           DOT1  Monthly Country/mode time series (TX Monthly tab) -- 2007+
+  8. us_canada_ports          DOT1  Annual  US-Canada port-level with Mode (Overview map, future Canada page) -- 2007+
 
 Design note: The previous us_mexico_commodities dataset (DOT2, Mexico-only with State
 dimension) was eliminated. No US-Mexico chart needs commodities broken down by state.
@@ -160,6 +161,34 @@ def build_us_mexico_ports(conn):
                  THEN ROUND(SUM("FreightCharges"), 2) ELSE NULL END AS "FreightCharges"
         FROM dot1_state_port
         WHERE "Country" = 'Mexico' AND "Year" >= {MODERN_START_YEAR}
+        GROUP BY "Year", "PortCode", "Port", "StateCode", "State", "Mode", COALESCE("TradeType", 'Unknown')
+        ORDER BY "Year", "PortCode", "Mode", "TradeType"
+    """
+    return run_query(conn, sql)
+
+
+def build_us_canada_ports(conn):
+    """Dataset 8: US-Canada port-level trade with Mode. Source: DOT1, Canada only, 2007+.
+
+    Charts: Overview page PortMap (Canadian border ports).
+    Same aggregation as us_mexico_ports but filtered to Country='Canada'.
+    """
+    sql = f"""
+        SELECT
+            "Year",
+            "PortCode",
+            "Port",
+            "StateCode",
+            "State",
+            "Mode",
+            COALESCE("TradeType", 'Unknown') AS "TradeType",
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight",
+            CASE WHEN SUM(CASE WHEN "FreightCharges" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("FreightCharges"), 2) ELSE NULL END AS "FreightCharges"
+        FROM dot1_state_port
+        WHERE "Country" = 'Canada' AND "Year" >= {MODERN_START_YEAR}
         GROUP BY "Year", "PortCode", "Port", "StateCode", "State", "Mode", COALESCE("TradeType", 'Unknown')
         ORDER BY "Year", "PortCode", "Mode", "TradeType"
     """
@@ -331,6 +360,7 @@ def main():
     datasets = [
         ("us_transborder", lambda: build_us_transborder(conn)),
         ("us_mexico_ports", lambda: build_us_mexico_ports(conn)),
+        ("us_canada_ports", lambda: build_us_canada_ports(conn)),
         ("texas_mexico_ports", lambda: build_texas_mexico_ports(conn, port_coords, tx_ports, port_region)),
         ("texas_mexico_commodities", lambda: build_texas_mexico_commodities(conn, tx_ports)),
         ("us_state_trade", lambda: build_us_state_trade(conn)),

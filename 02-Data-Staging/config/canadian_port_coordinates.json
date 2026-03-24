@@ -1,0 +1,540 @@
+{
+  "_source": "BTS Border Crossing Entry Data (Socrata dataset keg4-3bc2)",
+  "_api": "https://data.bts.gov/resource/keg4-3bc2.json",
+  "_retrieved": "2026-03-24",
+  "_notes": "Schedule D port codes with lat/lon for all US-Canada land border ports of entry.",
+  "3104": {
+    "port": "Alcan",
+    "state": "Alaska",
+    "lat": 62.614961,
+    "lon": -141.001444
+  },
+  "0708": {
+    "port": "Alexandria Bay",
+    "state": "New York",
+    "lat": 44.347229,
+    "lon": -75.983592
+  },
+  "3814": {
+    "port": "Algonac",
+    "state": "Michigan",
+    "lat": 42.6183,
+    "lon": -82.5311
+  },
+  "3410": {
+    "port": "Ambrose",
+    "state": "North Dakota",
+    "lat": 48.999305,
+    "lon": -103.486555
+  },
+  "3010": {
+    "port": "Anacortes",
+    "state": "Washington",
+    "lat": 48.49617,
+    "lon": -122.59953
+  },
+  "3413": {
+    "port": "Antler",
+    "state": "North Dakota",
+    "lat": 48.999472,
+    "lon": -101.296055
+  },
+  "0112": {
+    "port": "Bar Harbor",
+    "state": "Maine",
+    "lat": 44.399722,
+    "lon": -68.224722
+  },
+  "3424": {
+    "port": "Baudette",
+    "state": "Minnesota",
+    "lat": 48.719109,
+    "lon": -94.590467
+  },
+  "0206": {
+    "port": "Beecher Falls",
+    "state": "Vermont",
+    "lat": 45.013411,
+    "lon": -71.505309
+  },
+  "3004": {
+    "port": "Blaine",
+    "state": "Washington",
+    "lat": 48.994045,
+    "lon": -122.748884
+  },
+  "3015": {
+    "port": "Boundary",
+    "state": "Washington",
+    "lat": 49.00075,
+    "lon": -117.627583
+  },
+  "0127": {
+    "port": "Bridgewater",
+    "state": "Maine",
+    "lat": 46.450335,
+    "lon": -67.78484
+  },
+  "0901": {
+    "port": "Buffalo Niagara Falls",
+    "state": "New York",
+    "lat": 43.09549,
+    "lon": -79.055847
+  },
+  "0115": {
+    "port": "Calais",
+    "state": "Maine",
+    "lat": 45.188548,
+    "lon": -67.275381
+  },
+  "0706": {
+    "port": "Cape Vincent",
+    "state": "New York",
+    "lat": 44.134917,
+    "lon": -76.352489
+  },
+  "3421": {
+    "port": "Carbury",
+    "state": "North Dakota",
+    "lat": 48.999416,
+    "lon": -100.555805
+  },
+  "0712": {
+    "port": "Champlain Rouses Point",
+    "state": "New York",
+    "lat": 45.0088325953,
+    "lon": -73.4526634854
+  },
+  "3106": {
+    "port": "Dalton Cache",
+    "state": "Alaska",
+    "lat": 59.450556,
+    "lon": -136.361944
+  },
+  "3012": {
+    "port": "Danville",
+    "state": "Washington",
+    "lat": 49.000083,
+    "lon": -118.503722
+  },
+  "3322": {
+    "port": "Del Bonita",
+    "state": "Montana",
+    "lat": 48.998555,
+    "lon": -112.78825
+  },
+  "0209": {
+    "port": "Derby Line",
+    "state": "Vermont",
+    "lat": 45.005739,
+    "lon": -72.099279
+  },
+  "3801": {
+    "port": "Detroit",
+    "state": "Michigan",
+    "lat": 42.331685,
+    "lon": -83.047924
+  },
+  "3422": {
+    "port": "Dunseith",
+    "state": "North Dakota",
+    "lat": 48.999277,
+    "lon": -100.052166
+  },
+  "0103": {
+    "port": "Eastport",
+    "state": "Maine",
+    "lat": 44.8594395785,
+    "lon": -66.98007566
+  },
+  "3302": {
+    "port": "Eastport",
+    "state": "Idaho",
+    "lat": 49.000555,
+    "lon": -116.181027
+  },
+  "3013": {
+    "port": "Ferry",
+    "state": "Washington",
+    "lat": 49.000083,
+    "lon": -118.761166
+  },
+  "0107": {
+    "port": "Fort Fairfield",
+    "state": "Maine",
+    "lat": 46.765323,
+    "lon": -67.789471
+  },
+  "0110": {
+    "port": "Fort Kent",
+    "state": "Maine",
+    "lat": 47.249206,
+    "lon": -68.603918
+  },
+  "3417": {
+    "port": "Fortuna",
+    "state": "North Dakota",
+    "lat": 48.999555,
+    "lon": -103.80925
+  },
+  "3014": {
+    "port": "Friday Harbor",
+    "state": "Washington",
+    "lat": 48.534485,
+    "lon": -123.016484
+  },
+  "3020": {
+    "port": "Frontier",
+    "state": "Washington",
+    "lat": 49.0005,
+    "lon": -117.831527
+  },
+  "3613": {
+    "port": "Grand Portage",
+    "state": "Minnesota",
+    "lat": 48.001427,
+    "lon": -89.58515
+  },
+  "3408": {
+    "port": "Hannah",
+    "state": "North Dakota",
+    "lat": 49.000138,
+    "lon": -98.693777
+  },
+  "3415": {
+    "port": "Hansboro",
+    "state": "North Dakota",
+    "lat": 48.999583,
+    "lon": -99.346527
+  },
+  "0212": {
+    "port": "Highgate Springs",
+    "state": "Vermont",
+    "lat": 45.015414,
+    "lon": -73.085037
+  },
+  "0106": {
+    "port": "Houlton",
+    "state": "Maine",
+    "lat": 46.134879,
+    "lon": -67.781288
+  },
+  "3604": {
+    "port": "International Falls",
+    "state": "Minnesota",
+    "lat": 48.6078,
+    "lon": -93.401355
+  },
+  "0104": {
+    "port": "Jackman",
+    "state": "Maine",
+    "lat": 45.805661,
+    "lon": -70.396722
+  },
+  "3023": {
+    "port": "Kenneth G Ward",
+    "state": "Washington",
+    "lat": 49.002277,
+    "lon": -122.485027
+  },
+  "3102": {
+    "port": "Ketchikan",
+    "state": "Alaska",
+    "lat": 55.34208,
+    "lon": -131.647804
+  },
+  "3430": {
+    "port": "Lancaster",
+    "state": "Minnesota",
+    "lat": 49.000194,
+    "lon": -96.800527
+  },
+  "3016": {
+    "port": "Laurier",
+    "state": "Washington",
+    "lat": 49.000083,
+    "lon": -118.223777
+  },
+  "0118": {
+    "port": "Limestone",
+    "state": "Maine",
+    "lat": 46.924555,
+    "lon": -67.789597
+  },
+  "0109": {
+    "port": "Madawaska",
+    "state": "Maine",
+    "lat": 47.360052,
+    "lon": -68.328684
+  },
+  "3416": {
+    "port": "Maida",
+    "state": "North Dakota",
+    "lat": 49.00025,
+    "lon": -98.36525
+  },
+  "0704": {
+    "port": "Massena",
+    "state": "New York",
+    "lat": 44.990556,
+    "lon": -74.739722
+  },
+  "3025": {
+    "port": "Metaline Falls",
+    "state": "Washington",
+    "lat": 48.999972,
+    "lon": -117.299444
+  },
+  "3319": {
+    "port": "Morgan",
+    "state": "Montana",
+    "lat": 48.999829,
+    "lon": -107.831819
+  },
+  "3404": {
+    "port": "Neche",
+    "state": "North Dakota",
+    "lat": 49.000527,
+    "lon": -97.557333
+  },
+  "3011": {
+    "port": "Nighthawk",
+    "state": "Washington",
+    "lat": 49.000144,
+    "lon": -119.67103
+  },
+  "3420": {
+    "port": "Noonan",
+    "state": "North Dakota",
+    "lat": 48.999333,
+    "lon": -103.004361
+  },
+  "3406": {
+    "port": "Northgate",
+    "state": "North Dakota",
+    "lat": 48.998833,
+    "lon": -102.27475
+  },
+  "0211": {
+    "port": "Norton",
+    "state": "Vermont",
+    "lat": 45.010771,
+    "lon": -71.793219
+  },
+  "3402": {
+    "port": "Noyes",
+    "state": "Minnesota",
+    "lat": 49.000171,
+    "lon": -97.206601
+  },
+  "0701": {
+    "port": "Ogdensburg",
+    "state": "New York",
+    "lat": 44.7330898624,
+    "lon": -75.4577501759
+  },
+  "3317": {
+    "port": "Opheim",
+    "state": "Montana",
+    "lat": 48.999527,
+    "lon": -106.377583
+  },
+  "3019": {
+    "port": "Oroville",
+    "state": "Washington",
+    "lat": 49.000083,
+    "lon": -119.461833
+  },
+  "3401": {
+    "port": "Pembina",
+    "state": "North Dakota",
+    "lat": 49.000453,
+    "lon": -97.237036
+  },
+  "3316": {
+    "port": "Piegan",
+    "state": "Montana",
+    "lat": 48.998083,
+    "lon": -113.378777
+  },
+  "3425": {
+    "port": "Pinecreek",
+    "state": "Minnesota",
+    "lat": 48.999916,
+    "lon": -95.977694
+  },
+  "3017": {
+    "port": "Point Roberts",
+    "state": "Washington",
+    "lat": 49.0020555547,
+    "lon": -123.068055556
+  },
+  "3403": {
+    "port": "Portal",
+    "state": "North Dakota",
+    "lat": 48.998944,
+    "lon": -102.551944
+  },
+  "3007": {
+    "port": "Port Angeles",
+    "state": "Washington",
+    "lat": 48.121858,
+    "lon": -123.430694
+  },
+  "3308": {
+    "port": "Porthill",
+    "state": "Idaho",
+    "lat": 48.999861,
+    "lon": -116.49925
+  },
+  "3802": {
+    "port": "Port Huron",
+    "state": "Michigan",
+    "lat": 42.998611,
+    "lon": -82.423611
+  },
+  "0101": {
+    "port": "Portland",
+    "state": "Maine",
+    "lat": 43.659444,
+    "lon": -70.243056
+  },
+  "3301": {
+    "port": "Raymond",
+    "state": "Montana",
+    "lat": 48.999194,
+    "lon": -104.574333
+  },
+  "0203": {
+    "port": "Richford",
+    "state": "Vermont",
+    "lat": 45.01174,
+    "lon": -72.588559
+  },
+  "3318": {
+    "port": "Roosville",
+    "state": "Montana",
+    "lat": 48.999638,
+    "lon": -115.056027
+  },
+  "3426": {
+    "port": "Roseau",
+    "state": "Minnesota",
+    "lat": 48.999538,
+    "lon": -95.766469
+  },
+  "3409": {
+    "port": "Sarles",
+    "state": "North Dakota",
+    "lat": 49.000027,
+    "lon": -98.938361
+  },
+  "3803": {
+    "port": "Sault Sainte Marie",
+    "state": "Michigan",
+    "lat": 46.508611,
+    "lon": -84.360833
+  },
+  "3309": {
+    "port": "Scobey",
+    "state": "Montana",
+    "lat": 48.999527,
+    "lon": -105.407638
+  },
+  "3414": {
+    "port": "Sherwood",
+    "state": "North Dakota",
+    "lat": 48.999305,
+    "lon": -101.627527
+  },
+  "3103": {
+    "port": "Skagway",
+    "state": "Alaska",
+    "lat": 59.629722,
+    "lon": -135.164444
+  },
+  "3405": {
+    "port": "St John",
+    "state": "North Dakota",
+    "lat": 48.999277,
+    "lon": -99.659111
+  },
+  "3009": {
+    "port": "Sumas",
+    "state": "Washington",
+    "lat": 49.002388,
+    "lon": -122.264805
+  },
+  "3310": {
+    "port": "Sweetgrass",
+    "state": "Montana",
+    "lat": 48.998388,
+    "lon": -111.959611
+  },
+  "0715": {
+    "port": "Trout River",
+    "state": "New York",
+    "lat": 44.992058,
+    "lon": -74.308172
+  },
+  "3306": {
+    "port": "Turner",
+    "state": "Montana",
+    "lat": 48.999527,
+    "lon": -108.387916
+  },
+  "0108": {
+    "port": "Van Buren",
+    "state": "Maine",
+    "lat": 47.159645,
+    "lon": -67.930799
+  },
+  "0105": {
+    "port": "Vanceboro",
+    "state": "Maine",
+    "lat": 45.568761,
+    "lon": -67.428541
+  },
+  "3407": {
+    "port": "Walhalla",
+    "state": "North Dakota",
+    "lat": 49.000472,
+    "lon": -97.908416
+  },
+  "3423": {
+    "port": "Warroad",
+    "state": "Minnesota",
+    "lat": 48.999,
+    "lon": -95.376555
+  },
+  "3419": {
+    "port": "Westhope",
+    "state": "North Dakota",
+    "lat": 48.999611,
+    "lon": -101.017277
+  },
+  "3312": {
+    "port": "Whitetail",
+    "state": "Montana",
+    "lat": 48.999347,
+    "lon": -105.162324
+  },
+  "3321": {
+    "port": "Whitlash",
+    "state": "Montana",
+    "lat": 48.99725,
+    "lon": -111.257916
+  },
+  "3323": {
+    "port": "Wildhorse",
+    "state": "Montana",
+    "lat": 48.999361,
+    "lon": -110.215083
+  },
+  "3325": {
+    "port": "Willow Creek",
+    "state": "Montana",
+    "lat": 48.999972,
+    "lon": -109.731333
+  }
+}

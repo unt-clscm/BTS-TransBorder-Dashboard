@@ -1,18 +1,14 @@
 /**
  * ── PortMap.jsx ───────────────────────────────────────────────────────────
- * Leaflet map showing port-of-entry markers sized by trade value,
- * with optional trade flow arcs to Mexican crossing points.
+ * Leaflet map showing port-of-entry markers sized by trade value.
  *
  * Props:
  *   ports             — Array of { name, lat, lng, value, portCode }
- *   mexicanCrossings  — Object mapping port name to { name, lat, lon }
  *   formatValue       — Formatter function (default formatCurrency)
  *   metricLabel       — String for legend (default "Trade Value")
- *   showFlowArcs      — Boolean (default true)
  *   center            — [lat, lng] (default [29.0, -100.0])
  *   zoom              — Number (default 6)
  *   height            — CSS height string (default "500px")
- *   topN              — Limit to top N ports by value for arcs (default 15)
  */
 import { useMemo, useCallback, useState, useRef, useEffect } from 'react'
 import { createPortal } from 'react-dom'
@@ -22,13 +18,10 @@ import 'leaflet/dist/leaflet.css'
 
 const COLORS = {
   usPort: '#0056a9',
-  mxCrossing: '#df5c16',
-  arc: '#0056a9',
 }
 
 const STROKE = {
   usPort: '#003d75',
-  mxCrossing: '#a84410',
 }
 
 function formatCurrencyDefault(value) {
@@ -42,11 +35,6 @@ function formatCurrencyDefault(value) {
 function radiusScale(value, maxValue) {
   if (!maxValue || !value) return 4
   return Math.max(4, Math.min(20, 4 + 16 * Math.sqrt(value / maxValue)))
-}
-
-function arcWeightScale(value, maxValue) {
-  if (!maxValue || !value) return 1.5
-  return Math.max(1.5, Math.min(6, 1.5 + 4.5 * (value / maxValue)))
 }
 
 /** Disables scroll-wheel zoom until the user clicks on the map */
@@ -118,76 +106,6 @@ function ResetZoomButton({ center, zoom }) {
   )
 }
 
-/**
- * Renders a curved SVG arc (quadratic Bezier) between two lat/lng points on the map.
- * The control point is offset perpendicular to the midpoint for a visible curve.
- */
-function CurvedArc({ from, to, weight, color, opacity, onMouseOver, onMouseMove, onMouseOut, children: _children }) {
-  const map = useMap()
-  const [path, setPath] = useState('')
-  const pathRef = useRef(null)
-
-  useEffect(() => {
-    const update = () => {
-      const p1 = map.latLngToLayerPoint(from)
-      const p2 = map.latLngToLayerPoint(to)
-      const dx = p2.x - p1.x
-      const dy = p2.y - p1.y
-      const dist = Math.sqrt(dx * dx + dy * dy)
-      // When points overlap, fall back to a straight line (no arc to draw)
-      if (dist < 1) {
-        setPath('')
-        return
-      }
-      // Perpendicular offset for the Bezier control point
-      const offset = Math.max(20, dist * 0.3)
-      const mx = (p1.x + p2.x) / 2 + (-dy / dist) * offset
-      const my = (p1.y + p2.y) / 2 + (dx / dist) * offset
-      setPath(`M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`)
-    }
-    update()
-    map.on('move zoom viewreset', update)
-    return () => map.off('move zoom viewreset', update)
-  }, [map, from, to])
-
-  if (!path) return null
-
-  const pane = map.getPane('overlayPane')
-  if (!pane) return null
-
-  return createPortal(
-    <svg
-      style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none', overflow: 'visible' }}
-      width="0" height="0"
-    >
-      {/* Invisible wide hit area for hover */}
-      <path
-        d={path}
-        fill="none"
-        stroke="transparent"
-        strokeWidth={Math.max(12, weight + 8)}
-        style={{ pointerEvents: 'stroke', cursor: 'pointer' }}
-        onMouseOver={onMouseOver}
-        onMouseMove={onMouseMove}
-        onMouseOut={onMouseOut}
-      />
-      {/* Visible arc */}
-      <path
-        ref={pathRef}
-        d={path}
-        fill="none"
-        stroke={color}
-        strokeWidth={weight}
-        strokeOpacity={opacity}
-        strokeDasharray="6 4"
-        strokeLinecap="round"
-        style={{ pointerEvents: 'none' }}
-      />
-    </svg>,
-    pane,
-  )
-}
-
 /** Captures map instance ref & repositions portal tooltips on map move/zoom */
 function TooltipSync({ mapRef, tooltip, setTooltip }) {
   const map = useMap()
@@ -211,14 +129,13 @@ function TooltipSync({ mapRef, tooltip, setTooltip }) {
 
 export default function PortMap({
   ports = [],
-  mexicanCrossings = {},
   formatValue = formatCurrencyDefault,
   metricLabel = 'Trade Value',
-  showFlowArcs = true,
   center = [29.0, -100.0],
   zoom = 6,
   height = '500px',
-  topN = 15,
+  groupColors = null,   // { groupName: { fill, stroke } } — color ports by p.group
+  legendGroups = null,   // [{ label, color }] — custom legend entries (replaces default)
 }) {
   const mapInstanceRef = useRef(null)
   const [tooltip, setTooltip] = useState(null)
@@ -230,40 +147,6 @@ export default function PortMap({
     () => Math.max(1, ...ports.map((p) => p.value || 0)),
     [ports],
   )
-
-  // Build arcs between US ports and their Mexican crossing counterparts
-  const arcs = useMemo(() => {
-    if (!showFlowArcs) return []
-    const sorted = [...ports].sort((a, b) => (b.value || 0) - (a.value || 0)).slice(0, topN)
-    return sorted
-      .filter((p) => mexicanCrossings[p.name])
-      .map((p) => {
-        const mx = mexicanCrossings[p.name]
-        return {
-          usPort: p,
-          mxCrossing: mx,
-          positions: [
-            [p.lat, p.lng],
-            [mx.lat, mx.lon],
-          ],
-          weight: arcWeightScale(p.value, maxValue),
-        }
-      })
-  }, [ports, mexicanCrossings, showFlowArcs, topN, maxValue])
-
-  // Collect Mexican crossing markers (deduplicated)
-  const mxMarkers = useMemo(() => {
-    if (!showFlowArcs) return []
-    const seen = new Set()
-    return arcs
-      .filter((a) => {
-        const key = a.mxCrossing.name
-        if (seen.has(key)) return false
-        seen.add(key)
-        return true
-      })
-      .map((a) => a.mxCrossing)
-  }, [arcs, showFlowArcs])
 
   const handleWheel = useCallback(() => {
     if (!mapActive) {
@@ -321,82 +204,14 @@ export default function PortMap({
             <MapResizeHandler />
             <TooltipSync mapRef={mapInstanceRef} tooltip={tooltip} setTooltip={setTooltip} />
 
-            {/* Trade flow arcs (curved Bezier) */}
-            {arcs.map((arc, i) => (
-              <CurvedArc
-                key={`arc-${arc.usPort.portCode}-${i}`}
-                from={arc.positions[0]}
-                to={arc.positions[1]}
-                weight={arc.weight}
-                color={COLORS.arc}
-                opacity={0.4}
-                onMouseOver={(e) => {
-                  setTooltip({
-                    content: (
-                      <>
-                        <strong>{arc.usPort.name}</strong> &#8596; <strong>{arc.mxCrossing.name}</strong>
-                        <br />
-                        {formatValue(arc.usPort.value)} {metricLabel}
-                      </>
-                    ),
-                    x: e.clientX + 12,
-                    y: e.clientY - 12,
-                    sticky: true,
-                  })
-                }}
-                onMouseMove={(e) => {
-                  setTooltip((prev) => prev ? { ...prev, x: e.clientX + 12, y: e.clientY - 12 } : null)
-                }}
-                onMouseOut={() => setTooltip(null)}
-              />
-            ))}
-
-            {/* Mexican crossing markers (orange) */}
-            {mxMarkers.map((mx) => (
-              <CircleMarker
-                key={`mx-${mx.name}`}
-                center={[mx.lat, mx.lon]}
-                radius={6}
-                bubblingMouseEvents={false}
-                pathOptions={{
-                  fillColor: COLORS.mxCrossing,
-                  color: STROKE.mxCrossing,
-                  weight: 1.5,
-                  opacity: 0.9,
-                  fillOpacity: 0.85,
-                }}
-                eventHandlers={{
-                  mouseover: () => {
-                    const map = mapInstanceRef.current
-                    if (!map) return
-                    const pt = map.latLngToContainerPoint([mx.lat, mx.lon])
-                    const rect = map.getContainer().getBoundingClientRect()
-                    setTooltip({
-                      content: <><strong>{mx.name}</strong> (Mexico)</>,
-                      x: rect.left + pt.x,
-                      y: rect.top + pt.y - 14,
-                      latLng: [mx.lat, mx.lon],
-                      offsetY: -14,
-                    })
-                  },
-                  mouseout: () => setTooltip(null),
-                }}
-              >
-                <Popup>
-                  <div className="text-sm">
-                    <strong>{mx.name}</strong>
-                    <br />
-                    Mexican crossing point
-                  </div>
-                </Popup>
-              </CircleMarker>
-            ))}
-
-            {/* US port markers (blue, sized by value) */}
+            {/* Port markers (sized by value, colored by group if provided) */}
             {ports
               .filter((p) => p.lat != null && p.lng != null)
               .map((p) => {
                 const r = radiusScale(p.value, maxValue)
+                const gc = groupColors && p.group ? groupColors[p.group] : null
+                const fillColor = gc?.fill || COLORS.usPort
+                const strokeColor = gc?.stroke || STROKE.usPort
                 return (
                   <CircleMarker
                     key={`us-${p.portCode}`}
@@ -404,8 +219,8 @@ export default function PortMap({
                     radius={r}
                     bubblingMouseEvents={false}
                     pathOptions={{
-                      fillColor: COLORS.usPort,
-                      color: STROKE.usPort,
+                      fillColor,
+                      color: strokeColor,
                       weight: 1.5,
                       opacity: 0.9,
                       fillOpacity: 0.85,
@@ -451,22 +266,20 @@ export default function PortMap({
           className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 bg-white/90 text-base text-text-secondary border-t border-border-light flex-shrink-0"
           style={{ height: 'auto' }}
         >
-          <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded-full" style={{ background: COLORS.usPort }} />
-            U.S. Port
-          </span>
-          <span className="flex items-center gap-1">
-            <span className="inline-block w-3 h-3 rounded-full" style={{ background: COLORS.mxCrossing }} />
-            Mexican Crossing
-          </span>
-          {showFlowArcs && (
-            <span className="flex items-center gap-1.5">
-              <svg width="24" height="10" aria-hidden="true">
-                <line x1="0" y1="5" x2="24" y2="5" stroke={COLORS.arc} strokeWidth="2" strokeDasharray="5 3" opacity="0.5" />
-              </svg>
-              Trade flow
-            </span>
-          )}
+          {legendGroups
+            ? legendGroups.map((g) => (
+                <span key={g.label} className="flex items-center gap-1">
+                  <span className="inline-block w-3 h-3 rounded-full" style={{ background: g.color }} />
+                  {g.label}
+                </span>
+              ))
+            : (
+              <span className="flex items-center gap-1">
+                <span className="inline-block w-3 h-3 rounded-full" style={{ background: COLORS.usPort }} />
+                U.S. Port
+              </span>
+            )
+          }
           <span className="flex items-center gap-1.5">
             <svg width="24" height="16" aria-hidden="true" className="flex-shrink-0">
               <circle cx="7" cy="11" r="3" fill="#999" opacity="0.5" />

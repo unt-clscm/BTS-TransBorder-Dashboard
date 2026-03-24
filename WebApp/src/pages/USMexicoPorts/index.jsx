@@ -3,7 +3,6 @@ import { DollarSign, MapPin, Award, Truck } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency, buildFilterOptions, applyStandardFilters, getAxisFormatter } from '@/lib/transborderHelpers'
 import { CHART_COLORS } from '@/lib/chartColors'
-import { MEXICAN_CROSSINGS } from '@/lib/portUtils'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
 import FilterSelect from '@/components/filters/FilterSelect'
@@ -348,7 +347,6 @@ export default function USMexicoPortsPage() {
           )}
           <PortMap
             ports={mapPorts}
-            mexicanCrossings={MEXICAN_CROSSINGS}
             formatValue={formatCurrency}
             center={[29.5, -104.0]}
             zoom={5}

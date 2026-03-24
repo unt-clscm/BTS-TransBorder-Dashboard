@@ -9,7 +9,6 @@ import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
 import PortMap from '@/components/maps/PortMap'
-import { MEXICAN_CROSSINGS } from '@/lib/portUtils'
 import { formatCurrency, formatNumber } from '@/lib/chartColors'
 import { DL, PAGE_PORT_COLS } from '@/lib/downloadColumns'
 
@@ -105,7 +104,6 @@ export default function PortsTab({ filteredPorts, filteredPortsNoYear, _latestYe
           <ChartCard title="Texas-Mexico Ports of Entry" subtitle="Bubble size reflects total trade value for selected filters">
             <PortMap
               ports={mapPorts}
-              mexicanCrossings={MEXICAN_CROSSINGS}
               formatValue={formatCurrency}
               center={[28.5, -100.0]}
               zoom={6}

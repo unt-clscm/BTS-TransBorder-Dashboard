@@ -317,12 +317,26 @@ async function main() {
       throw new Error(`${pageErrors.length} JS runtime error(s) — see warnings above`)
     }
 
+    // Fail on console.error messages matching known-bad patterns
+    const BAD_PATTERNS = [/NaN/i, /invalid/i, /failed to fetch/i, /react/i, /undefined is not/i, /cannot read prop/i]
+    const ALLOWLIST = [/Download the React DevTools/i, /ReactDOM\.render is no longer supported/i]
+    const criticalErrors = consoleErrors.filter((e) => {
+      if (ALLOWLIST.some((allow) => allow.test(e))) return false
+      return BAD_PATTERNS.some((pat) => pat.test(e))
+    })
+
+    if (criticalErrors.length > 0) {
+      console.warn(`\n  [fail] ${criticalErrors.length} critical console.error(s):`)
+      for (const e of criticalErrors.slice(0, 10)) console.warn(`    - ${e.slice(0, 200)}`)
+      throw new Error(`${criticalErrors.length} critical console.error(s) — see warnings above`)
+    }
+
     if (consoleErrors.length > 0) {
-      console.warn(`\n  [info] ${consoleErrors.length} console.error(s) (non-blocking):`)
+      console.warn(`\n  [info] ${consoleErrors.length} console.error(s) (non-critical):`)
       for (const e of consoleErrors.slice(0, 5)) console.warn(`    - ${e.slice(0, 200)}`)
     }
 
-    results.push('No JS runtime errors during test suite')
+    results.push('No JS runtime errors or critical console errors during test suite')
 
     console.log('\nDEEP FUNCTIONAL CHECK: PASS')
     for (const line of results) console.log(`  [ok] ${line}`)

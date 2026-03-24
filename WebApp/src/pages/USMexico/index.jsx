@@ -23,12 +23,11 @@ import { DL, PAGE_TRANSBORDER_COLS, PAGE_PORT_COLS } from '@/lib/downloadColumns
 const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
 
 export default function USMexicoPage() {
-  const { usTransborder, usMexicoPorts, commodityDetail, loading, datasetErrors, loadDataset } = useTransborderStore()
+  const { usTransborder, usMexicoPorts, loading, datasetErrors, loadDataset } = useTransborderStore()
 
   /* ── lazy-load datasets on mount ──────────────────────────────────── */
   useEffect(() => {
     loadDataset('usMexicoPorts')
-    loadDataset('commodityDetail')
   }, [loadDataset])
 
   /* ── local filter state (not in store) ──────────────────────────── */
@@ -209,12 +208,10 @@ export default function USMexicoPage() {
   }
 
   /* ── render: loading ─────────────────────────────────────────────── */
-  if (datasetErrors.usMexicoPorts || datasetErrors.commodityDetail) {
-    const errName = datasetErrors.usMexicoPorts ? 'US-Mexico Ports' : 'Commodity Detail'
-    const errMsg = datasetErrors.usMexicoPorts || datasetErrors.commodityDetail
-    return <DatasetError datasetName={errName} error={errMsg} onRetry={() => { loadDataset('usMexicoPorts'); loadDataset('commodityDetail') }} />
+  if (datasetErrors.usMexicoPorts) {
+    return <DatasetError datasetName="US-Mexico Ports" error={datasetErrors.usMexicoPorts} onRetry={() => loadDataset('usMexicoPorts')} />
   }
-  if (loading || usMexicoPorts === null || commodityDetail === null) {
+  if (loading || usMexicoPorts === null) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center">

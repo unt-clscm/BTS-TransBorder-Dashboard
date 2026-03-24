@@ -131,12 +131,16 @@ function CurvedArc({ from, to, weight, color, opacity, onMouseOver, onMouseMove,
     const update = () => {
       const p1 = map.latLngToLayerPoint(from)
       const p2 = map.latLngToLayerPoint(to)
-      // Perpendicular offset for the control point
       const dx = p2.x - p1.x
       const dy = p2.y - p1.y
       const dist = Math.sqrt(dx * dx + dy * dy)
+      // When points overlap, fall back to a straight line (no arc to draw)
+      if (dist < 1) {
+        setPath('')
+        return
+      }
+      // Perpendicular offset for the Bezier control point
       const offset = Math.max(20, dist * 0.3)
-      // Rotate 90 degrees to get perpendicular direction
       const mx = (p1.x + p2.x) / 2 + (-dy / dist) * offset
       const my = (p1.y + p2.y) / 2 + (dx / dist) * offset
       setPath(`M ${p1.x} ${p1.y} Q ${mx} ${my} ${p2.x} ${p2.y}`)

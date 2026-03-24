@@ -11,13 +11,18 @@ import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
 import { formatCurrency, formatNumber } from '@/lib/chartColors'
+import DatasetError from '@/components/ui/DatasetError'
 import { DL, PAGE_COMMODITY_COLS } from '@/lib/downloadColumns'
 
-export default function CommoditiesTab({ filteredCommodities, loadDataset, _latestYear }) {
+export default function CommoditiesTab({ filteredCommodities, loadDataset, _latestYear, datasetError }) {
   /* ── ensure dataset is loaded ────────────────────────────────────── */
   useEffect(() => {
     loadDataset('texasMexicoCommodities')
   }, [loadDataset])
+
+  if (datasetError) {
+    return <DatasetError datasetName="Commodity Data" error={datasetError} onRetry={() => loadDataset('texasMexicoCommodities')} />
+  }
 
   const [treemapDrill, setTreemapDrill] = useState(null)
 

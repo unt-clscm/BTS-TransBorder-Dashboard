@@ -303,6 +303,7 @@ export default function TexasMexicoPage() {
             filteredCommodities={filteredCommodities}
             loadDataset={loadDataset}
             latestYear={latestYear}
+            datasetError={datasetErrors.texasMexicoCommodities}
           />
         </div>
       )}
@@ -321,6 +322,7 @@ export default function TexasMexicoPage() {
             filteredMonthly={filteredMonthly}
             loadDataset={loadDataset}
             latestYear={latestYear}
+            datasetError={datasetErrors.monthlyTrends}
           />
         </div>
       )}

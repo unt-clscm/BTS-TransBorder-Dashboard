@@ -11,6 +11,7 @@ import DataTable from '@/components/ui/DataTable'
 import PortMap from '@/components/maps/PortMap'
 import { MEXICAN_CROSSINGS } from '@/lib/portUtils'
 import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
+import { DL, PAGE_PORT_COLS } from '@/lib/downloadColumns'
 
 export default function PortsTab({ filteredPorts, filteredPortsNoYear, latestYear }) {
   /* ── Map markers (aggregate trade by port, attach coords) ────────── */
@@ -117,7 +118,8 @@ export default function PortsTab({ filteredPorts, filteredPortsNoYear, latestYea
       {/* Port ranking bar chart */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Port Ranking" subtitle="Top 15 ports by total trade value">
+          <ChartCard title="Port Ranking" subtitle="Top 15 ports by total trade value"
+            downloadData={{ summary: { data: portRanking, filename: 'tx-mx-port-ranking', columns: DL.portRank } }}>
             <BarChart
               data={portRanking}
               xKey="label"
@@ -132,7 +134,8 @@ export default function PortsTab({ filteredPorts, filteredPortsNoYear, latestYea
       {/* Top 5 port trends */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Top 5 Port Trends" subtitle="Annual trade value for the five largest ports">
+          <ChartCard title="Top 5 Port Trends" subtitle="Annual trade value for the five largest ports"
+            downloadData={{ summary: { data: portTrends, filename: 'tx-mx-top5-port-trends', columns: DL.tradeTrendSeries } }}>
             <LineChart
               data={portTrends}
               xKey="year"
@@ -147,7 +150,8 @@ export default function PortsTab({ filteredPorts, filteredPortsNoYear, latestYea
       {/* Port detail table */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Port Detail" subtitle="Aggregated by year, port, mode, and trade type">
+          <ChartCard title="Port Detail" subtitle="Aggregated by year, port, mode, and trade type"
+            downloadData={{ summary: { data: portTableData, filename: 'tx-mx-port-detail', columns: PAGE_PORT_COLS } }}>
             <DataTable data={portTableData} columns={tableColumns} pageSize={15} />
           </ChartCard>
         </div>

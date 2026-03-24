@@ -11,6 +11,7 @@ import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
 import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
+import { DL, PAGE_COMMODITY_COLS } from '@/lib/downloadColumns'
 
 export default function CommoditiesTab({ filteredCommodities, loadDataset, latestYear }) {
   /* ── ensure dataset is loaded ────────────────────────────────────── */
@@ -135,6 +136,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
           <ChartCard
             title={treemapDrill ? `${treemapDrill} — HS 2-Digit Detail` : 'Commodity Groups'}
             subtitle={treemapDrill ? 'Individual commodities within group' : 'Trade value by commodity group — click to drill down'}
+            downloadData={{ summary: { data: commodityGroups, filename: 'tx-mx-commodity-groups', columns: DL.commodityGroupRank } }}
           >
             {treemapDrill && (
               <div className="text-sm text-text-secondary mb-2">
@@ -159,7 +161,8 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
       {/* Top 10 individual commodities */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Top 10 Commodities" subtitle="Individual commodities ranked by trade value">
+          <ChartCard title="Top 10 Commodities" subtitle="Individual commodities ranked by trade value"
+            downloadData={{ summary: { data: topCommodities, filename: 'tx-mx-top-commodities', columns: DL.commodityRank } }}>
             <BarChart
               data={topCommodities}
               xKey="label"
@@ -174,7 +177,8 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
       {/* Top 5 commodity group trends */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Top 5 Commodity Group Trends" subtitle="Annual trade value for leading groups">
+          <ChartCard title="Top 5 Commodity Group Trends" subtitle="Annual trade value for leading groups"
+            downloadData={{ summary: { data: groupTrends, filename: 'tx-mx-commodity-group-trends', columns: DL.tradeTrendSeries } }}>
             <LineChart
               data={groupTrends}
               xKey="year"
@@ -189,7 +193,8 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
       {/* Commodity detail table */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Commodity Detail" subtitle="Aggregated by year, commodity, port, and trade type">
+          <ChartCard title="Commodity Detail" subtitle="Aggregated by year, commodity, port, and trade type"
+            downloadData={{ summary: { data: tableData, filename: 'tx-mx-commodity-detail', columns: PAGE_COMMODITY_COLS } }}>
             <DataTable data={tableData} columns={tableColumns} pageSize={15} />
           </ChartCard>
         </div>

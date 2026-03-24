@@ -15,6 +15,7 @@ import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
 import PortMap from '@/components/maps/PortMap'
+import { DL, PAGE_PORT_COLS } from '@/lib/downloadColumns'
 
 /* ── COVID annotation ─────────────────────────────────────────────── */
 const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
@@ -351,6 +352,9 @@ export default function USMexicoPortsPage() {
         <ChartCard
           title="Ports Ranked by Trade Value"
           subtitle="Top 20 ports of entry by total freight value"
+          downloadData={{
+            summary: { data: portRankData, filename: 'us-mexico-ports-ranked', columns: DL.portRank },
+          }}
         >
           <BarChart
             data={portRankData}
@@ -368,6 +372,10 @@ export default function USMexicoPortsPage() {
         <ChartCard
           title="Top 5 Port Trends"
           subtitle="Annual trade value for the five largest ports"
+          downloadData={{
+            summary: { data: topPortTrendData, filename: 'us-mexico-top5-port-trends', columns: { year: 'Year', value: 'Trade Value ($)', Port: 'Port' } },
+            detail:  { data: filteredNoYear, filename: 'us-mexico-ports-detail', columns: PAGE_PORT_COLS },
+          }}
         >
           <LineChart
             data={topPortTrendData}
@@ -385,6 +393,10 @@ export default function USMexicoPortsPage() {
         <ChartCard
           title="All Ports"
           subtitle="Port-level trade summary with exports and imports"
+          downloadData={{
+            summary: { data: portTableData, filename: 'us-mexico-all-ports', columns: DL.portDetail },
+            detail:  { data: filtered, filename: 'us-mexico-ports-raw', columns: PAGE_PORT_COLS },
+          }}
         >
           <DataTable
             columns={portTableColumns}

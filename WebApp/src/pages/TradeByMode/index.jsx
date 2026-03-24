@@ -16,6 +16,7 @@ import StackedBarChart from '@/components/charts/StackedBarChart'
 import DivergingBarChart from '@/components/charts/DivergingBarChart'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { DollarSign, Truck, TrendingUp, BarChart3 } from 'lucide-react'
+import { DL, PAGE_TRANSBORDER_COLS } from '@/lib/downloadColumns'
 
 export default function TradeByModePage() {
   const { usTransborder } = useTransborderStore()
@@ -286,42 +287,60 @@ export default function TradeByModePage() {
 
       {/* Donut: Mode Share */}
       <SectionBlock alt>
-        <ChartCard title={`Mode Share (${latestYear || '—'})`} subtitle="Distribution of trade value by transportation mode">
+        <ChartCard title={`Mode Share (${latestYear || '—'})`} subtitle="Distribution of trade value by transportation mode"
+          downloadData={{ summary: { data: donutData, filename: 'mode-share', columns: DL.modeRank } }}
+        >
           <DonutChart data={donutData} labelKey="label" valueKey="value" formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Bar: Mode Comparison */}
       <SectionBlock>
-        <ChartCard title={`Mode Comparison (${latestYear || '—'})`} subtitle="Trade value by transportation mode">
+        <ChartCard title={`Mode Comparison (${latestYear || '—'})`} subtitle="Trade value by transportation mode"
+          downloadData={{ summary: { data: barData, filename: 'mode-comparison', columns: { Mode: 'Mode', TradeValue: 'Trade Value ($)' } } }}
+        >
           <BarChart data={barData} xKey="Mode" yKey="TradeValue" formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Line: Mode Trends Over Time */}
       <SectionBlock alt>
-        <ChartCard title="Mode Trends Over Time" subtitle="Annual trade value by mode across all years">
+        <ChartCard title="Mode Trends Over Time" subtitle="Annual trade value by mode across all years"
+          downloadData={{
+            summary: { data: trendData, filename: 'mode-trends', columns: { Year: 'Year', TradeValue: 'Trade Value ($)', Mode: 'Mode' } },
+            detail: { data: filteredNoYear, filename: 'mode-trends-detail', columns: PAGE_TRANSBORDER_COLS },
+          }}
+        >
           <LineChart data={trendData} xKey="Year" yKey="TradeValue" seriesKey="Mode" formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Stacked Bar: Mode Composition by Year */}
       <SectionBlock>
-        <ChartCard title="Mode Composition by Year" subtitle="Stacked trade value showing mode mix over time">
+        <ChartCard title="Mode Composition by Year" subtitle="Stacked trade value showing mode mix over time"
+          downloadData={{ summary: { data: stackedByYear.data, filename: 'mode-composition-by-year' } }}
+        >
           <StackedBarChart data={stackedByYear.data} xKey="Year" stackKeys={stackedByYear.keys} formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Diverging Bar: Import/Export Balance by Mode */}
       <SectionBlock alt>
-        <ChartCard title={`Import/Export Balance by Mode (${latestYear || '—'})`} subtitle="Exports extend right, imports extend left">
+        <ChartCard title={`Import/Export Balance by Mode (${latestYear || '—'})`} subtitle="Exports extend right, imports extend left"
+          downloadData={{ summary: { data: divergingData, filename: 'import-export-balance-by-mode', columns: DL.balanceByMode } }}
+        >
           <DivergingBarChart data={divergingData} labelKey="label" leftKey="Imports" rightKey="Exports" leftLabel="Imports" rightLabel="Exports" formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Data Table */}
       <SectionBlock>
-        <ChartCard title={`Mode Detail (${latestYear || '—'})`}>
+        <ChartCard title={`Mode Detail (${latestYear || '—'})`}
+          downloadData={{
+            summary: { data: tableData, filename: 'mode-detail', columns: DL.modeDetail },
+            detail: { data: filtered, filename: 'mode-detail-full', columns: PAGE_TRANSBORDER_COLS },
+          }}
+        >
           <DataTable data={tableData} columns={tableColumns} pageSize={15} />
         </ChartCard>
         <p className="text-sm text-text-secondary mt-3 italic">

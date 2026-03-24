@@ -16,6 +16,7 @@ import StatCard from '@/components/ui/StatCard'
 import LineChart from '@/components/charts/LineChart'
 import DonutChart from '@/components/charts/DonutChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
+import { DL, PAGE_TRANSBORDER_COLS } from '@/lib/downloadColumns'
 
 /* ── Icon lookup for insightEngine string → component ────────────────── */
 const ICON_MAP = {
@@ -255,6 +256,10 @@ export default function OverviewPage() {
           <ChartCard
             title="U.S. TransBorder Exports vs Imports"
             subtitle={`Annual trade value, ${minYear || 1993}--${latestYear || 2025}`}
+            downloadData={{
+              summary: { data: trendData, filename: 'us-transborder-exports-vs-imports', columns: DL.tradeTrendSeries },
+              detail:  { data: usTransborder, filename: 'us-transborder-detail', columns: PAGE_TRANSBORDER_COLS },
+            }}
           >
             <LineChart
               data={trendData}
@@ -277,6 +282,9 @@ export default function OverviewPage() {
           <ChartCard
             title={`Trade by Mode (${latestYear || ''})`}
             subtitle="Share of total trade value by transportation mode"
+            downloadData={{
+              summary: { data: modeData, filename: 'trade-by-mode', columns: DL.modeRank },
+            }}
           >
             <DonutChart
               data={modeData}
@@ -289,6 +297,9 @@ export default function OverviewPage() {
           <ChartCard
             title="Canada vs Mexico Trade Share"
             subtitle={`Annual trade value by country, ${minYear || 1993}--${latestYear || 2025}`}
+            downloadData={{
+              summary: { data: countryStackData.data, filename: 'canada-vs-mexico-trade-share' },
+            }}
           >
             <StackedBarChart
               data={countryStackData.data}

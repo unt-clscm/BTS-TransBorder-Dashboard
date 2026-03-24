@@ -13,6 +13,7 @@ import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { DollarSign, MapPin, Award, TrendingUp } from 'lucide-react'
+import { DL, PAGE_STATE_COLS } from '@/lib/downloadColumns'
 
 export default function TradeByStatePage() {
   const { usStateTrade, loadDataset } = useTransborderStore()
@@ -273,21 +274,33 @@ function TradeByStateInner({ data }) {
 
       {/* Bar: States Ranked by Trade Value (horizontal, top 15) */}
       <SectionBlock alt>
-        <ChartCard title={`Top 15 States by Trade Value (${latestYear || '—'})`} subtitle="States ranked by total cross-border trade value">
+        <ChartCard title={`Top 15 States by Trade Value (${latestYear || '—'})`} subtitle="States ranked by total cross-border trade value"
+          downloadData={{ summary: { data: barData, filename: 'top-15-states', columns: { State: 'State', TradeValue: 'Trade Value ($)' } } }}
+        >
           <BarChart data={barData} xKey="State" yKey="TradeValue" horizontal formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Line: Top 5 State Trends */}
       <SectionBlock>
-        <ChartCard title="Top 5 State Trends" subtitle="Annual trade value for the five largest trading states">
+        <ChartCard title="Top 5 State Trends" subtitle="Annual trade value for the five largest trading states"
+          downloadData={{
+            summary: { data: trendData, filename: 'state-trends', columns: { Year: 'Year', TradeValue: 'Trade Value ($)', State: 'State' } },
+            detail: { data: filteredNoYear, filename: 'state-trends-detail', columns: PAGE_STATE_COLS },
+          }}
+        >
           <LineChart data={trendData} xKey="Year" yKey="TradeValue" seriesKey="State" formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Data Table */}
       <SectionBlock alt>
-        <ChartCard title={`State Detail (${latestYear || '—'})`}>
+        <ChartCard title={`State Detail (${latestYear || '—'})`}
+          downloadData={{
+            summary: { data: stateAgg, filename: 'state-detail', columns: DL.stateDetail },
+            detail: { data: filtered, filename: 'state-detail-full', columns: PAGE_STATE_COLS },
+          }}
+        >
           <DataTable data={stateAgg} columns={tableColumns} pageSize={15} />
         </ChartCard>
       </SectionBlock>

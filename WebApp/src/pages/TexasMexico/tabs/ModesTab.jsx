@@ -11,6 +11,7 @@ import StackedBarChart from '@/components/charts/StackedBarChart'
 import DivergingBarChart from '@/components/charts/DivergingBarChart'
 import DataTable from '@/components/ui/DataTable'
 import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
+import { DL } from '@/lib/downloadColumns'
 
 export default function ModesTab({ filteredPorts, filteredPortsNoYear, latestYear }) {
   /* ── Mode comparison (vertical bar) ──────────────────────────────── */
@@ -103,7 +104,8 @@ export default function ModesTab({ filteredPorts, filteredPortsNoYear, latestYea
       {/* Mode comparison bar chart */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Mode Comparison" subtitle="Total trade value by transport mode">
+          <ChartCard title="Mode Comparison" subtitle="Total trade value by transport mode"
+            downloadData={{ summary: { data: modeComparison, filename: 'tx-mx-mode-comparison', columns: DL.modeRank } }}>
             <BarChart
               data={modeComparison}
               xKey="label"
@@ -131,7 +133,8 @@ export default function ModesTab({ filteredPorts, filteredPortsNoYear, latestYea
       {/* Import/Export balance by mode (diverging) */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Import/Export Balance by Mode" subtitle="Exports extend right, imports extend left">
+          <ChartCard title="Import/Export Balance by Mode" subtitle="Exports extend right, imports extend left"
+            downloadData={{ summary: { data: modeImbalance, filename: 'tx-mx-mode-balance', columns: DL.balanceByMode } }}>
             <DivergingBarChart
               data={modeImbalance}
               labelKey="label"
@@ -148,7 +151,8 @@ export default function ModesTab({ filteredPorts, filteredPortsNoYear, latestYea
       {/* Mode detail table */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Mode Detail" subtitle="Aggregated by year, mode, and trade type">
+          <ChartCard title="Mode Detail" subtitle="Aggregated by year, mode, and trade type"
+            downloadData={{ summary: { data: tableData, filename: 'tx-mx-mode-detail', columns: DL.modeDetail } }}>
             <DataTable data={tableData} columns={tableColumns} pageSize={15} />
           </ChartCard>
         </div>

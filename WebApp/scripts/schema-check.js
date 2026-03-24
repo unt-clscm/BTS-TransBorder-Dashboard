@@ -1,24 +1,17 @@
 /**
  * schema-check.js
  * ---------------------------------------------------------------------------
- * Lightweight data-contract checker for boilerplate adaptation.
+ * Validates JSON data files against the store's dataset contracts.
  *
- * Purpose:
- *   When this dashboard is reused with a new dataset, this script gives a fast
- *   "pre-flight" validation of CSV schemas before running the UI.
+ * Checks:
+ *   1) JSON file exists and parses correctly
+ *   2) Array has rows
+ *   3) Required fields are present in every row (sample)
+ *   4) Numeric fields contain valid numbers (not NaN/undefined)
+ *   5) String fields are non-empty strings where expected
  *
  * Usage:
  *   node scripts/schema-check.js
- *
- * What it validates:
- *   1) CSV file exists and has rows
- *   2) Required columns for each dataset are present
- *   3) Example type checks for core fields (Year, TradeValue)
- *
- * Important:
- *   - This is a guardrail script, not a strict parser for every edge case.
- *   - Failures here do not auto-fix code; they tell future agents/users what
- *     mappings in `src/stores/tradeStore.js` and `src/pages/*` need updates.
  */
 
 import fs from 'fs/promises'
@@ -30,92 +23,64 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const DATA_DIR = path.join(__dirname, '..', 'public', 'data')
 
 /**
- * Expected contracts for the current boilerplate pages.
- * Update this map first when onboarding a new project schema.
+ * Dataset contracts matching transborderStore.js DATASET_FILES.
+ * "required" fields must be present and non-null in every row.
+ * "numeric" fields must parse as finite numbers.
+ * "optional" fields may or may not be present.
  */
 const CONTRACTS = [
   {
-    file: 'us_aggregated.csv',
-    dataset: 'usAggregated',
-    required: ['Year', 'TradeType', 'TradeValue'],
-    optional: ['Mode', 'State', 'Commodity', 'CommodityGroup'],
+    file: 'us_transborder.json',
+    dataset: 'usTransborder',
+    required: ['Year', 'Country', 'Mode', 'TradeType', 'TradeValue'],
+    numeric: ['Year', 'TradeValue', 'Weight'],
+    optional: ['Weight'],
   },
   {
-    file: 'tx_border_ports.csv',
-    dataset: 'txBorderPorts',
-    required: ['Year', 'POE', 'Region', 'Mode', 'TradeType', 'TradeValue'],
-    optional: ['Commodity', 'CommodityGroup', 'Lat', 'Lon'],
+    file: 'us_mexico_ports.json',
+    dataset: 'usMexicoPorts',
+    required: ['Year', 'PortCode', 'Port', 'State', 'Mode', 'TradeType', 'TradeValue'],
+    numeric: ['Year', 'TradeValue', 'Weight', 'FreightCharges'],
+    optional: ['StateCode', 'Weight', 'FreightCharges'],
   },
   {
-    file: 'bts_us_state.csv',
-    dataset: 'btsUsState',
-    required: ['Year', 'State', 'Mode', 'TradeType', 'TradeValue'],
+    file: 'texas_mexico_ports.json',
+    dataset: 'texasMexicoPorts',
+    required: ['Year', 'PortCode', 'Port', 'Mode', 'TradeType', 'TradeValue'],
+    numeric: ['Year', 'TradeValue', 'Weight', 'FreightCharges', 'Lat', 'Lon'],
+    optional: ['Region', 'Weight', 'FreightCharges', 'Lat', 'Lon'],
+  },
+  {
+    file: 'texas_mexico_commodities.json',
+    dataset: 'texasMexicoCommodities',
+    required: ['Year', 'Port', 'CommodityGroup', 'Mode', 'TradeType', 'TradeValue'],
+    numeric: ['Year', 'TradeValue', 'Weight'],
+    optional: ['PortCode', 'HSCode', 'Commodity', 'Weight'],
+  },
+  {
+    file: 'us_state_trade.json',
+    dataset: 'usStateTrade',
+    required: ['Year', 'State', 'Country', 'Mode', 'TradeType', 'TradeValue'],
+    numeric: ['Year', 'TradeValue'],
     optional: ['StateCode'],
   },
   {
-    file: 'master_data.csv',
-    dataset: 'masterData',
-    required: ['Year', 'TradeType', 'TradeValue'],
-    optional: ['Port', 'Region', 'Mode', 'CommodityGroup'],
+    file: 'commodity_detail.json',
+    dataset: 'commodityDetail',
+    required: ['Year', 'Country', 'CommodityGroup', 'Mode', 'TradeType', 'TradeValue'],
+    numeric: ['Year', 'TradeValue', 'Weight'],
+    optional: ['HSCode', 'Commodity', 'Weight'],
+  },
+  {
+    file: 'monthly_trends.json',
+    dataset: 'monthlyTrends',
+    required: ['Year', 'Month', 'Country', 'Mode', 'TradeType', 'TradeValue'],
+    numeric: ['Year', 'Month', 'TradeValue'],
+    optional: [],
   },
 ]
 
-/**
- * Header aliases accepted as equivalent to canonical field names.
- * This mirrors tradeStore normalization where spaced headers are mapped.
- */
-const HEADER_ALIASES = {
-  Year: ['Year'],
-  TradeType: ['TradeType', 'Trade Type'],
-  TradeValue: ['TradeValue', 'Trade Value'],
-  CommodityGroup: ['CommodityGroup', 'Commodity Group'],
-  POE: ['POE', 'Port of Entry'],
-  State: ['State', 'USASTATE_NAME'],
-}
-
-function splitCsvLine(line) {
-  // Minimal CSV splitter with quote support (sufficient for header/data checks).
-  const out = []
-  let cur = ''
-  let inQuotes = false
-
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i]
-    if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') {
-        cur += '"'
-        i++
-      } else {
-        inQuotes = !inQuotes
-      }
-      continue
-    }
-    if (ch === ',' && !inQuotes) {
-      out.push(cur)
-      cur = ''
-      continue
-    }
-    cur += ch
-  }
-  out.push(cur)
-  return out.map((s) => s.trim())
-}
-
-function parseLooseYear(value) {
-  const trimmed = String(value ?? '').trim()
-  if (!trimmed) return null
-  const direct = Number(trimmed)
-  if (Number.isFinite(direct)) return Math.trunc(direct)
-  const m = trimmed.match(/\d{4}/)
-  return m ? Number(m[0]) : null
-}
-
-function parseLooseNumber(value) {
-  const cleaned = String(value ?? '').replace(/[$,\s]/g, '').trim()
-  if (!cleaned) return null
-  const n = Number(cleaned)
-  return Number.isFinite(n) ? n : null
-}
+const SAMPLE_SIZE = 100
 
 async function inspectContract(contract) {
   const filePath = path.join(DATA_DIR, contract.file)
@@ -124,6 +89,7 @@ async function inspectContract(contract) {
     exists: false,
     rowCount: 0,
     missingRequired: [],
+    numericIssues: [],
     warnings: [],
   }
 
@@ -136,48 +102,82 @@ async function inspectContract(contract) {
     return report
   }
 
-  const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0)
-  if (lines.length === 0) {
-    report.warnings.push('CSV is empty')
+  let data
+  try {
+    data = JSON.parse(raw)
+  } catch (e) {
+    report.warnings.push(`JSON parse error: ${e.message}`)
     return report
   }
 
-  const headers = splitCsvLine(lines[0])
-  const headerSet = new Set(headers)
-  report.rowCount = Math.max(0, lines.length - 1)
-  report.missingRequired = contract.required.filter((canonical) => {
-    const aliases = HEADER_ALIASES[canonical] || [canonical]
-    return !aliases.some((alias) => headerSet.has(alias))
-  })
-
-  const resolveHeader = (canonical) => {
-    const aliases = HEADER_ALIASES[canonical] || [canonical]
-    return aliases.find((alias) => headerSet.has(alias)) || null
+  if (!Array.isArray(data)) {
+    report.warnings.push('Expected a JSON array at top level')
+    return report
   }
 
-  // Sample first 50 rows for lightweight type heuristics.
-  const sampleRows = lines.slice(1, 51).map((line) => {
-    const cells = splitCsvLine(line)
-    const row = {}
-    headers.forEach((h, idx) => {
-      row[h] = cells[idx] ?? ''
-    })
-    return row
-  })
+  report.rowCount = data.length
+  if (data.length === 0) {
+    report.warnings.push('Dataset is empty (0 rows)')
+    return report
+  }
 
-  const yearHeader = resolveHeader('Year')
-  if (yearHeader) {
-    const invalidYearCount = sampleRows.filter((r) => parseLooseYear(r[yearHeader]) == null).length
-    if (invalidYearCount > 0) {
-      report.warnings.push(`Sample has ${invalidYearCount} rows with non-parseable Year values`)
+  // Sample rows for validation
+  const sample = data.length <= SAMPLE_SIZE
+    ? data
+    : Array.from({ length: SAMPLE_SIZE }, (_, i) =>
+        data[Math.floor(i * data.length / SAMPLE_SIZE)]
+      )
+
+  // Check required fields
+  const missingCounts = {}
+  for (const field of contract.required) {
+    let missing = 0
+    for (const row of sample) {
+      if (row[field] === undefined || row[field] === null || row[field] === '') {
+        missing++
+      }
+    }
+    if (missing > 0) {
+      missingCounts[field] = missing
+    }
+  }
+  report.missingRequired = Object.entries(missingCounts).map(
+    ([field, count]) => `${field} (${count}/${sample.length} rows)`
+  )
+
+  // Check numeric fields
+  for (const field of (contract.numeric || [])) {
+    let nanCount = 0
+    let presentCount = 0
+    for (const row of sample) {
+      if (field in row && row[field] !== null) {
+        presentCount++
+        const v = +row[field]
+        if (!Number.isFinite(v)) nanCount++
+      }
+    }
+    if (nanCount > 0) {
+      report.numericIssues.push(`${field}: ${nanCount}/${presentCount} non-finite values`)
     }
   }
 
-  const tradeValueHeader = resolveHeader('TradeValue')
-  if (tradeValueHeader) {
-    const invalidTradeValueCount = sampleRows.filter((r) => parseLooseNumber(r[tradeValueHeader]) == null).length
-    if (invalidTradeValueCount > 0) {
-      report.warnings.push(`Sample has ${invalidTradeValueCount} rows with non-parseable TradeValue values`)
+  // Check for unexpected NaN in TradeValue specifically (critical field)
+  let tradeValueNaN = 0
+  for (const row of sample) {
+    const v = +row.TradeValue
+    if (!Number.isFinite(v)) tradeValueNaN++
+  }
+  if (tradeValueNaN > 0) {
+    report.warnings.push(`CRITICAL: ${tradeValueNaN}/${sample.length} rows have non-finite TradeValue`)
+  }
+
+  // Year range sanity check
+  const years = sample.map(r => +r.Year).filter(Number.isFinite)
+  if (years.length > 0) {
+    const minYear = Math.min(...years)
+    const maxYear = Math.max(...years)
+    if (minYear < 1993 || maxYear > 2030) {
+      report.warnings.push(`Year range ${minYear}-${maxYear} outside expected 1993-2030`)
     }
   }
 
@@ -192,16 +192,21 @@ async function main() {
   console.log('='.repeat(72))
 
   for (const r of reports) {
-    const hardFail = !r.exists || r.missingRequired.length > 0
+    const hardFail = !r.exists || r.missingRequired.length > 0 || r.numericIssues.length > 0
     if (hardFail) failCount++
 
-    console.log(`\n${hardFail ? 'FAIL' : 'PASS'}  ${r.dataset} (${r.file})`)
-    console.log(`  Rows: ${r.rowCount}`)
+    const tag = hardFail ? 'FAIL' : 'PASS'
+    console.log(`\n${tag}  ${r.dataset} (${r.file})`)
+    console.log(`  Rows: ${r.rowCount.toLocaleString()}`)
 
     if (r.missingRequired.length > 0) {
       console.log(`  Missing required: ${r.missingRequired.join(', ')}`)
-    } else {
-      console.log('  Required columns: present')
+    } else if (r.exists) {
+      console.log('  Required fields: all present')
+    }
+
+    if (r.numericIssues.length > 0) {
+      for (const issue of r.numericIssues) console.log(`  Numeric issue: ${issue}`)
     }
 
     if (r.warnings.length > 0) {
@@ -211,10 +216,9 @@ async function main() {
 
   console.log('\n' + '-'.repeat(72))
   if (failCount === 0) {
-    console.log('Result: PASS (all dataset contracts satisfied)')
+    console.log('Result: PASS (all 7 dataset contracts satisfied)')
   } else {
     console.log(`Result: FAIL (${failCount} dataset contract issue(s))`)
-    console.log('Next step: update `tradeStore.normalize()` and page-level mappings.')
   }
   console.log('-'.repeat(72) + '\n')
 

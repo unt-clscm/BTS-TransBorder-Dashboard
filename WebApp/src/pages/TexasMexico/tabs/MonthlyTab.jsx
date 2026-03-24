@@ -10,6 +10,7 @@ import LineChart from '@/components/charts/LineChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
+import { DL, PAGE_MONTHLY_COLS } from '@/lib/downloadColumns'
 
 const MONTH_LABELS = [
   '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -119,7 +120,8 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, latestYear })
       {/* Continuous monthly trend */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Monthly Trade Trends" subtitle="Continuous monthly time series of TX-MX trade value">
+          <ChartCard title="Monthly Trade Trends" subtitle="Continuous monthly time series of TX-MX trade value"
+            downloadData={{ summary: { data: monthlyTimeSeries, filename: 'tx-mx-monthly-trends', columns: DL.tradeTrend } }}>
             <LineChart
               data={monthlyTimeSeries}
               xKey="idx"
@@ -148,7 +150,8 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, latestYear })
       {/* Monthly detail table */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Monthly Detail" subtitle="Aggregated by year, month, mode, and trade type">
+          <ChartCard title="Monthly Detail" subtitle="Aggregated by year, month, mode, and trade type"
+            downloadData={{ summary: { data: tableData, filename: 'tx-mx-monthly-detail', columns: PAGE_MONTHLY_COLS } }}>
             <DataTable data={tableData} columns={tableColumns} pageSize={15} />
           </ChartCard>
         </div>

@@ -9,6 +9,7 @@ import LineChart from '@/components/charts/LineChart'
 import DonutChart from '@/components/charts/DonutChart'
 import BarChart from '@/components/charts/BarChart'
 import { formatCurrency, formatCompact } from '@/lib/chartColors'
+import { DL } from '@/lib/downloadColumns'
 
 export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latestYear }) {
   /* ── Trade trend by Year + TradeType (year-agnostic for trend) ────── */
@@ -64,7 +65,8 @@ export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latest
       {/* Trade trend line chart */}
       <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
-          <ChartCard title="TX-MX Trade Trends" subtitle="Annual trade value by direction">
+          <ChartCard title="TX-MX Trade Trends" subtitle="Annual trade value by direction"
+            downloadData={{ summary: { data: tradeTrend, filename: 'tx-mx-trade-trends', columns: DL.tradeTrendSeries } }}>
             <LineChart
               data={tradeTrend}
               xKey="year"
@@ -74,7 +76,8 @@ export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latest
             />
           </ChartCard>
 
-          <ChartCard title="Trade by Mode" subtitle="All selected years combined">
+          <ChartCard title="Trade by Mode" subtitle="All selected years combined"
+            downloadData={{ summary: { data: tradeByMode, filename: 'tx-mx-trade-by-mode', columns: DL.modeRank } }}>
             <DonutChart
               data={tradeByMode}
               nameKey="label"
@@ -88,7 +91,8 @@ export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latest
       {/* Top ports bar chart */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Top Ports of Entry" subtitle="Ranked by total trade value">
+          <ChartCard title="Top Ports of Entry" subtitle="Ranked by total trade value"
+            downloadData={{ summary: { data: topPorts, filename: 'tx-mx-top-ports', columns: DL.portRank } }}>
             <BarChart
               data={topPorts}
               xKey="label"

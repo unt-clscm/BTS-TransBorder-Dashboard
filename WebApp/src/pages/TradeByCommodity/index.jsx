@@ -14,6 +14,7 @@ import LineChart from '@/components/charts/LineChart'
 import TreemapChart from '@/components/charts/TreemapChart'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { DollarSign, Layers, Award, Package } from 'lucide-react'
+import { DL, PAGE_COMMODITY_COLS } from '@/lib/downloadColumns'
 
 export default function TradeByCommodityPage() {
   const { commodityDetail, loadDataset } = useTransborderStore()
@@ -353,6 +354,7 @@ function TradeByCommodityInner({ data }) {
           subtitle={treemapDrill
             ? 'Click a cell to explore, or use the breadcrumb above to go back'
             : 'Trade value by commodity group — click to drill into HS 2-digit codes'}
+          downloadData={{ summary: { data: treemapData, filename: 'commodity-groups', columns: DL.commodityGroupRank } }}
         >
           {treemapDrill && (
             <div className="text-sm text-text-secondary mb-2">
@@ -375,21 +377,30 @@ function TradeByCommodityInner({ data }) {
 
       {/* Bar: Top 10 Individual Commodities (horizontal) */}
       <SectionBlock>
-        <ChartCard title={`Top 10 Commodities (${latestYear || '—'})`} subtitle="Individual commodities ranked by trade value">
+        <ChartCard title={`Top 10 Commodities (${latestYear || '—'})`} subtitle="Individual commodities ranked by trade value"
+          downloadData={{ summary: { data: topCommoditiesBar, filename: 'top-10-commodities', columns: { Commodity: 'Commodity', TradeValue: 'Trade Value ($)' } } }}
+        >
           <BarChart data={topCommoditiesBar} xKey="Commodity" yKey="TradeValue" horizontal formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Line: Top 5 Commodity Group Trends */}
       <SectionBlock alt>
-        <ChartCard title="Top 5 Commodity Group Trends" subtitle="Annual trade value for the five largest commodity groups">
+        <ChartCard title="Top 5 Commodity Group Trends" subtitle="Annual trade value for the five largest commodity groups"
+          downloadData={{ summary: { data: trendData, filename: 'commodity-group-trends', columns: { Year: 'Year', TradeValue: 'Trade Value ($)', CommodityGroup: 'Commodity Group' } } }}
+        >
           <LineChart data={trendData} xKey="Year" yKey="TradeValue" seriesKey="CommodityGroup" formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Data Table */}
       <SectionBlock>
-        <ChartCard title={`Commodity Detail (${latestYear || '—'})`}>
+        <ChartCard title={`Commodity Detail (${latestYear || '—'})`}
+          downloadData={{
+            summary: { data: tableData, filename: 'commodity-detail', columns: DL.commodityDetail },
+            detail: { data: filtered, filename: 'commodity-detail-full', columns: PAGE_COMMODITY_COLS },
+          }}
+        >
           <DataTable data={tableData} columns={tableColumns} pageSize={15} />
         </ChartCard>
       </SectionBlock>

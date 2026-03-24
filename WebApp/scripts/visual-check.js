@@ -1,6 +1,6 @@
 /**
  * visual-check.js — Playwright visual & functional checker for the
- * Airport Connectivity dashboard (HashRouter SPA).
+ * TransBorder Freight Data dashboard (HashRouter SPA).
  *
  * Usage:
  *   node scripts/visual-check.js [baseUrl] [options]
@@ -47,52 +47,68 @@ const ROUTES = [
   {
     path: '/',
     label: 'Overview (Home)',
-    expect: 'Airport Connectivity',
+    expect: 'TransBorder Freight Data',
     hasCharts: true,
-    hasMap: false,    // Overview uses nav cards, not necessarily a map
-    minSvgs: 0,
-  },
-  {
-    path: '/texas-domestic',
-    label: 'Texas Domestic',
-    expect: 'Texas Domestic',
-    hasCharts: true,
-    hasMap: true,
-    minSvgs: 2,
-  },
-  {
-    path: '/texas-international',
-    label: 'Texas International',
-    expect: 'Texas International',
-    hasCharts: true,
-    hasMap: true,
+    hasMap: false,
     minSvgs: 2,
   },
   {
     path: '/us-mexico',
-    label: 'U.S.–Mexico',
+    label: 'U.S.\u2013Mexico Trade',
     expect: 'Mexico',
     hasCharts: true,
-    hasMap: true,
+    hasMap: false,
     minSvgs: 2,
+  },
+  {
+    path: '/us-mexico/ports',
+    label: 'U.S.\u2013Mexico Ports',
+    expect: 'Ports of Entry',
+    hasCharts: true,
+    hasMap: true,
+    minSvgs: 1,
   },
   {
     path: '/texas-mexico',
-    label: 'Texas–Mexico',
+    label: 'Texas\u2013Mexico',
     expect: 'Mexico',
     hasCharts: true,
-    hasMap: true,
-    minSvgs: 2,
+    hasMap: false,
+    minSvgs: 1,
     tabs: [
-      { key: 'overview',   label: 'Overview',              minSvgs: 2, hasMap: true  },
-      { key: 'passengers', label: 'Passengers & Routes',   minSvgs: 2, hasMap: false },
-      { key: 'operations', label: 'Operations & Capacity', minSvgs: 2, hasMap: false },
-      { key: 'cargo',      label: 'Cargo & Trade',         minSvgs: 2, hasMap: false },
-      { key: 'border',     label: 'Border Airports',       minSvgs: 1, hasMap: true  },
+      { key: 'overview',    label: 'Overview',    minSvgs: 1, hasMap: false },
+      { key: 'ports',       label: 'Ports',       minSvgs: 1, hasMap: true  },
+      { key: 'commodities', label: 'Commodities', minSvgs: 1, hasMap: false },
+      { key: 'modes',       label: 'Modes',       minSvgs: 1, hasMap: false },
+      { key: 'monthly',     label: 'Monthly',     minSvgs: 1, hasMap: false },
     ],
   },
   {
-    path: '/about-data',
+    path: '/trade-by-mode',
+    label: 'Trade by Mode',
+    expect: 'Transportation Mode',
+    hasCharts: true,
+    hasMap: false,
+    minSvgs: 2,
+  },
+  {
+    path: '/commodities',
+    label: 'Trade by Commodity',
+    expect: 'Commodity',
+    hasCharts: true,
+    hasMap: false,
+    minSvgs: 2,
+  },
+  {
+    path: '/trade-by-state',
+    label: 'Trade by State',
+    expect: 'State',
+    hasCharts: true,
+    hasMap: false,
+    minSvgs: 2,
+  },
+  {
+    path: '/about',
     label: 'About the Data',
     expect: 'About',
     hasCharts: false,
@@ -103,11 +119,9 @@ const ROUTES = [
 
 // --- Helpers ---
 function hashUrl(routePath) {
-  // HashRouter: http://localhost:5173/#/texas-domestic
   return routePath === '/' ? BASE + '/#/' : BASE + '/#' + routePath
 }
 
-// Module-level counters & helpers so all functions can access them
 let totalPass = 0
 let totalFail = 0
 
@@ -144,7 +158,7 @@ function fail(checks, label, detail) { checks.push({ ok: false, label, detail })
     try {
       await testPage.goto(BASE, { waitUntil: 'domcontentloaded', timeout: 8000 })
     } catch {
-      console.error(`\nCould not reach ${BASE} — is the dev server running?\n  Try: cd 07_WebApp && npm run dev\n`)
+      console.error(`\nCould not reach ${BASE} — is the dev server running?\n  Try: cd WebApp && npm run dev\n`)
       await browser.close()
       process.exit(2)
     }
@@ -176,11 +190,10 @@ function fail(checks, label, detail) { checks.push({ ok: false, label, detail })
     const checks = []
 
     try {
-      // Navigate using hash URL
       await page.goto(hashUrl(route.path), { waitUntil: 'networkidle', timeout: 15000 })
       await page.waitForTimeout(EXTRA_WAIT)
 
-      // ── Core checks (run on every route) ──
+      // ── Core checks ──
       await runCoreChecks(page, route, checks, pageErrors, consoleErrors, failedRequests)
 
       // ── Chart/SVG checks ──
@@ -210,12 +223,10 @@ function fail(checks, label, detail) { checks.push({ ok: false, label, detail })
           : route.tabs
 
         for (const tab of tabsToCheck) {
-          // Skip the first tab if it's already active and we're not filtering
           if (!ONLY_TAB && tab === route.tabs[0]) continue
 
           const tabChecks = []
           try {
-            // Click the tab button
             const tabButton = page.locator(`button[role="tab"]:has-text("${tab.label}")`)
             const tabCount = await tabButton.count()
             if (tabCount === 0) {
@@ -224,28 +235,23 @@ function fail(checks, label, detail) { checks.push({ ok: false, label, detail })
               continue
             }
             await tabButton.click()
-            await page.waitForTimeout(1500) // Wait for tab content to render
+            await page.waitForTimeout(1500)
 
-            // SVG checks within tab
             if (tab.minSvgs > 0) {
               await runChartChecks(page, tabChecks, tab.minSvgs)
             }
 
-            // Map check within tab
             if (tab.hasMap) {
               await runMapCheck(page, tabChecks)
             }
 
-            // JS errors during tab interaction
             if (pageErrors.length === 0) pass(tabChecks, 'No JS errors after tab switch')
             else fail(tabChecks, 'JS errors after tab switch', pageErrors.slice(-3).join('; '))
 
-            // Content check
             const tabBody = await page.textContent('body')
             if (tabBody.length > 100) pass(tabChecks, `Tab has content (${tabBody.length} chars)`)
             else fail(tabChecks, 'Tab has minimal content', `Only ${tabBody.length} chars`)
 
-            // Screenshot per tab
             if (SAVE_SCREENSHOTS) {
               const tabName = `texas-mexico-${tab.key}`
               await page.screenshot({ path: path.join(OUT_DIR, `${tabName}.png`), fullPage: true })
@@ -284,7 +290,7 @@ function fail(checks, label, detail) { checks.push({ ok: false, label, detail })
       console.log(`${icon}  ${r.route}`)
       for (const c of r.checks) {
         const mark = c.ok ? '  [ok]' : '  [FAIL]'
-        console.log(`${mark} ${c.label}${c.detail ? ' — ' + c.detail : ''}`)
+        console.log(`${mark} ${c.label}${c.detail ? ' \u2014 ' + c.detail : ''}`)
       }
       console.log('')
     }
@@ -306,11 +312,9 @@ function fail(checks, label, detail) { checks.push({ ok: false, label, detail })
 // ════════════════════════════════════════════════════════════════════════
 
 async function runCoreChecks(page, route, checks, pageErrors, consoleErrors, failedRequests) {
-  // 1. JS errors
   if (pageErrors.length === 0) pass(checks, 'No JS errors')
   else fail(checks, 'JS errors', pageErrors.join('; '))
 
-  // 2. React/framework errors in console
   const renderErrors = consoleErrors.filter(w =>
     w.includes('error boundary') ||
     w.includes('An error occurred') ||
@@ -322,23 +326,19 @@ async function runCoreChecks(page, route, checks, pageErrors, consoleErrors, fai
   if (renderErrors.length === 0) pass(checks, 'No render/framework errors')
   else fail(checks, 'Render errors', renderErrors.join('; '))
 
-  // 3. Page has content
   const bodyText = await page.textContent('body')
   if (bodyText.length > 50) pass(checks, `Has content (${bodyText.length} chars)`)
   else fail(checks, 'Page empty or minimal', `Only ${bodyText.length} chars`)
 
-  // 4. Expected text
   if (route.expect) {
     if (bodyText.includes(route.expect)) pass(checks, `Contains "${route.expect}"`)
     else fail(checks, 'Missing expected text', `"${route.expect}"`)
   }
 
-  // 5. Nav links present
   const navLinks = await page.locator('nav a').count()
   if (navLinks >= 5) pass(checks, `Nav has ${navLinks} links`)
   else fail(checks, 'Nav links missing', `Only ${navLinks} found`)
 
-  // 6. Broken images
   const brokenImgs = await page.evaluate(() => {
     return Array.from(document.querySelectorAll('img'))
       .filter(img => img.complete && img.naturalWidth === 0)
@@ -347,11 +347,9 @@ async function runCoreChecks(page, route, checks, pageErrors, consoleErrors, fai
   if (brokenImgs.length === 0) pass(checks, 'No broken images')
   else fail(checks, 'Broken images', brokenImgs.join(', '))
 
-  // 7. Failed network requests
   if (failedRequests.length === 0) pass(checks, 'No failed requests')
   else fail(checks, 'Failed requests', failedRequests.join('; '))
 
-  // 8. Interactive elements
   const interactiveCount = await page.evaluate(() => {
     return document.querySelectorAll('button, a, select, input, [role="button"], [role="tab"]').length
   })
@@ -360,12 +358,10 @@ async function runCoreChecks(page, route, checks, pageErrors, consoleErrors, fai
 }
 
 async function runChartChecks(page, checks, minSvgs) {
-  // Count SVG elements (D3 charts render as SVGs)
   const svgCount = await page.locator('svg').count()
-  if (svgCount >= minSvgs) pass(checks, `${svgCount} SVG charts rendered (need ≥${minSvgs})`)
-  else fail(checks, 'Too few charts', `Found ${svgCount} SVGs, expected ≥${minSvgs}`)
+  if (svgCount >= minSvgs) pass(checks, `${svgCount} SVG charts rendered (need \u2265${minSvgs})`)
+  else fail(checks, 'Too few charts', `Found ${svgCount} SVGs, expected \u2265${minSvgs}`)
 
-  // Check that SVGs have actual content (not empty shells)
   const svgsWithContent = await page.evaluate(() => {
     return Array.from(document.querySelectorAll('svg'))
       .filter(svg => svg.children.length > 0)
@@ -380,7 +376,6 @@ async function runMapCheck(page, checks) {
   if (mapCount > 0) pass(checks, `${mapCount} Leaflet map(s) present`)
   else fail(checks, 'No Leaflet map found')
 
-  // Check that map tiles loaded
   if (mapCount > 0) {
     const tileCount = await page.locator('.leaflet-tile-loaded').count()
     if (tileCount > 0) pass(checks, `Map tiles loaded (${tileCount} tiles)`)
@@ -389,20 +384,16 @@ async function runMapCheck(page, checks) {
 }
 
 async function runDataLoadCheck(page, checks) {
-  // Verify data actually loaded by checking for NaN or common error states
   const bodyText = await page.textContent('body')
 
-  // Check for NaN in displayed values (sign of broken data)
   const nanMatches = bodyText.match(/\bNaN\b/g)
   if (!nanMatches) pass(checks, 'No NaN values in page')
   else fail(checks, 'NaN values detected', `${nanMatches.length} occurrence(s)`)
 
-  // Check for "undefined" in visible text (sign of missing data)
   const undefMatches = bodyText.match(/\bundefined\b/gi)
   if (!undefMatches) pass(checks, 'No "undefined" in page text')
   else fail(checks, '"undefined" text detected', `${undefMatches.length} occurrence(s)`)
 
-  // Check for loading spinners still visible (data not finished loading)
   const spinners = await page.locator('[class*="spinner"], [class*="loading"], [class*="skeleton"]').count()
   if (spinners === 0) pass(checks, 'No stuck loading indicators')
   else fail(checks, 'Loading indicators still visible', `${spinners} element(s)`)

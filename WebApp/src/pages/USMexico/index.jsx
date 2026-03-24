@@ -16,6 +16,7 @@ import DonutChart from '@/components/charts/DonutChart'
 import BarChart from '@/components/charts/BarChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
+import { DL, PAGE_TRANSBORDER_COLS, PAGE_PORT_COLS } from '@/lib/downloadColumns'
 
 /* ── COVID annotation ─────────────────────────────────────────────── */
 const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
@@ -342,6 +343,10 @@ export default function USMexicoPage() {
         <ChartCard
           title="U.S.-Mexico Trade Trends"
           subtitle="Annual trade value by trade type"
+          downloadData={{
+            summary: { data: tradeTrendData, filename: 'us-mexico-trade-trends', columns: DL.tradeTrendSeries },
+            detail:  { data: filteredSummary, filename: 'us-mexico-trade-detail', columns: PAGE_TRANSBORDER_COLS },
+          }}
         >
           <LineChart
             data={tradeTrendData}
@@ -359,6 +364,9 @@ export default function USMexicoPage() {
         <ChartCard
           title={`Trade by Mode (${latestYear || '---'})`}
           subtitle="Distribution of trade value across transportation modes"
+          downloadData={{
+            summary: { data: modeDonutData, filename: 'us-mexico-trade-by-mode', columns: DL.modeRank },
+          }}
         >
           <DonutChart
             data={modeDonutData}
@@ -374,6 +382,9 @@ export default function USMexicoPage() {
         <ChartCard
           title="Top 15 Ports by Trade Value"
           subtitle="Ports of entry ranked by total trade"
+          downloadData={{
+            summary: { data: topPortsData, filename: 'us-mexico-top-ports', columns: DL.portRank },
+          }}
         >
           <BarChart
             data={topPortsData}
@@ -391,6 +402,9 @@ export default function USMexicoPage() {
         <ChartCard
           title="Mode Composition by Year"
           subtitle="How trade value is distributed across modes over time"
+          downloadData={{
+            summary: { data: modeByYearData.data, filename: 'us-mexico-mode-by-year' },
+          }}
         >
           <StackedBarChart
             data={modeByYearData.data}
@@ -406,6 +420,10 @@ export default function USMexicoPage() {
         <ChartCard
           title="Port Detail"
           subtitle="Trade values by port of entry"
+          downloadData={{
+            summary: { data: portTableData, filename: 'us-mexico-port-detail', columns: DL.portDetail },
+            detail:  { data: filteredPorts, filename: 'us-mexico-ports-raw', columns: PAGE_PORT_COLS },
+          }}
         >
           <DataTable
             columns={portTableColumns}

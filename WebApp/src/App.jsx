@@ -10,8 +10,6 @@ const OverviewPage = lazy(() => import('@/pages/Overview'))
 const USMexicoPage = lazy(() => import('@/pages/USMexico'))
 const USMexicoPortsPage = lazy(() => import('@/pages/USMexicoPorts'))
 const TexasMexicoPage = lazy(() => import('@/pages/TexasMexico'))
-const TradeByModePage = lazy(() => import('@/pages/TradeByMode'))
-const TradeByCommodityPage = lazy(() => import('@/pages/TradeByCommodity'))
 const TradeByStatePage = lazy(() => import('@/pages/TradeByState'))
 const AboutPage = lazy(() => import('@/pages/About'))
 const EmbedPage = lazy(() => import('@/pages/EmbedPage'))
@@ -80,8 +78,6 @@ function AppContent() {
               <Route path="/us-mexico" element={<USMexicoPage />} />
               <Route path="/us-mexico/ports" element={<USMexicoPortsPage />} />
               <Route path="/texas-mexico" element={<TexasMexicoPage />} />
-              <Route path="/trade-by-mode" element={<TradeByModePage />} />
-              <Route path="/commodities" element={<TradeByCommodityPage />} />
               <Route path="/trade-by-state" element={<TradeByStatePage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/embed/:pageId/:chartId" element={<EmbedPage />} />

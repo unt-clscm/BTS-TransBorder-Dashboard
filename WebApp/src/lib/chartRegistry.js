@@ -49,17 +49,6 @@ function buildCountryStack(rows) {
   return { data, keys }
 }
 
-function buildModeTrend(rows) {
-  const map = {}
-  for (const d of rows) {
-    if (!d.Year || !d.Mode) continue
-    const key = `${d.Year}_${d.Mode}`
-    if (!map[key]) map[key] = { year: d.Year, value: 0, series: d.Mode }
-    map[key].value += d.TradeValue || 0
-  }
-  return Object.values(map).sort((a, b) => a.year - b.year || a.series.localeCompare(b.series))
-}
-
 function buildTopPorts(rows, latestYear, limit = 15) {
   const map = {}
   for (const d of rows) {
@@ -119,22 +108,6 @@ export const CHART_REGISTRY = {
         return { data, extraProps: { stackKeys: keys } }
       },
       props: { xKey: 'year', formatValue: formatCurrency },
-    },
-  },
-  'trade-by-mode': {
-    'mode-trends': {
-      title: 'Mode Trends Over Time',
-      dataset: 'usTransborder',
-      chartType: 'LineChart',
-      build: (rows) => ({ data: buildModeTrend(rows) }),
-      props: { xKey: 'year', yKey: 'value', seriesKey: 'series', formatValue: formatCurrency },
-    },
-    'mode-share': {
-      title: 'Mode Share',
-      dataset: 'usTransborder',
-      chartType: 'DonutChart',
-      build: (rows) => ({ data: buildModeDonut(rows, getLatestYear(rows)) }),
-      props: { nameKey: 'label', valueKey: 'value', formatValue: formatCurrency },
     },
   },
   'us-mexico': {

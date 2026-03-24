@@ -18,8 +18,6 @@ const ROUTES = [
   { path: '/us-mexico', expect: 'Mexico', minSvgs: 2 },
   { path: '/us-mexico/ports', expect: 'Ports of Entry', minSvgs: 1 },
   { path: '/texas-mexico', expect: 'Mexico', minSvgs: 1 },
-  { path: '/trade-by-mode', expect: 'Transportation Mode', minSvgs: 2 },
-  { path: '/commodities', expect: 'Commodity', minSvgs: 2 },
   { path: '/trade-by-state', expect: 'State', minSvgs: 2 },
   { path: '/about', expect: 'About', minSvgs: 0 },
 ]

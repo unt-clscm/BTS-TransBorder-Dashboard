@@ -74,8 +74,6 @@ async function testAllRoutes(page, results) {
     { path: '/us-mexico', expect: 'Mexico', name: 'US-Mexico', minSvgs: 2 },
     { path: '/us-mexico/ports', expect: 'Ports of Entry', name: 'US-Mexico Ports', minSvgs: 1 },
     { path: '/texas-mexico', expect: 'Mexico', name: 'Texas-Mexico', minSvgs: 1 },
-    { path: '/trade-by-mode', expect: 'Transportation Mode', name: 'Trade by Mode', minSvgs: 2 },
-    { path: '/commodities', expect: 'Commodity', name: 'Commodities', minSvgs: 2 },
     { path: '/trade-by-state', expect: 'State', name: 'Trade by State', minSvgs: 2 },
     { path: '/about', expect: 'About', name: 'About', minSvgs: 0 },
   ]
@@ -234,33 +232,10 @@ async function testDataTable(page, results) {
   }
 }
 
-/* ── Test 6: Treemap renders on commodity page ── */
-async function testTreemap(page, results) {
-  await openRoute(page, '/commodities', 'Commodity')
-
-  // Look for treemap SVG rects
-  const treemapCard = chartCardLocator(page, 'Commodity Group')
-  await treemapCard.waitFor({ timeout: 15000 })
-  const rectCount = await treemapCard.locator('svg rect').count()
-  assert(rectCount >= 3, `Treemap should have >= 3 rects, found ${rectCount}`)
-  results.push(`Treemap renders ok (${rectCount} rects)`)
-
-  // PNG export of treemap
-  const [treemapPng] = await Promise.all([
-    page.waitForEvent('download', { timeout: 15000 }),
-    treemapCard.locator('button[title="Export as PNG"]').click(),
-  ])
-  const info = await saveDownload(treemapPng, 'treemap-png')
-  assert(info.size > 2000, 'Treemap PNG suspiciously small')
-  results.push(`Treemap PNG export ok (${(info.size / 1024).toFixed(0)} KB)`)
-}
-
-/* ── Test 7: CSV download wiring audit ── */
+/* ── Test 6: CSV download wiring audit ── */
 async function auditCsvDownloads(page, results) {
   const pagesWithCharts = [
     { path: '/us-mexico', name: 'US-Mexico' },
-    { path: '/trade-by-mode', name: 'Trade by Mode' },
-    { path: '/commodities', name: 'Commodities' },
     { path: '/trade-by-state', name: 'Trade by State' },
   ]
 
@@ -306,7 +281,6 @@ async function main() {
     await testFullscreen(page, results)
     await testSidebarFilters(page, results)
     await testDataTable(page, results)
-    await testTreemap(page, results)
     await auditCsvDownloads(page, results)
 
     // Report runtime errors

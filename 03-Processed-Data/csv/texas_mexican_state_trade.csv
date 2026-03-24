@@ -1,0 +1,1838 @@
+Year,MexState,Mode,TradeType,TradeValue,Weight
+2007,Aguascalientes,Other/Unknown,Export,8450.0,0.0
+2007,Aguascalientes,Rail,Export,57465800.0,0.0
+2007,Aguascalientes,Truck,Export,592017036.0,0.0
+2007,Baja California,Other/Unknown,Export,282760.0,0.0
+2007,Baja California,Rail,Export,239709541.0,0.0
+2007,Baja California,Truck,Export,103020503.0,0.0
+2007,Baja California Sur,Other/Unknown,Export,16632.0,0.0
+2007,Baja California Sur,Rail,Export,6465.0,0.0
+2007,Baja California Sur,Truck,Export,7086997.0,0.0
+2007,Campeche,Truck,Export,46302106.0,0.0
+2007,Chiapas,Other/Unknown,Export,40000.0,0.0
+2007,Chiapas,Truck,Export,3063211.0,0.0
+2007,Chihuahua,Other/Unknown,Export,11814972.0,0.0
+2007,Chihuahua,Pipeline,Export,322083387.0,0.0
+2007,Chihuahua,Rail,Export,276677788.0,0.0
+2007,Chihuahua,Truck,Export,17449622922.0,0.0
+2007,Coahuila,Other/Unknown,Export,2589118.0,0.0
+2007,Coahuila,Pipeline,Export,5679936.0,0.0
+2007,Coahuila,Rail,Export,2918268206.0,0.0
+2007,Coahuila,Truck,Export,5610566010.0,0.0
+2007,Colima,Rail,Export,308187.0,0.0
+2007,Colima,Truck,Export,50060944.0,0.0
+2007,Distrito Federal,Other/Unknown,Export,92771312.0,0.0
+2007,Distrito Federal,Pipeline,Export,217455027.0,0.0
+2007,Distrito Federal,Rail,Export,3190760737.0,0.0
+2007,Distrito Federal,Truck,Export,8371666168.0,0.0
+2007,Durango,Other/Unknown,Export,2579694.0,0.0
+2007,Durango,Rail,Export,348756900.0,0.0
+2007,Durango,Truck,Export,268779018.0,0.0
+2007,Estado de Mexico,Other/Unknown,Export,89634587.0,0.0
+2007,Estado de Mexico,Pipeline,Export,228145613.0,0.0
+2007,Estado de Mexico,Rail,Export,3669192099.0,0.0
+2007,Estado de Mexico,Truck,Export,10458703513.0,0.0
+2007,Guanajuato,Other/Unknown,Export,1092366.0,0.0
+2007,Guanajuato,Rail,Export,2189649864.0,0.0
+2007,Guanajuato,Truck,Export,1647132476.0,0.0
+2007,Guerrero,Truck,Export,52198478.0,0.0
+2007,Hidalgo,Other/Unknown,Export,160353.0,0.0
+2007,Hidalgo,Rail,Export,49647512.0,0.0
+2007,Hidalgo,Truck,Export,247439522.0,0.0
+2007,Jalisco,Other/Unknown,Export,695388.0,0.0
+2007,Jalisco,Rail,Export,1822534982.0,0.0
+2007,Jalisco,Truck,Export,3582055007.0,0.0
+2007,Michoacan,Other/Unknown,Export,1313135.0,0.0
+2007,Michoacan,Rail,Export,176595738.0,0.0
+2007,Michoacan,Truck,Export,190331069.0,0.0
+2007,Morelos,Other/Unknown,Export,42871.0,0.0
+2007,Morelos,Rail,Export,192988695.0,0.0
+2007,Morelos,Truck,Export,128240649.0,0.0
+2007,Nuevo Leon,Other/Unknown,Export,2518937.0,0.0
+2007,Nuevo Leon,Rail,Export,1345803432.0,0.0
+2007,Nuevo Leon,Truck,Export,8231768953.0,0.0
+2007,Oaxaca,Rail,Export,18771992.0,0.0
+2007,Oaxaca,Truck,Export,15658769.0,0.0
+2007,Puebla,Other/Unknown,Export,167369.0,0.0
+2007,Puebla,Rail,Export,35867974.0,0.0
+2007,Puebla,Truck,Export,560770106.0,0.0
+2007,Queretaro,Other/Unknown,Export,327349.0,0.0
+2007,Queretaro,Rail,Export,374156825.0,0.0
+2007,Queretaro,Truck,Export,821358567.0,0.0
+2007,Quintana Roo,Rail,Export,18280211.0,0.0
+2007,Quintana Roo,Truck,Export,289780225.0,0.0
+2007,San Luis Potosi,Rail,Export,289553014.0,0.0
+2007,San Luis Potosi,Truck,Export,998339591.0,0.0
+2007,Sinaloa,Rail,Export,16663990.0,0.0
+2007,Sinaloa,Truck,Export,135347258.0,0.0
+2007,Sonora,Other/Unknown,Export,30560.0,0.0
+2007,Sonora,Rail,Export,22303089.0,0.0
+2007,Sonora,Truck,Export,135790880.0,0.0
+2007,Tabasco,Rail,Export,109264.0,0.0
+2007,Tabasco,Truck,Export,164946331.0,0.0
+2007,Tamaulipas,Other/Unknown,Export,32356644.0,0.0
+2007,Tamaulipas,Rail,Export,165886079.0,0.0
+2007,Tamaulipas,Truck,Export,10291540328.0,0.0
+2007,Tlaxcala,Other/Unknown,Export,2720725.0,0.0
+2007,Tlaxcala,Rail,Export,50351357.0,0.0
+2007,Tlaxcala,Truck,Export,224640471.0,0.0
+2007,Veracruz,Other/Unknown,Export,3283.0,0.0
+2007,Veracruz,Rail,Export,79185996.0,0.0
+2007,Veracruz,Truck,Export,308968777.0,0.0
+2007,Yucatan,Other/Unknown,Export,3836.0,0.0
+2007,Yucatan,Rail,Export,136589058.0,0.0
+2007,Yucatan,Truck,Export,46778590.0,0.0
+2007,Zacatecas,Rail,Export,50388637.0,0.0
+2007,Zacatecas,Truck,Export,157987626.0,0.0
+2008,Aguascalientes,Other/Unknown,Export,61959.0,0.0
+2008,Aguascalientes,Rail,Export,38853889.0,0.0
+2008,Aguascalientes,Truck,Export,727935721.0,0.0
+2008,Baja California,Other/Unknown,Export,85358.0,0.0
+2008,Baja California,Rail,Export,104143082.0,0.0
+2008,Baja California,Truck,Export,105347009.0,0.0
+2008,Baja California Sur,Rail,Export,4496871.0,0.0
+2008,Baja California Sur,Truck,Export,4386332.0,0.0
+2008,Campeche,Rail,Export,6269393.0,0.0
+2008,Campeche,Truck,Export,73305080.0,0.0
+2008,Chiapas,Other/Unknown,Export,3600.0,0.0
+2008,Chiapas,Rail,Export,4612499.0,0.0
+2008,Chiapas,Truck,Export,4829498.0,0.0
+2008,Chihuahua,Other/Unknown,Export,22093935.0,0.0
+2008,Chihuahua,Pipeline,Export,446565417.0,0.0
+2008,Chihuahua,Rail,Export,306657336.0,0.0
+2008,Chihuahua,Truck,Export,17031865355.0,0.0
+2008,Coahuila,Other/Unknown,Export,18580923.0,0.0
+2008,Coahuila,Pipeline,Export,3758693.0,0.0
+2008,Coahuila,Rail,Export,2091190886.0,0.0
+2008,Coahuila,Truck,Export,5627858916.0,0.0
+2008,Colima,Rail,Export,4738727.0,0.0
+2008,Colima,Truck,Export,77370004.0,0.0
+2008,Distrito Federal,Other/Unknown,Export,82751661.0,0.0
+2008,Distrito Federal,Pipeline,Export,486064508.0,0.0
+2008,Distrito Federal,Rail,Export,4021948955.0,0.0
+2008,Distrito Federal,Truck,Export,9726227352.0,0.0
+2008,Durango,Other/Unknown,Export,130794.0,0.0
+2008,Durango,Rail,Export,511302605.0,0.0
+2008,Durango,Truck,Export,473726299.0,0.0
+2008,Estado de Mexico,Other/Unknown,Export,98192394.0,0.0
+2008,Estado de Mexico,Pipeline,Export,248356531.0,0.0
+2008,Estado de Mexico,Rail,Export,4516852724.0,0.0
+2008,Estado de Mexico,Truck,Export,12588890046.0,0.0
+2008,Guanajuato,Other/Unknown,Export,274095.0,0.0
+2008,Guanajuato,Rail,Export,1659819677.0,0.0
+2008,Guanajuato,Truck,Export,1706057434.0,0.0
+2008,Guerrero,Other/Unknown,Export,117000.0,0.0
+2008,Guerrero,Rail,Export,3262201.0,0.0
+2008,Guerrero,Truck,Export,68204126.0,0.0
+2008,Hidalgo,Other/Unknown,Export,413221.0,0.0
+2008,Hidalgo,Rail,Export,124921986.0,0.0
+2008,Hidalgo,Truck,Export,310083650.0,0.0
+2008,Jalisco,Other/Unknown,Export,925602.0,0.0
+2008,Jalisco,Rail,Export,2335442662.0,0.0
+2008,Jalisco,Truck,Export,3529342535.0,0.0
+2008,Michoacan,Other/Unknown,Export,374905.0,0.0
+2008,Michoacan,Rail,Export,207612974.0,0.0
+2008,Michoacan,Truck,Export,158610601.0,0.0
+2008,Morelos,Other/Unknown,Export,487874.0,0.0
+2008,Morelos,Rail,Export,68381777.0,0.0
+2008,Morelos,Truck,Export,133614271.0,0.0
+2008,Nuevo Leon,Other/Unknown,Export,68524262.0,0.0
+2008,Nuevo Leon,Rail,Export,1795955142.0,0.0
+2008,Nuevo Leon,Truck,Export,9490980548.0,0.0
+2008,Oaxaca,Other/Unknown,Export,110250.0,0.0
+2008,Oaxaca,Rail,Export,52085562.0,0.0
+2008,Oaxaca,Truck,Export,23865441.0,0.0
+2008,Puebla,Other/Unknown,Export,1027987.0,0.0
+2008,Puebla,Rail,Export,90385129.0,0.0
+2008,Puebla,Truck,Export,658287255.0,0.0
+2008,Queretaro,Other/Unknown,Export,122602.0,0.0
+2008,Queretaro,Rail,Export,544161897.0,0.0
+2008,Queretaro,Truck,Export,948788330.0,0.0
+2008,Quintana Roo,Other/Unknown,Export,649000.0,0.0
+2008,Quintana Roo,Rail,Export,20380731.0,0.0
+2008,Quintana Roo,Truck,Export,487426264.0,0.0
+2008,San Luis Potosi,Other/Unknown,Export,77743.0,0.0
+2008,San Luis Potosi,Rail,Export,286047764.0,0.0
+2008,San Luis Potosi,Truck,Export,973510081.0,0.0
+2008,Sinaloa,Other/Unknown,Export,68480.0,0.0
+2008,Sinaloa,Rail,Export,20599692.0,0.0
+2008,Sinaloa,Truck,Export,263884762.0,0.0
+2008,Sonora,Rail,Export,36406636.0,0.0
+2008,Sonora,Truck,Export,158344679.0,0.0
+2008,Tabasco,Other/Unknown,Export,301947.0,0.0
+2008,Tabasco,Rail,Export,10160331.0,0.0
+2008,Tabasco,Truck,Export,289485539.0,0.0
+2008,Tamaulipas,Other/Unknown,Export,41216552.0,0.0
+2008,Tamaulipas,Rail,Export,232535384.0,0.0
+2008,Tamaulipas,Truck,Export,11074393666.0,0.0
+2008,Tlaxcala,Other/Unknown,Export,170082.0,0.0
+2008,Tlaxcala,Rail,Export,39262629.0,0.0
+2008,Tlaxcala,Truck,Export,243956786.0,0.0
+2008,Veracruz,Other/Unknown,Export,29654596.0,0.0
+2008,Veracruz,Rail,Export,110127775.0,0.0
+2008,Veracruz,Truck,Export,275980828.0,0.0
+2008,Yucatan,Rail,Export,185217469.0,0.0
+2008,Yucatan,Truck,Export,45670119.0,0.0
+2008,Zacatecas,Other/Unknown,Export,479284.0,0.0
+2008,Zacatecas,Rail,Export,140967859.0,0.0
+2008,Zacatecas,Truck,Export,221753166.0,0.0
+2009,Aguascalientes,Other/Unknown,Export,371736.0,0.0
+2009,Aguascalientes,Rail,Export,54032589.0,0.0
+2009,Aguascalientes,Truck,Export,579785985.0,0.0
+2009,Baja California,Other/Unknown,Export,19324.0,0.0
+2009,Baja California,Rail,Export,27326033.0,0.0
+2009,Baja California,Truck,Export,89944557.0,0.0
+2009,Baja California Sur,Rail,Export,3767016.0,0.0
+2009,Baja California Sur,Truck,Export,2986109.0,0.0
+2009,Campeche,Other/Unknown,Export,55900.0,0.0
+2009,Campeche,Rail,Export,3995805.0,0.0
+2009,Campeche,Truck,Export,162052363.0,0.0
+2009,Chiapas,Other/Unknown,Export,1007888.0,0.0
+2009,Chiapas,Rail,Export,4645105.0,0.0
+2009,Chiapas,Truck,Export,4917814.0,0.0
+2009,Chihuahua,Other/Unknown,Export,18656636.0,0.0
+2009,Chihuahua,Pipeline,Export,105700394.0,0.0
+2009,Chihuahua,Rail,Export,251022971.0,0.0
+2009,Chihuahua,Truck,Export,15429419627.0,0.0
+2009,Coahuila,Other/Unknown,Export,6976109.0,0.0
+2009,Coahuila,Pipeline,Export,3135626.0,0.0
+2009,Coahuila,Rail,Export,1349046440.0,0.0
+2009,Coahuila,Truck,Export,4268066671.0,0.0
+2009,Colima,Other/Unknown,Export,3000.0,0.0
+2009,Colima,Rail,Export,2331099.0,0.0
+2009,Colima,Truck,Export,71676676.0,0.0
+2009,Distrito Federal,Other/Unknown,Export,10722391.0,0.0
+2009,Distrito Federal,Pipeline,Export,387375972.0,0.0
+2009,Distrito Federal,Rail,Export,2700656887.0,0.0
+2009,Distrito Federal,Truck,Export,9524125098.0,0.0
+2009,Durango,Other/Unknown,Export,377398.0,0.0
+2009,Durango,Rail,Export,580460442.0,0.0
+2009,Durango,Truck,Export,292168963.0,0.0
+2009,Estado de Mexico,Other/Unknown,Export,167528229.0,0.0
+2009,Estado de Mexico,Pipeline,Export,29551785.0,0.0
+2009,Estado de Mexico,Rail,Export,3049825297.0,0.0
+2009,Estado de Mexico,Truck,Export,11210771509.0,0.0
+2009,Guanajuato,Other/Unknown,Export,932295.0,0.0
+2009,Guanajuato,Rail,Export,1182666779.0,0.0
+2009,Guanajuato,Truck,Export,1747358680.0,0.0
+2009,Guerrero,Other/Unknown,Export,410700.0,0.0
+2009,Guerrero,Rail,Export,1309817.0,0.0
+2009,Guerrero,Truck,Export,43514315.0,0.0
+2009,Hidalgo,Other/Unknown,Export,1129245.0,0.0
+2009,Hidalgo,Rail,Export,92946250.0,0.0
+2009,Hidalgo,Truck,Export,363683475.0,0.0
+2009,Jalisco,Other/Unknown,Export,4965856.0,0.0
+2009,Jalisco,Rail,Export,1355184603.0,0.0
+2009,Jalisco,Truck,Export,3113681181.0,0.0
+2009,Michoacan,Other/Unknown,Export,1259086.0,0.0
+2009,Michoacan,Rail,Export,113171818.0,0.0
+2009,Michoacan,Truck,Export,101472390.0,0.0
+2009,Morelos,Other/Unknown,Export,2637582.0,0.0
+2009,Morelos,Rail,Export,34752937.0,0.0
+2009,Morelos,Truck,Export,173800081.0,0.0
+2009,Nuevo Leon,Other/Unknown,Export,55133371.0,0.0
+2009,Nuevo Leon,Rail,Export,1467313943.0,0.0
+2009,Nuevo Leon,Truck,Export,7923786147.0,0.0
+2009,Oaxaca,Other/Unknown,Export,84200.0,0.0
+2009,Oaxaca,Rail,Export,47010604.0,0.0
+2009,Oaxaca,Truck,Export,17670209.0,0.0
+2009,Puebla,Other/Unknown,Export,8827532.0,0.0
+2009,Puebla,Rail,Export,51950138.0,0.0
+2009,Puebla,Truck,Export,627270621.0,0.0
+2009,Queretaro,Other/Unknown,Export,292549.0,0.0
+2009,Queretaro,Rail,Export,311733409.0,0.0
+2009,Queretaro,Truck,Export,1033105327.0,0.0
+2009,Quintana Roo,Other/Unknown,Export,359825.0,0.0
+2009,Quintana Roo,Rail,Export,25335287.0,0.0
+2009,Quintana Roo,Truck,Export,544300573.0,0.0
+2009,San Luis Potosi,Other/Unknown,Export,665651.0,0.0
+2009,San Luis Potosi,Rail,Export,188509994.0,0.0
+2009,San Luis Potosi,Truck,Export,975285888.0,0.0
+2009,Sinaloa,Other/Unknown,Export,50000.0,0.0
+2009,Sinaloa,Rail,Export,23419456.0,0.0
+2009,Sinaloa,Truck,Export,221845531.0,0.0
+2009,Sonora,Other/Unknown,Export,53930.0,0.0
+2009,Sonora,Rail,Export,22112897.0,0.0
+2009,Sonora,Truck,Export,126369514.0,0.0
+2009,Tabasco,Other/Unknown,Export,3176359.0,0.0
+2009,Tabasco,Rail,Export,9362277.0,0.0
+2009,Tabasco,Truck,Export,515478795.0,0.0
+2009,Tamaulipas,Other/Unknown,Export,48935264.0,0.0
+2009,Tamaulipas,Rail,Export,212842964.0,0.0
+2009,Tamaulipas,Truck,Export,9260456884.0,0.0
+2009,Tlaxcala,Other/Unknown,Export,33455.0,0.0
+2009,Tlaxcala,Rail,Export,30325796.0,0.0
+2009,Tlaxcala,Truck,Export,138280847.0,0.0
+2009,Veracruz,Other/Unknown,Export,11639299.0,0.0
+2009,Veracruz,Rail,Export,90372547.0,0.0
+2009,Veracruz,Truck,Export,311061493.0,0.0
+2009,Yucatan,Other/Unknown,Export,3451.0,0.0
+2009,Yucatan,Rail,Export,136654592.0,0.0
+2009,Yucatan,Truck,Export,36146302.0,0.0
+2009,Zacatecas,Other/Unknown,Export,1311039.0,0.0
+2009,Zacatecas,Rail,Export,102899653.0,0.0
+2009,Zacatecas,Truck,Export,237117668.0,0.0
+2010,Aguascalientes,Other/Unknown,Export,138045.0,0.0
+2010,Aguascalientes,Rail,Export,94970185.0,0.0
+2010,Aguascalientes,Truck,Export,774658896.0,0.0
+2010,Baja California,Other/Unknown,Export,132622.0,0.0
+2010,Baja California,Rail,Export,25976416.0,0.0
+2010,Baja California,Truck,Export,191118773.0,0.0
+2010,Baja California Sur,Rail,Export,3559122.0,0.0
+2010,Baja California Sur,Truck,Export,2517184.0,0.0
+2010,Campeche,Other/Unknown,Export,135577.0,0.0
+2010,Campeche,Rail,Export,3619371.0,0.0
+2010,Campeche,Truck,Export,90483329.0,0.0
+2010,Chiapas,Other/Unknown,Export,181760.0,0.0
+2010,Chiapas,Rail,Export,6520257.0,0.0
+2010,Chiapas,Truck,Export,10607022.0,0.0
+2010,Chihuahua,Other/Unknown,Export,47343246.0,0.0
+2010,Chihuahua,Pipeline,Export,231710239.0,0.0
+2010,Chihuahua,Rail,Export,271191728.0,0.0
+2010,Chihuahua,Truck,Export,19703844126.0,0.0
+2010,Coahuila,Other/Unknown,Export,12261921.0,0.0
+2010,Coahuila,Rail,Export,2039470500.0,0.0
+2010,Coahuila,Truck,Export,5756538655.0,0.0
+2010,Colima,Other/Unknown,Export,85000.0,0.0
+2010,Colima,Rail,Export,5021121.0,0.0
+2010,Colima,Truck,Export,137341950.0,0.0
+2010,Distrito Federal,Other/Unknown,Export,6317437.0,0.0
+2010,Distrito Federal,Pipeline,Export,1366680754.0,0.0
+2010,Distrito Federal,Rail,Export,3328715682.0,0.0
+2010,Distrito Federal,Truck,Export,11271729102.0,0.0
+2010,Durango,Other/Unknown,Export,1164663.0,0.0
+2010,Durango,Rail,Export,638576606.0,0.0
+2010,Durango,Truck,Export,411781800.0,0.0
+2010,Estado de Mexico,Other/Unknown,Export,169166059.0,0.0
+2010,Estado de Mexico,Pipeline,Export,242399387.0,0.0
+2010,Estado de Mexico,Rail,Export,3838859636.0,0.0
+2010,Estado de Mexico,Truck,Export,12916176725.0,0.0
+2010,Guanajuato,Other/Unknown,Export,1305569.0,0.0
+2010,Guanajuato,Rail,Export,1866637764.0,0.0
+2010,Guanajuato,Truck,Export,2564182833.0,0.0
+2010,Guerrero,Other/Unknown,Export,1424666.0,0.0
+2010,Guerrero,Rail,Export,6247451.0,0.0
+2010,Guerrero,Truck,Export,30294100.0,0.0
+2010,Hidalgo,Other/Unknown,Export,1999886.0,0.0
+2010,Hidalgo,Rail,Export,113084114.0,0.0
+2010,Hidalgo,Truck,Export,393679745.0,0.0
+2010,Jalisco,Other/Unknown,Export,5757962.0,0.0
+2010,Jalisco,Rail,Export,1837548753.0,0.0
+2010,Jalisco,Truck,Export,4061394851.0,0.0
+2010,Michoacan,Other/Unknown,Export,1870278.0,0.0
+2010,Michoacan,Rail,Export,151463721.0,0.0
+2010,Michoacan,Truck,Export,148318666.0,0.0
+2010,Morelos,Other/Unknown,Export,2002792.0,0.0
+2010,Morelos,Rail,Export,50413934.0,0.0
+2010,Morelos,Truck,Export,201750826.0,0.0
+2010,Nuevo Leon,Other/Unknown,Export,60127657.0,0.0
+2010,Nuevo Leon,Rail,Export,1759149675.0,0.0
+2010,Nuevo Leon,Truck,Export,10165728181.0,0.0
+2010,Oaxaca,Other/Unknown,Export,43881.0,0.0
+2010,Oaxaca,Rail,Export,14251818.0,0.0
+2010,Oaxaca,Truck,Export,12716788.0,0.0
+2010,Puebla,Other/Unknown,Export,8874261.0,0.0
+2010,Puebla,Rail,Export,72625494.0,0.0
+2010,Puebla,Truck,Export,856367726.0,0.0
+2010,Queretaro,Other/Unknown,Export,773696.0,0.0
+2010,Queretaro,Pipeline,Export,108652.0,0.0
+2010,Queretaro,Rail,Export,393480714.0,0.0
+2010,Queretaro,Truck,Export,1587694206.0,0.0
+2010,Quintana Roo,Other/Unknown,Export,175623.0,0.0
+2010,Quintana Roo,Rail,Export,44907670.0,0.0
+2010,Quintana Roo,Truck,Export,591010948.0,0.0
+2010,San Luis Potosi,Other/Unknown,Export,151259.0,0.0
+2010,San Luis Potosi,Rail,Export,208429728.0,0.0
+2010,San Luis Potosi,Truck,Export,1406018768.0,0.0
+2010,Sinaloa,Other/Unknown,Export,1074024.0,0.0
+2010,Sinaloa,Rail,Export,23238979.0,0.0
+2010,Sinaloa,Truck,Export,263003302.0,0.0
+2010,Sonora,Other/Unknown,Export,14265.0,0.0
+2010,Sonora,Rail,Export,29060692.0,0.0
+2010,Sonora,Truck,Export,118090477.0,0.0
+2010,Tabasco,Other/Unknown,Export,2285944.0,0.0
+2010,Tabasco,Rail,Export,7060066.0,0.0
+2010,Tabasco,Truck,Export,251192403.0,0.0
+2010,Tamaulipas,Other/Unknown,Export,56637570.0,0.0
+2010,Tamaulipas,Rail,Export,340953755.0,0.0
+2010,Tamaulipas,Truck,Export,10067488197.0,0.0
+2010,Tlaxcala,Other/Unknown,Export,18368.0,0.0
+2010,Tlaxcala,Rail,Export,35233074.0,0.0
+2010,Tlaxcala,Truck,Export,195506642.0,0.0
+2010,Veracruz,Other/Unknown,Export,1938974.0,0.0
+2010,Veracruz,Rail,Export,117215305.0,0.0
+2010,Veracruz,Truck,Export,328415170.0,0.0
+2010,Yucatan,Other/Unknown,Export,16073.0,0.0
+2010,Yucatan,Rail,Export,166768055.0,0.0
+2010,Yucatan,Truck,Export,49554948.0,0.0
+2010,Zacatecas,Other/Unknown,Export,889043.0,0.0
+2010,Zacatecas,Rail,Export,63805595.0,0.0
+2010,Zacatecas,Truck,Export,173475288.0,0.0
+2011,Aguascalientes,Other/Unknown,Export,100496.0,0.0
+2011,Aguascalientes,Rail,Export,141941342.0,0.0
+2011,Aguascalientes,Truck,Export,1002432561.0,0.0
+2011,Baja California,Other/Unknown,Export,10545612.0,0.0
+2011,Baja California,Rail,Export,28615840.0,0.0
+2011,Baja California,Truck,Export,199437449.0,0.0
+2011,Baja California Sur,Rail,Export,8080342.0,0.0
+2011,Baja California Sur,Truck,Export,11559866.0,0.0
+2011,Campeche,Other/Unknown,Export,244618.0,0.0
+2011,Campeche,Rail,Export,5003444.0,0.0
+2011,Campeche,Truck,Export,136032493.0,0.0
+2011,Chiapas,Other/Unknown,Export,851163.0,0.0
+2011,Chiapas,Rail,Export,7037749.0,0.0
+2011,Chiapas,Truck,Export,39645191.0,0.0
+2011,Chihuahua,Other/Unknown,Export,52515472.0,0.0
+2011,Chihuahua,Pipeline,Export,184184804.0,0.0
+2011,Chihuahua,Rail,Export,349315906.0,0.0
+2011,Chihuahua,Truck,Export,20568983676.0,0.0
+2011,Coahuila,Other/Unknown,Export,17825075.0,0.0
+2011,Coahuila,Pipeline,Export,597225.0,0.0
+2011,Coahuila,Rail,Export,2618336010.0,0.0
+2011,Coahuila,Truck,Export,7390981309.0,0.0
+2011,Colima,Other/Unknown,Export,68826.0,0.0
+2011,Colima,Rail,Export,6905803.0,0.0
+2011,Colima,Truck,Export,157658305.0,0.0
+2011,Distrito Federal,Other/Unknown,Export,27204593.0,0.0
+2011,Distrito Federal,Pipeline,Export,1938389878.0,0.0
+2011,Distrito Federal,Rail,Export,4868559236.0,0.0
+2011,Distrito Federal,Truck,Export,14106461750.0,0.0
+2011,Durango,Other/Unknown,Export,823565.0,0.0
+2011,Durango,Rail,Export,748596712.0,0.0
+2011,Durango,Truck,Export,505420465.0,0.0
+2011,Estado de Mexico,Other/Unknown,Export,253515274.0,0.0
+2011,Estado de Mexico,Pipeline,Export,955135143.0,0.0
+2011,Estado de Mexico,Rail,Export,4369951760.0,0.0
+2011,Estado de Mexico,Truck,Export,13306424212.0,0.0
+2011,Guanajuato,Other/Unknown,Export,1219179.0,0.0
+2011,Guanajuato,Rail,Export,2056156074.0,0.0
+2011,Guanajuato,Truck,Export,3002965564.0,0.0
+2011,Guerrero,Other/Unknown,Export,571029.0,0.0
+2011,Guerrero,Rail,Export,6394233.0,0.0
+2011,Guerrero,Truck,Export,5055576.0,0.0
+2011,Hidalgo,Other/Unknown,Export,1303699.0,0.0
+2011,Hidalgo,Rail,Export,222618840.0,0.0
+2011,Hidalgo,Truck,Export,505475893.0,0.0
+2011,Jalisco,Other/Unknown,Export,3172856.0,0.0
+2011,Jalisco,Rail,Export,2347388457.0,0.0
+2011,Jalisco,Truck,Export,4332771967.0,0.0
+2011,Michoacan,Other/Unknown,Export,374937.0,0.0
+2011,Michoacan,Rail,Export,186461998.0,0.0
+2011,Michoacan,Truck,Export,161530018.0,0.0
+2011,Morelos,Other/Unknown,Export,716288.0,0.0
+2011,Morelos,Rail,Export,30848964.0,0.0
+2011,Morelos,Truck,Export,265805087.0,0.0
+2011,Nuevo Leon,Other/Unknown,Export,48500323.0,0.0
+2011,Nuevo Leon,Rail,Export,2108982211.0,0.0
+2011,Nuevo Leon,Truck,Export,12539386518.0,0.0
+2011,Oaxaca,Other/Unknown,Export,337347.0,0.0
+2011,Oaxaca,Rail,Export,7489857.0,0.0
+2011,Oaxaca,Truck,Export,25728096.0,0.0
+2011,Puebla,Other/Unknown,Export,5981216.0,0.0
+2011,Puebla,Rail,Export,186522992.0,0.0
+2011,Puebla,Truck,Export,1174103121.0,0.0
+2011,Queretaro,Other/Unknown,Export,6994890.0,0.0
+2011,Queretaro,Pipeline,Export,29568.0,0.0
+2011,Queretaro,Rail,Export,570325787.0,0.0
+2011,Queretaro,Truck,Export,1985294642.0,0.0
+2011,Quintana Roo,Other/Unknown,Export,559796.0,0.0
+2011,Quintana Roo,Rail,Export,92973232.0,0.0
+2011,Quintana Roo,Truck,Export,698364146.0,0.0
+2011,San Luis Potosi,Other/Unknown,Export,515935.0,0.0
+2011,San Luis Potosi,Rail,Export,257253154.0,0.0
+2011,San Luis Potosi,Truck,Export,1742248578.0,0.0
+2011,Sinaloa,Other/Unknown,Export,26500.0,0.0
+2011,Sinaloa,Rail,Export,30578574.0,0.0
+2011,Sinaloa,Truck,Export,344743077.0,0.0
+2011,Sonora,Other/Unknown,Export,126518.0,0.0
+2011,Sonora,Rail,Export,31465464.0,0.0
+2011,Sonora,Truck,Export,177701326.0,0.0
+2011,Tabasco,Other/Unknown,Export,5961150.0,0.0
+2011,Tabasco,Rail,Export,9541047.0,0.0
+2011,Tabasco,Truck,Export,353268485.0,0.0
+2011,Tamaulipas,Other/Unknown,Export,79065805.0,0.0
+2011,Tamaulipas,Rail,Export,423056825.0,0.0
+2011,Tamaulipas,Truck,Export,10345345234.0,0.0
+2011,Tlaxcala,Other/Unknown,Export,8113.0,0.0
+2011,Tlaxcala,Rail,Export,29511542.0,0.0
+2011,Tlaxcala,Truck,Export,160685979.0,0.0
+2011,Veracruz,Other/Unknown,Export,4001723.0,0.0
+2011,Veracruz,Rail,Export,139749115.0,0.0
+2011,Veracruz,Truck,Export,465202466.0,0.0
+2011,Yucatan,Other/Unknown,Export,67053.0,0.0
+2011,Yucatan,Rail,Export,221897605.0,0.0
+2011,Yucatan,Truck,Export,49967586.0,0.0
+2011,Zacatecas,Other/Unknown,Export,1112021.0,0.0
+2011,Zacatecas,Rail,Export,31739010.0,0.0
+2011,Zacatecas,Truck,Export,238492885.0,0.0
+2012,Aguascalientes,Other/Unknown,Export,330640.0,0.0
+2012,Aguascalientes,Rail,Export,115358931.0,0.0
+2012,Aguascalientes,Truck,Export,1174534794.0,0.0
+2012,Baja California,Other/Unknown,Export,55251831.0,0.0
+2012,Baja California,Rail,Export,31253435.0,0.0
+2012,Baja California,Truck,Export,185213282.0,0.0
+2012,Baja California Sur,Other/Unknown,Export,7900.0,0.0
+2012,Baja California Sur,Rail,Export,7443845.0,0.0
+2012,Baja California Sur,Truck,Export,20406708.0,0.0
+2012,Campeche,Other/Unknown,Export,3252581.0,0.0
+2012,Campeche,Rail,Export,6124860.0,0.0
+2012,Campeche,Truck,Export,270129932.0,0.0
+2012,Chiapas,Other/Unknown,Export,1236268.0,0.0
+2012,Chiapas,Rail,Export,10928283.0,0.0
+2012,Chiapas,Truck,Export,35452783.0,0.0
+2012,Chihuahua,Other/Unknown,Export,64007543.0,0.0
+2012,Chihuahua,Pipeline,Export,183874728.0,0.0
+2012,Chihuahua,Rail,Export,454993981.0,0.0
+2012,Chihuahua,Truck,Export,22262401481.0,0.0
+2012,Coahuila,Other/Unknown,Export,10583012.0,0.0
+2012,Coahuila,Pipeline,Export,1694727.0,0.0
+2012,Coahuila,Rail,Export,3448300503.0,0.0
+2012,Coahuila,Truck,Export,8577042278.0,0.0
+2012,Colima,Other/Unknown,Export,206780.0,0.0
+2012,Colima,Rail,Export,8788946.0,0.0
+2012,Colima,Truck,Export,137051971.0,0.0
+2012,Distrito Federal,Other/Unknown,Export,36214960.0,0.0
+2012,Distrito Federal,Pipeline,Export,2070774726.0,0.0
+2012,Distrito Federal,Rail,Export,5235548870.0,0.0
+2012,Distrito Federal,Truck,Export,15680945360.0,0.0
+2012,Durango,Other/Unknown,Export,1390048.0,0.0
+2012,Durango,Rail,Export,932772294.0,0.0
+2012,Durango,Truck,Export,562493176.0,0.0
+2012,Estado de Mexico,Other/Unknown,Export,215807960.0,0.0
+2012,Estado de Mexico,Pipeline,Export,725232782.0,0.0
+2012,Estado de Mexico,Rail,Export,4007141716.0,0.0
+2012,Estado de Mexico,Truck,Export,14612672580.0,0.0
+2012,Guanajuato,Other/Unknown,Export,1711408.0,0.0
+2012,Guanajuato,Rail,Export,2394209175.0,0.0
+2012,Guanajuato,Truck,Export,3311448426.0,0.0
+2012,Guerrero,Other/Unknown,Export,371322.0,0.0
+2012,Guerrero,Rail,Export,4763097.0,0.0
+2012,Guerrero,Truck,Export,3639953.0,0.0
+2012,Hidalgo,Other/Unknown,Export,2581580.0,0.0
+2012,Hidalgo,Rail,Export,180744480.0,0.0
+2012,Hidalgo,Truck,Export,375833420.0,0.0
+2012,Jalisco,Other/Unknown,Export,16769615.0,0.0
+2012,Jalisco,Rail,Export,2792469882.0,0.0
+2012,Jalisco,Truck,Export,4613605168.0,0.0
+2012,Michoacan,Other/Unknown,Export,384739.0,0.0
+2012,Michoacan,Rail,Export,146424905.0,0.0
+2012,Michoacan,Truck,Export,150600288.0,0.0
+2012,Morelos,Other/Unknown,Export,171975.0,0.0
+2012,Morelos,Rail,Export,29464533.0,0.0
+2012,Morelos,Truck,Export,244792318.0,0.0
+2012,Nuevo Leon,Other/Unknown,Export,39207018.0,0.0
+2012,Nuevo Leon,Rail,Export,2322443380.0,0.0
+2012,Nuevo Leon,Truck,Export,13873365669.0,0.0
+2012,Oaxaca,Other/Unknown,Export,495783.0,0.0
+2012,Oaxaca,Rail,Export,16128585.0,0.0
+2012,Oaxaca,Truck,Export,21834660.0,0.0
+2012,Puebla,Other/Unknown,Export,5282007.0,0.0
+2012,Puebla,Rail,Export,357118068.0,0.0
+2012,Puebla,Truck,Export,1400997253.0,0.0
+2012,Queretaro,Other/Unknown,Export,12381270.0,0.0
+2012,Queretaro,Pipeline,Export,27166.0,0.0
+2012,Queretaro,Rail,Export,478939667.0,0.0
+2012,Queretaro,Truck,Export,2967376108.0,0.0
+2012,Quintana Roo,Other/Unknown,Export,832340.0,0.0
+2012,Quintana Roo,Rail,Export,110166184.0,0.0
+2012,Quintana Roo,Truck,Export,433976655.0,0.0
+2012,San Luis Potosi,Other/Unknown,Export,307701.0,0.0
+2012,San Luis Potosi,Rail,Export,408500592.0,0.0
+2012,San Luis Potosi,Truck,Export,2031934404.0,0.0
+2012,Sinaloa,Other/Unknown,Export,79204.0,0.0
+2012,Sinaloa,Rail,Export,31767997.0,0.0
+2012,Sinaloa,Truck,Export,362546689.0,0.0
+2012,Sonora,Other/Unknown,Export,1669815.0,0.0
+2012,Sonora,Rail,Export,47681923.0,0.0
+2012,Sonora,Truck,Export,274528695.0,0.0
+2012,Tabasco,Other/Unknown,Export,2594261.0,0.0
+2012,Tabasco,Rail,Export,13717128.0,0.0
+2012,Tabasco,Truck,Export,517821920.0,0.0
+2012,Tamaulipas,Other/Unknown,Export,89239817.0,0.0
+2012,Tamaulipas,Rail,Export,445239663.0,0.0
+2012,Tamaulipas,Truck,Export,10752680359.0,0.0
+2012,Tlaxcala,Other/Unknown,Export,30945.0,0.0
+2012,Tlaxcala,Rail,Export,35872385.0,0.0
+2012,Tlaxcala,Truck,Export,202788221.0,0.0
+2012,Veracruz,Other/Unknown,Export,7942390.0,0.0
+2012,Veracruz,Rail,Export,163827117.0,0.0
+2012,Veracruz,Truck,Export,625368648.0,0.0
+2012,Yucatan,Other/Unknown,Export,95945.0,0.0
+2012,Yucatan,Rail,Export,219474990.0,0.0
+2012,Yucatan,Truck,Export,79329422.0,0.0
+2012,Zacatecas,Other/Unknown,Export,348353.0,0.0
+2012,Zacatecas,Rail,Export,108381764.0,0.0
+2012,Zacatecas,Truck,Export,312677112.0,0.0
+2013,Aguascalientes,Other/Unknown,Export,1485129.0,0.0
+2013,Aguascalientes,Rail,Export,114089628.0,0.0
+2013,Aguascalientes,Truck,Export,1281398792.0,0.0
+2013,Baja California,Other/Unknown,Export,11871727.0,0.0
+2013,Baja California,Rail,Export,32723373.0,0.0
+2013,Baja California,Truck,Export,201892338.0,0.0
+2013,Baja California Sur,Rail,Export,4144611.0,0.0
+2013,Baja California Sur,Truck,Export,10036852.0,0.0
+2013,Campeche,Other/Unknown,Export,328694.0,0.0
+2013,Campeche,Rail,Export,4888695.0,0.0
+2013,Campeche,Truck,Export,265697915.0,0.0
+2013,Chiapas,Other/Unknown,Export,359915.0,0.0
+2013,Chiapas,Rail,Export,7375206.0,0.0
+2013,Chiapas,Truck,Export,94297031.0,0.0
+2013,Chihuahua,Other/Unknown,Export,75360363.0,0.0
+2013,Chihuahua,Pipeline,Export,158836054.0,0.0
+2013,Chihuahua,Rail,Export,357048039.0,0.0
+2013,Chihuahua,Truck,Export,24157988260.0,0.0
+2013,Coahuila,Other/Unknown,Export,9323663.0,0.0
+2013,Coahuila,Pipeline,Export,1743690.0,0.0
+2013,Coahuila,Rail,Export,3591148304.0,0.0
+2013,Coahuila,Truck,Export,9642051841.0,0.0
+2013,Colima,Other/Unknown,Export,951594.0,0.0
+2013,Colima,Rail,Export,7091133.0,0.0
+2013,Colima,Truck,Export,132742640.0,0.0
+2013,Distrito Federal,Other/Unknown,Export,17947746.0,0.0
+2013,Distrito Federal,Pipeline,Export,2812684064.0,0.0
+2013,Distrito Federal,Rail,Export,4148570410.0,0.0
+2013,Distrito Federal,Truck,Export,16495821889.0,0.0
+2013,Durango,Other/Unknown,Export,1468781.0,0.0
+2013,Durango,Rail,Export,828339245.0,0.0
+2013,Durango,Truck,Export,609475910.0,0.0
+2013,Estado de Mexico,Other/Unknown,Export,35886849.0,0.0
+2013,Estado de Mexico,Pipeline,Export,270538271.0,0.0
+2013,Estado de Mexico,Rail,Export,4421522754.0,0.0
+2013,Estado de Mexico,Truck,Export,15072227254.0,0.0
+2013,Guanajuato,Other/Unknown,Export,1941060.0,0.0
+2013,Guanajuato,Rail,Export,2581277615.0,0.0
+2013,Guanajuato,Truck,Export,4302082218.0,0.0
+2013,Guerrero,Other/Unknown,Export,439404.0,0.0
+2013,Guerrero,Rail,Export,5128899.0,0.0
+2013,Guerrero,Truck,Export,18596328.0,0.0
+2013,Hidalgo,Other/Unknown,Export,1219782.0,0.0
+2013,Hidalgo,Rail,Export,213821269.0,0.0
+2013,Hidalgo,Truck,Export,371907889.0,0.0
+2013,Jalisco,Other/Unknown,Export,20765514.0,0.0
+2013,Jalisco,Rail,Export,2572601460.0,0.0
+2013,Jalisco,Truck,Export,5629275775.0,0.0
+2013,Michoacan,Other/Unknown,Export,515239.0,0.0
+2013,Michoacan,Rail,Export,171597887.0,0.0
+2013,Michoacan,Truck,Export,138421659.0,0.0
+2013,Morelos,Other/Unknown,Export,492627.0,0.0
+2013,Morelos,Rail,Export,26924790.0,0.0
+2013,Morelos,Truck,Export,352163614.0,0.0
+2013,Nuevo Leon,Other/Unknown,Export,39042933.0,0.0
+2013,Nuevo Leon,Rail,Export,2257287340.0,0.0
+2013,Nuevo Leon,Truck,Export,14039822785.0,0.0
+2013,Oaxaca,Other/Unknown,Export,981810.0,0.0
+2013,Oaxaca,Rail,Export,22142395.0,0.0
+2013,Oaxaca,Truck,Export,46101141.0,0.0
+2013,Puebla,Other/Unknown,Export,6203516.0,0.0
+2013,Puebla,Rail,Export,252209899.0,0.0
+2013,Puebla,Truck,Export,1603834118.0,0.0
+2013,Queretaro,Other/Unknown,Export,20536297.0,0.0
+2013,Queretaro,Rail,Export,450605154.0,0.0
+2013,Queretaro,Truck,Export,3140536657.0,0.0
+2013,Quintana Roo,Other/Unknown,Export,954269.0,0.0
+2013,Quintana Roo,Rail,Export,150489102.0,0.0
+2013,Quintana Roo,Truck,Export,486042956.0,0.0
+2013,San Luis Potosi,Other/Unknown,Export,1341398.0,0.0
+2013,San Luis Potosi,Rail,Export,501069032.0,0.0
+2013,San Luis Potosi,Truck,Export,2170958323.0,0.0
+2013,Sinaloa,Other/Unknown,Export,9799.0,0.0
+2013,Sinaloa,Rail,Export,39302575.0,0.0
+2013,Sinaloa,Truck,Export,302403489.0,0.0
+2013,Sonora,Other/Unknown,Export,513373.0,0.0
+2013,Sonora,Rail,Export,48466516.0,0.0
+2013,Sonora,Truck,Export,259066654.0,0.0
+2013,Tabasco,Other/Unknown,Export,1850758.0,0.0
+2013,Tabasco,Rail,Export,9111920.0,0.0
+2013,Tabasco,Truck,Export,362391880.0,0.0
+2013,Tamaulipas,Other/Unknown,Export,102199824.0,0.0
+2013,Tamaulipas,Rail,Export,423820330.0,0.0
+2013,Tamaulipas,Truck,Export,11746140730.0,0.0
+2013,Tlaxcala,Other/Unknown,Export,55980.0,0.0
+2013,Tlaxcala,Rail,Export,43686256.0,0.0
+2013,Tlaxcala,Truck,Export,199981049.0,0.0
+2013,Veracruz,Other/Unknown,Export,4398148.0,0.0
+2013,Veracruz,Rail,Export,138175288.0,0.0
+2013,Veracruz,Truck,Export,612354085.0,0.0
+2013,Yucatan,Other/Unknown,Export,369541.0,0.0
+2013,Yucatan,Rail,Export,189317572.0,0.0
+2013,Yucatan,Truck,Export,95979356.0,0.0
+2013,Zacatecas,Other/Unknown,Export,1324075.0,0.0
+2013,Zacatecas,Rail,Export,127824251.0,0.0
+2013,Zacatecas,Truck,Export,277049851.0,0.0
+2014,Aguascalientes,Other/Unknown,Export,756041.0,0.0
+2014,Aguascalientes,Rail,Export,146724479.0,0.0
+2014,Aguascalientes,Truck,Export,1610589806.0,0.0
+2014,Baja California,Other/Unknown,Export,3556016.0,0.0
+2014,Baja California,Rail,Export,42331341.0,0.0
+2014,Baja California,Truck,Export,251431667.0,0.0
+2014,Baja California Sur,Rail,Export,5212047.0,0.0
+2014,Baja California Sur,Truck,Export,153531468.0,0.0
+2014,Campeche,Other/Unknown,Export,404124.0,0.0
+2014,Campeche,Rail,Export,10213097.0,0.0
+2014,Campeche,Truck,Export,292876667.0,0.0
+2014,Chiapas,Other/Unknown,Export,1071136.0,0.0
+2014,Chiapas,Rail,Export,9075304.0,0.0
+2014,Chiapas,Truck,Export,67775830.0,0.0
+2014,Chihuahua,Other/Unknown,Export,75563479.0,0.0
+2014,Chihuahua,Pipeline,Export,120839296.0,0.0
+2014,Chihuahua,Rail,Export,298534233.0,0.0
+2014,Chihuahua,Truck,Export,23902420463.0,0.0
+2014,Coahuila,Other/Unknown,Export,9454630.0,0.0
+2014,Coahuila,Pipeline,Export,1948922.0,0.0
+2014,Coahuila,Rail,Export,4169388328.0,0.0
+2014,Coahuila,Truck,Export,10896338689.0,0.0
+2014,Colima,Other/Unknown,Export,54800.0,0.0
+2014,Colima,Rail,Export,8801190.0,0.0
+2014,Colima,Truck,Export,171262541.0,0.0
+2014,Distrito Federal,Other/Unknown,Export,37604243.0,0.0
+2014,Distrito Federal,Pipeline,Export,3647542391.0,0.0
+2014,Distrito Federal,Rail,Export,5716072486.0,0.0
+2014,Distrito Federal,Truck,Export,17720887771.0,0.0
+2014,Durango,Other/Unknown,Export,1255967.0,0.0
+2014,Durango,Rail,Export,851333420.0,0.0
+2014,Durango,Truck,Export,700371410.0,0.0
+2014,Estado de Mexico,Other/Unknown,Export,78521430.0,0.0
+2014,Estado de Mexico,Pipeline,Export,455986118.0,0.0
+2014,Estado de Mexico,Rail,Export,4137720291.0,0.0
+2014,Estado de Mexico,Truck,Export,15262720037.0,0.0
+2014,Guanajuato,Other/Unknown,Export,3972340.0,0.0
+2014,Guanajuato,Rail,Export,2576373567.0,0.0
+2014,Guanajuato,Truck,Export,5395354960.0,0.0
+2014,Guerrero,Other/Unknown,Export,804636.0,0.0
+2014,Guerrero,Rail,Export,11584126.0,0.0
+2014,Guerrero,Truck,Export,27371750.0,0.0
+2014,Hidalgo,Other/Unknown,Export,5297746.0,0.0
+2014,Hidalgo,Rail,Export,259679153.0,0.0
+2014,Hidalgo,Truck,Export,381745457.0,0.0
+2014,Jalisco,Other/Unknown,Export,10811305.0,0.0
+2014,Jalisco,Rail,Export,2096451396.0,0.0
+2014,Jalisco,Truck,Export,5663048310.0,0.0
+2014,Michoacan,Other/Unknown,Export,2160063.0,0.0
+2014,Michoacan,Rail,Export,140530899.0,0.0
+2014,Michoacan,Truck,Export,123897160.0,0.0
+2014,Morelos,Other/Unknown,Export,555840.0,0.0
+2014,Morelos,Rail,Export,22416703.0,0.0
+2014,Morelos,Truck,Export,404784454.0,0.0
+2014,Nuevo Leon,Other/Unknown,Export,46134814.0,0.0
+2014,Nuevo Leon,Rail,Export,2260370413.0,0.0
+2014,Nuevo Leon,Truck,Export,15744816599.0,0.0
+2014,Oaxaca,Other/Unknown,Export,1217775.0,0.0
+2014,Oaxaca,Rail,Export,21476288.0,0.0
+2014,Oaxaca,Truck,Export,35224555.0,0.0
+2014,Puebla,Other/Unknown,Export,6906973.0,0.0
+2014,Puebla,Rail,Export,207587296.0,0.0
+2014,Puebla,Truck,Export,1642540893.0,0.0
+2014,Queretaro,Other/Unknown,Export,15434490.0,0.0
+2014,Queretaro,Rail,Export,453531672.0,0.0
+2014,Queretaro,Truck,Export,3415802403.0,0.0
+2014,Quintana Roo,Other/Unknown,Export,1792758.0,0.0
+2014,Quintana Roo,Rail,Export,156589422.0,0.0
+2014,Quintana Roo,Truck,Export,422294769.0,0.0
+2014,San Luis Potosi,Other/Unknown,Export,7091964.0,0.0
+2014,San Luis Potosi,Rail,Export,518188554.0,0.0
+2014,San Luis Potosi,Truck,Export,2279276365.0,0.0
+2014,Sinaloa,Other/Unknown,Export,402654.0,0.0
+2014,Sinaloa,Rail,Export,79151773.0,0.0
+2014,Sinaloa,Truck,Export,445346231.0,0.0
+2014,Sonora,Other/Unknown,Export,2690170.0,0.0
+2014,Sonora,Rail,Export,37053857.0,0.0
+2014,Sonora,Truck,Export,366525779.0,0.0
+2014,Tabasco,Other/Unknown,Export,6494223.0,0.0
+2014,Tabasco,Rail,Export,10711741.0,0.0
+2014,Tabasco,Truck,Export,338516657.0,0.0
+2014,Tamaulipas,Other/Unknown,Export,103291354.0,0.0
+2014,Tamaulipas,Rail,Export,393884972.0,0.0
+2014,Tamaulipas,Truck,Export,12840682568.0,0.0
+2014,Tlaxcala,Other/Unknown,Export,330781.0,0.0
+2014,Tlaxcala,Rail,Export,54215886.0,0.0
+2014,Tlaxcala,Truck,Export,292985584.0,0.0
+2014,Veracruz,Other/Unknown,Export,9302076.0,0.0
+2014,Veracruz,Rail,Export,113153589.0,0.0
+2014,Veracruz,Truck,Export,589532871.0,0.0
+2014,Yucatan,Other/Unknown,Export,6003963.0,0.0
+2014,Yucatan,Rail,Export,263794881.0,0.0
+2014,Yucatan,Truck,Export,121916959.0,0.0
+2014,Zacatecas,Other/Unknown,Export,1717222.0,0.0
+2014,Zacatecas,Rail,Export,186877199.0,0.0
+2014,Zacatecas,Truck,Export,546162393.0,0.0
+2015,Aguascalientes,Other/Unknown,Export,1452374.0,0.0
+2015,Aguascalientes,Rail,Export,377144644.0,0.0
+2015,Aguascalientes,Truck,Export,1506334398.0,0.0
+2015,Baja California,Other/Unknown,Export,6613444.0,0.0
+2015,Baja California,Rail,Export,45657633.0,0.0
+2015,Baja California,Truck,Export,271199054.0,0.0
+2015,Baja California Sur,Other/Unknown,Export,36000.0,0.0
+2015,Baja California Sur,Rail,Export,8673482.0,0.0
+2015,Baja California Sur,Truck,Export,20283178.0,0.0
+2015,Campeche,Other/Unknown,Export,653305.0,0.0
+2015,Campeche,Rail,Export,4817072.0,0.0
+2015,Campeche,Truck,Export,214217878.0,0.0
+2015,Chiapas,Other/Unknown,Export,587901.0,0.0
+2015,Chiapas,Rail,Export,6474023.0,0.0
+2015,Chiapas,Truck,Export,27829117.0,0.0
+2015,Chihuahua,Other/Unknown,Export,55716461.0,0.0
+2015,Chihuahua,Pipeline,Export,61226924.0,0.0
+2015,Chihuahua,Rail,Export,172100904.0,0.0
+2015,Chihuahua,Truck,Export,23593107785.0,0.0
+2015,Coahuila,Other/Unknown,Export,9141605.0,0.0
+2015,Coahuila,Pipeline,Export,769943.0,0.0
+2015,Coahuila,Rail,Export,4274984294.0,0.0
+2015,Coahuila,Truck,Export,11468558362.0,0.0
+2015,Colima,Other/Unknown,Export,196561.0,0.0
+2015,Colima,Rail,Export,4402908.0,0.0
+2015,Colima,Truck,Export,210023412.0,0.0
+2015,Distrito Federal,Other/Unknown,Export,28189188.0,0.0
+2015,Distrito Federal,Pipeline,Export,2284657420.0,0.0
+2015,Distrito Federal,Rail,Export,6129023969.0,0.0
+2015,Distrito Federal,Truck,Export,17161913450.0,0.0
+2015,Durango,Other/Unknown,Export,966848.0,0.0
+2015,Durango,Rail,Export,771816412.0,0.0
+2015,Durango,Truck,Export,685807774.0,0.0
+2015,Estado de Mexico,Other/Unknown,Export,76291227.0,0.0
+2015,Estado de Mexico,Pipeline,Export,566210776.0,0.0
+2015,Estado de Mexico,Rail,Export,3234564286.0,0.0
+2015,Estado de Mexico,Truck,Export,15103788346.0,0.0
+2015,Guanajuato,Other/Unknown,Export,3934474.0,0.0
+2015,Guanajuato,Rail,Export,2436232363.0,0.0
+2015,Guanajuato,Truck,Export,5828103121.0,0.0
+2015,Guerrero,Other/Unknown,Export,1543367.0,0.0
+2015,Guerrero,Rail,Export,3878514.0,0.0
+2015,Guerrero,Truck,Export,24367269.0,0.0
+2015,Hidalgo,Other/Unknown,Export,2913148.0,0.0
+2015,Hidalgo,Rail,Export,279929852.0,0.0
+2015,Hidalgo,Truck,Export,457240460.0,0.0
+2015,Jalisco,Other/Unknown,Export,21088819.0,0.0
+2015,Jalisco,Rail,Export,2129944969.0,0.0
+2015,Jalisco,Truck,Export,5908795499.0,0.0
+2015,Michoacan,Other/Unknown,Export,1701669.0,0.0
+2015,Michoacan,Rail,Export,110589501.0,0.0
+2015,Michoacan,Truck,Export,117234922.0,0.0
+2015,Morelos,Other/Unknown,Export,11006526.0,0.0
+2015,Morelos,Rail,Export,22908806.0,0.0
+2015,Morelos,Truck,Export,411247113.0,0.0
+2015,Nuevo Leon,Other/Unknown,Export,41256853.0,0.0
+2015,Nuevo Leon,Rail,Export,2109765382.0,0.0
+2015,Nuevo Leon,Truck,Export,15928662153.0,0.0
+2015,Oaxaca,Other/Unknown,Export,236320.0,0.0
+2015,Oaxaca,Rail,Export,27454924.0,0.0
+2015,Oaxaca,Truck,Export,58241586.0,0.0
+2015,Puebla,Other/Unknown,Export,7495572.0,0.0
+2015,Puebla,Rail,Export,198890738.0,0.0
+2015,Puebla,Truck,Export,1777468813.0,0.0
+2015,Queretaro,Other/Unknown,Export,18738462.0,0.0
+2015,Queretaro,Rail,Export,580731923.0,0.0
+2015,Queretaro,Truck,Export,3523807452.0,0.0
+2015,Quintana Roo,Other/Unknown,Export,2000981.0,0.0
+2015,Quintana Roo,Rail,Export,48721646.0,0.0
+2015,Quintana Roo,Truck,Export,398034076.0,0.0
+2015,San Luis Potosi,Other/Unknown,Export,1956885.0,0.0
+2015,San Luis Potosi,Rail,Export,541665188.0,0.0
+2015,San Luis Potosi,Truck,Export,2544713972.0,0.0
+2015,Sinaloa,Other/Unknown,Export,893014.0,0.0
+2015,Sinaloa,Rail,Export,72513704.0,0.0
+2015,Sinaloa,Truck,Export,487042830.0,0.0
+2015,Sonora,Other/Unknown,Export,251543.0,0.0
+2015,Sonora,Rail,Export,42043052.0,0.0
+2015,Sonora,Truck,Export,269866819.0,0.0
+2015,Tabasco,Other/Unknown,Export,1380475.0,0.0
+2015,Tabasco,Rail,Export,8183183.0,0.0
+2015,Tabasco,Truck,Export,215660907.0,0.0
+2015,Tamaulipas,Other/Unknown,Export,103621287.0,0.0
+2015,Tamaulipas,Pipeline,Export,116750710.0,0.0
+2015,Tamaulipas,Rail,Export,210849897.0,0.0
+2015,Tamaulipas,Truck,Export,12430679595.0,0.0
+2015,Tlaxcala,Other/Unknown,Export,165852.0,0.0
+2015,Tlaxcala,Rail,Export,66864250.0,0.0
+2015,Tlaxcala,Truck,Export,256180617.0,0.0
+2015,Veracruz,Other/Unknown,Export,16671172.0,0.0
+2015,Veracruz,Pipeline,Export,16622558.0,0.0
+2015,Veracruz,Rail,Export,97017631.0,0.0
+2015,Veracruz,Truck,Export,456984020.0,0.0
+2015,Yucatan,Other/Unknown,Export,140459.0,0.0
+2015,Yucatan,Rail,Export,191672075.0,0.0
+2015,Yucatan,Truck,Export,109174433.0,0.0
+2015,Zacatecas,Other/Unknown,Export,1303563.0,0.0
+2015,Zacatecas,Rail,Export,151138972.0,0.0
+2015,Zacatecas,Truck,Export,597566641.0,0.0
+2016,Aguascalientes,Other/Unknown,Export,3798261.0,0.0
+2016,Aguascalientes,Rail,Export,1025665401.0,0.0
+2016,Aguascalientes,Truck,Export,1481642997.0,0.0
+2016,Baja California,Other/Unknown,Export,556782.0,0.0
+2016,Baja California,Rail,Export,44624354.0,0.0
+2016,Baja California,Truck,Export,234073837.0,0.0
+2016,Baja California Sur,Other/Unknown,Export,69699.0,0.0
+2016,Baja California Sur,Rail,Export,4495839.0,0.0
+2016,Baja California Sur,Truck,Export,7430854.0,0.0
+2016,Campeche,Other/Unknown,Export,306217.0,0.0
+2016,Campeche,Rail,Export,198473646.0,0.0
+2016,Campeche,Truck,Export,1247176863.0,0.0
+2016,Chiapas,Other/Unknown,Export,222532.0,0.0
+2016,Chiapas,Rail,Export,2218117.0,0.0
+2016,Chiapas,Truck,Export,17618415.0,0.0
+2016,Chihuahua,Other/Unknown,Export,194935159.0,0.0
+2016,Chihuahua,Pipeline,Export,2056864.0,0.0
+2016,Chihuahua,Rail,Export,372603849.0,0.0
+2016,Chihuahua,Truck,Export,23986754226.0,0.0
+2016,Coahuila,Other/Unknown,Export,13861592.0,0.0
+2016,Coahuila,Pipeline,Export,3110662.0,0.0
+2016,Coahuila,Rail,Export,2789174926.0,0.0
+2016,Coahuila,Truck,Export,10323721946.0,0.0
+2016,Colima,Other/Unknown,Export,189971.0,0.0
+2016,Colima,Rail,Export,1804288.0,0.0
+2016,Colima,Truck,Export,82547592.0,0.0
+2016,Distrito Federal,Other/Unknown,Export,22414237.0,0.0
+2016,Distrito Federal,Pipeline,Export,2511394967.0,0.0
+2016,Distrito Federal,Rail,Export,4546573903.0,0.0
+2016,Distrito Federal,Truck,Export,13206400649.0,0.0
+2016,Durango,Other/Unknown,Export,1509776.0,0.0
+2016,Durango,Rail,Export,792123721.0,0.0
+2016,Durango,Truck,Export,731844038.0,0.0
+2016,Estado de Mexico,Other/Unknown,Export,82586424.0,0.0
+2016,Estado de Mexico,Pipeline,Export,811188590.0,0.0
+2016,Estado de Mexico,Rail,Export,2508570623.0,0.0
+2016,Estado de Mexico,Truck,Export,13140959627.0,0.0
+2016,Guanajuato,Other/Unknown,Export,4937840.0,0.0
+2016,Guanajuato,Rail,Export,2819988254.0,0.0
+2016,Guanajuato,Truck,Export,5722170690.0,0.0
+2016,Guerrero,Other/Unknown,Export,2374107.0,0.0
+2016,Guerrero,Rail,Export,1241015.0,0.0
+2016,Guerrero,Truck,Export,19236261.0,0.0
+2016,Hidalgo,Other/Unknown,Export,2933699.0,0.0
+2016,Hidalgo,Rail,Export,244711483.0,0.0
+2016,Hidalgo,Truck,Export,669922278.0,0.0
+2016,Jalisco,Other/Unknown,Export,13766359.0,0.0
+2016,Jalisco,Rail,Export,2092502679.0,0.0
+2016,Jalisco,Truck,Export,5525918596.0,0.0
+2016,Michoacan,Other/Unknown,Export,2480901.0,0.0
+2016,Michoacan,Rail,Export,103594443.0,0.0
+2016,Michoacan,Truck,Export,127483306.0,0.0
+2016,Morelos,Other/Unknown,Export,9157775.0,0.0
+2016,Morelos,Rail,Export,31536278.0,0.0
+2016,Morelos,Truck,Export,362465519.0,0.0
+2016,Nuevo Leon,Other/Unknown,Export,51691941.0,0.0
+2016,Nuevo Leon,Rail,Export,2223072832.0,0.0
+2016,Nuevo Leon,Truck,Export,15334428924.0,0.0
+2016,Oaxaca,Other/Unknown,Export,796297.0,0.0
+2016,Oaxaca,Rail,Export,15450714.0,0.0
+2016,Oaxaca,Truck,Export,42261193.0,0.0
+2016,Puebla,Other/Unknown,Export,8535645.0,0.0
+2016,Puebla,Rail,Export,321961935.0,0.0
+2016,Puebla,Truck,Export,2117886858.0,0.0
+2016,Queretaro,Other/Unknown,Export,6058434.0,0.0
+2016,Queretaro,Rail,Export,916051209.0,0.0
+2016,Queretaro,Truck,Export,3572670770.0,0.0
+2016,Quintana Roo,Other/Unknown,Export,949549.0,0.0
+2016,Quintana Roo,Rail,Export,24886665.0,0.0
+2016,Quintana Roo,Truck,Export,153824032.0,0.0
+2016,San Luis Potosi,Other/Unknown,Export,2903744.0,0.0
+2016,San Luis Potosi,Rail,Export,535939763.0,0.0
+2016,San Luis Potosi,Truck,Export,2602709979.0,0.0
+2016,Sinaloa,Other/Unknown,Export,39391222.0,0.0
+2016,Sinaloa,Rail,Export,49069924.0,0.0
+2016,Sinaloa,Truck,Export,372266024.0,0.0
+2016,Sonora,Other/Unknown,Export,260601.0,0.0
+2016,Sonora,Rail,Export,22739207.0,0.0
+2016,Sonora,Truck,Export,393950965.0,0.0
+2016,Tabasco,Other/Unknown,Export,771196.0,0.0
+2016,Tabasco,Rail,Export,1912626.0,0.0
+2016,Tabasco,Truck,Export,112243248.0,0.0
+2016,Tamaulipas,Other/Unknown,Export,114010066.0,0.0
+2016,Tamaulipas,Pipeline,Export,53037987.0,0.0
+2016,Tamaulipas,Rail,Export,190597944.0,0.0
+2016,Tamaulipas,Truck,Export,13203524437.0,0.0
+2016,Tlaxcala,Other/Unknown,Export,222263.0,0.0
+2016,Tlaxcala,Rail,Export,37073319.0,0.0
+2016,Tlaxcala,Truck,Export,304501118.0,0.0
+2016,Veracruz,Other/Unknown,Export,15254266.0,0.0
+2016,Veracruz,Rail,Export,78247695.0,0.0
+2016,Veracruz,Truck,Export,291699033.0,0.0
+2016,Yucatan,Other/Unknown,Export,1212357.0,0.0
+2016,Yucatan,Rail,Export,192705414.0,0.0
+2016,Yucatan,Truck,Export,88729439.0,0.0
+2016,Zacatecas,Other/Unknown,Export,1435294.0,0.0
+2016,Zacatecas,Rail,Export,55308296.0,0.0
+2016,Zacatecas,Truck,Export,566149458.0,0.0
+2017,Aguascalientes,Other/Unknown,Export,5606282.0,0.0
+2017,Aguascalientes,Rail,Export,1047433149.0,0.0
+2017,Aguascalientes,Truck,Export,1496048855.0,0.0
+2017,Baja California,Other/Unknown,Export,634051.0,0.0
+2017,Baja California,Rail,Export,49879364.0,0.0
+2017,Baja California,Truck,Export,314875567.0,0.0
+2017,Baja California Sur,Other/Unknown,Export,11692.0,0.0
+2017,Baja California Sur,Rail,Export,3777437.0,0.0
+2017,Baja California Sur,Truck,Export,10696131.0,0.0
+2017,Campeche,Other/Unknown,Export,143050.0,0.0
+2017,Campeche,Pipeline,Export,572866146.0,0.0
+2017,Campeche,Rail,Export,236367037.0,0.0
+2017,Campeche,Truck,Export,2510820531.0,0.0
+2017,Chiapas,Other/Unknown,Export,312365.0,0.0
+2017,Chiapas,Truck,Export,44201733.0,0.0
+2017,Chihuahua,Other/Unknown,Export,192714674.0,0.0
+2017,Chihuahua,Rail,Export,331898120.0,0.0
+2017,Chihuahua,Truck,Export,23218127629.0,0.0
+2017,Coahuila,Other/Unknown,Export,16259646.0,0.0
+2017,Coahuila,Pipeline,Export,1164545.0,0.0
+2017,Coahuila,Rail,Export,1367523997.0,0.0
+2017,Coahuila,Truck,Export,9783421009.0,0.0
+2017,Colima,Other/Unknown,Export,380370.0,0.0
+2017,Colima,Rail,Export,5809834.0,0.0
+2017,Colima,Truck,Export,69541678.0,0.0
+2017,Distrito Federal,Other/Unknown,Export,21187702.0,0.0
+2017,Distrito Federal,Pipeline,Export,1844612313.0,0.0
+2017,Distrito Federal,Rail,Export,2444353792.0,0.0
+2017,Distrito Federal,Truck,Export,10942179006.0,0.0
+2017,Durango,Other/Unknown,Export,1473126.0,0.0
+2017,Durango,Rail,Export,826199267.0,0.0
+2017,Durango,Truck,Export,841536103.0,0.0
+2017,Estado de Mexico,Other/Unknown,Export,84912565.0,0.0
+2017,Estado de Mexico,Pipeline,Export,625747699.0,0.0
+2017,Estado de Mexico,Rail,Export,4563907394.0,0.0
+2017,Estado de Mexico,Truck,Export,14257415043.0,0.0
+2017,Guanajuato,Other/Unknown,Export,8611151.0,0.0
+2017,Guanajuato,Rail,Export,2764617201.0,0.0
+2017,Guanajuato,Truck,Export,5986006792.0,0.0
+2017,Guerrero,Other/Unknown,Export,2338667.0,0.0
+2017,Guerrero,Rail,Export,916994.0,0.0
+2017,Guerrero,Truck,Export,13999623.0,0.0
+2017,Hidalgo,Other/Unknown,Export,2011638.0,0.0
+2017,Hidalgo,Rail,Export,486695933.0,0.0
+2017,Hidalgo,Truck,Export,546929481.0,0.0
+2017,Jalisco,Other/Unknown,Export,11284291.0,0.0
+2017,Jalisco,Rail,Export,1799044691.0,0.0
+2017,Jalisco,Truck,Export,5211744777.0,0.0
+2017,Michoacan,Other/Unknown,Export,2590959.0,0.0
+2017,Michoacan,Rail,Export,79969206.0,0.0
+2017,Michoacan,Truck,Export,133855678.0,0.0
+2017,Morelos,Other/Unknown,Export,14971541.0,0.0
+2017,Morelos,Rail,Export,35415821.0,0.0
+2017,Morelos,Truck,Export,364316353.0,0.0
+2017,Nuevo Leon,Other/Unknown,Export,56107234.0,0.0
+2017,Nuevo Leon,Rail,Export,2764803862.0,0.0
+2017,Nuevo Leon,Truck,Export,17133474637.0,0.0
+2017,Oaxaca,Other/Unknown,Export,653914.0,0.0
+2017,Oaxaca,Rail,Export,5138288.0,0.0
+2017,Oaxaca,Truck,Export,29481600.0,0.0
+2017,Puebla,Other/Unknown,Export,4467520.0,0.0
+2017,Puebla,Rail,Export,214479667.0,0.0
+2017,Puebla,Truck,Export,2555123715.0,0.0
+2017,Queretaro,Other/Unknown,Export,7663506.0,0.0
+2017,Queretaro,Rail,Export,845657940.0,0.0
+2017,Queretaro,Truck,Export,4076433587.0,0.0
+2017,Quintana Roo,Other/Unknown,Export,491429.0,0.0
+2017,Quintana Roo,Rail,Export,49068101.0,0.0
+2017,Quintana Roo,Truck,Export,76389162.0,0.0
+2017,San Luis Potosi,Other/Unknown,Export,4414448.0,0.0
+2017,San Luis Potosi,Rail,Export,664614018.0,0.0
+2017,San Luis Potosi,Truck,Export,3149542681.0,0.0
+2017,Sinaloa,Other/Unknown,Export,69938794.0,0.0
+2017,Sinaloa,Rail,Export,54918529.0,0.0
+2017,Sinaloa,Truck,Export,302960251.0,0.0
+2017,Sonora,Other/Unknown,Export,240944.0,0.0
+2017,Sonora,Rail,Export,26292626.0,0.0
+2017,Sonora,Truck,Export,359858818.0,0.0
+2017,Tabasco,Other/Unknown,Export,243236.0,0.0
+2017,Tabasco,Rail,Export,335808.0,0.0
+2017,Tabasco,Truck,Export,94511379.0,0.0
+2017,Tamaulipas,Other/Unknown,Export,130400162.0,0.0
+2017,Tamaulipas,Pipeline,Export,227377898.0,0.0
+2017,Tamaulipas,Rail,Export,154498147.0,0.0
+2017,Tamaulipas,Truck,Export,14638976356.0,0.0
+2017,Tlaxcala,Other/Unknown,Export,257614.0,0.0
+2017,Tlaxcala,Rail,Export,32916366.0,0.0
+2017,Tlaxcala,Truck,Export,283926629.0,0.0
+2017,Veracruz,Other/Unknown,Export,14687729.0,0.0
+2017,Veracruz,Rail,Export,74459439.0,0.0
+2017,Veracruz,Truck,Export,323194035.0,0.0
+2017,Yucatan,Other/Unknown,Export,192530.0,0.0
+2017,Yucatan,Rail,Export,193199267.0,0.0
+2017,Yucatan,Truck,Export,96897855.0,0.0
+2017,Zacatecas,Other/Unknown,Export,883908.0,0.0
+2017,Zacatecas,Rail,Export,62820569.0,0.0
+2017,Zacatecas,Truck,Export,566269255.0,0.0
+2018,Aguascalientes,Other/Unknown,Export,6072669.0,0.0
+2018,Aguascalientes,Rail,Export,1157028473.0,0.0
+2018,Aguascalientes,Truck,Export,1567968732.0,0.0
+2018,Baja California,Other/Unknown,Export,1664828.0,0.0
+2018,Baja California,Rail,Export,42494223.0,0.0
+2018,Baja California,Truck,Export,412220053.0,0.0
+2018,Baja California Sur,Other/Unknown,Export,120000.0,0.0
+2018,Baja California Sur,Rail,Export,727518.0,0.0
+2018,Baja California Sur,Truck,Export,10646480.0,0.0
+2018,Campeche,Other/Unknown,Export,99940.0,0.0
+2018,Campeche,Rail,Export,74593147.0,0.0
+2018,Campeche,Truck,Export,1473783627.0,0.0
+2018,Chiapas,Other/Unknown,Export,122040.0,0.0
+2018,Chiapas,Rail,Export,189141.0,0.0
+2018,Chiapas,Truck,Export,65679308.0,0.0
+2018,Chihuahua,Other/Unknown,Export,119943339.0,0.0
+2018,Chihuahua,Pipeline,Export,2889822.0,0.0
+2018,Chihuahua,Rail,Export,474562973.0,0.0
+2018,Chihuahua,Truck,Export,24995185281.0,0.0
+2018,Coahuila,Other/Unknown,Export,7984149.0,0.0
+2018,Coahuila,Rail,Export,1430075269.0,0.0
+2018,Coahuila,Truck,Export,10975629115.0,0.0
+2018,Colima,Other/Unknown,Export,154388.0,0.0
+2018,Colima,Rail,Export,5431904.0,0.0
+2018,Colima,Truck,Export,99340772.0,0.0
+2018,Distrito Federal,Other/Unknown,Export,14128883.0,0.0
+2018,Distrito Federal,Pipeline,Export,3229658687.0,0.0
+2018,Distrito Federal,Rail,Export,3507116246.0,0.0
+2018,Distrito Federal,Truck,Export,9834086850.0,0.0
+2018,Durango,Other/Unknown,Export,1268316.0,0.0
+2018,Durango,Rail,Export,667132549.0,0.0
+2018,Durango,Truck,Export,796976259.0,0.0
+2018,Estado de Mexico,Other/Unknown,Export,63674230.0,0.0
+2018,Estado de Mexico,Pipeline,Export,1116276237.0,0.0
+2018,Estado de Mexico,Rail,Export,5250149359.0,0.0
+2018,Estado de Mexico,Truck,Export,16703874399.0,0.0
+2018,Guanajuato,Other/Unknown,Export,8935171.0,0.0
+2018,Guanajuato,Rail,Export,2301737123.0,0.0
+2018,Guanajuato,Truck,Export,5965013882.0,0.0
+2018,Guerrero,Other/Unknown,Export,943628.0,0.0
+2018,Guerrero,Rail,Export,87209.0,0.0
+2018,Guerrero,Truck,Export,7478986.0,0.0
+2018,Hidalgo,Other/Unknown,Export,2241077.0,0.0
+2018,Hidalgo,Pipeline,Export,359272288.0,0.0
+2018,Hidalgo,Rail,Export,298029508.0,0.0
+2018,Hidalgo,Truck,Export,650828707.0,0.0
+2018,Jalisco,Other/Unknown,Export,12060679.0,0.0
+2018,Jalisco,Rail,Export,1921791530.0,0.0
+2018,Jalisco,Truck,Export,5735591021.0,0.0
+2018,Michoacan,Other/Unknown,Export,2718138.0,0.0
+2018,Michoacan,Rail,Export,93244822.0,0.0
+2018,Michoacan,Truck,Export,148582930.0,0.0
+2018,Morelos,Other/Unknown,Export,14968579.0,0.0
+2018,Morelos,Rail,Export,27110029.0,0.0
+2018,Morelos,Truck,Export,349550700.0,0.0
+2018,Nuevo Leon,Other/Unknown,Export,61349402.0,0.0
+2018,Nuevo Leon,Pipeline,Export,43295131.0,0.0
+2018,Nuevo Leon,Rail,Export,3098425834.0,0.0
+2018,Nuevo Leon,Truck,Export,18646887297.0,0.0
+2018,Oaxaca,Other/Unknown,Export,739944.0,0.0
+2018,Oaxaca,Rail,Export,7192441.0,0.0
+2018,Oaxaca,Truck,Export,31225991.0,0.0
+2018,Puebla,Other/Unknown,Export,4839833.0,0.0
+2018,Puebla,Rail,Export,157157086.0,0.0
+2018,Puebla,Truck,Export,2834933877.0,0.0
+2018,Queretaro,Other/Unknown,Export,12807172.0,0.0
+2018,Queretaro,Rail,Export,819040392.0,0.0
+2018,Queretaro,Truck,Export,4375831409.0,0.0
+2018,Quintana Roo,Other/Unknown,Export,604567.0,0.0
+2018,Quintana Roo,Rail,Export,24781201.0,0.0
+2018,Quintana Roo,Truck,Export,83789281.0,0.0
+2018,San Luis Potosi,Other/Unknown,Export,4263307.0,0.0
+2018,San Luis Potosi,Rail,Export,933550884.0,0.0
+2018,San Luis Potosi,Truck,Export,3761117649.0,0.0
+2018,Sinaloa,Other/Unknown,Export,86570842.0,0.0
+2018,Sinaloa,Rail,Export,57247996.0,0.0
+2018,Sinaloa,Truck,Export,280097824.0,0.0
+2018,Sonora,Other/Unknown,Export,1358899.0,0.0
+2018,Sonora,Rail,Export,47349797.0,0.0
+2018,Sonora,Truck,Export,387404247.0,0.0
+2018,Tabasco,Other/Unknown,Export,864871.0,0.0
+2018,Tabasco,Rail,Export,255721.0,0.0
+2018,Tabasco,Truck,Export,133904415.0,0.0
+2018,Tamaulipas,Other/Unknown,Export,164966205.0,0.0
+2018,Tamaulipas,Pipeline,Export,218193045.0,0.0
+2018,Tamaulipas,Rail,Export,118287347.0,0.0
+2018,Tamaulipas,Truck,Export,14633142700.0,0.0
+2018,Tlaxcala,Other/Unknown,Export,259390.0,0.0
+2018,Tlaxcala,Rail,Export,34456001.0,0.0
+2018,Tlaxcala,Truck,Export,248344999.0,0.0
+2018,Veracruz,Other/Unknown,Export,13971464.0,0.0
+2018,Veracruz,Rail,Export,70235900.0,0.0
+2018,Veracruz,Truck,Export,334308480.0,0.0
+2018,Yucatan,Other/Unknown,Export,1121567.0,0.0
+2018,Yucatan,Rail,Export,192855988.0,0.0
+2018,Yucatan,Truck,Export,82015592.0,0.0
+2018,Zacatecas,Other/Unknown,Export,898786.0,0.0
+2018,Zacatecas,Rail,Export,36640237.0,0.0
+2018,Zacatecas,Truck,Export,543166688.0,0.0
+2019,Aguascalientes,Other/Unknown,Export,5032251.0,0.0
+2019,Aguascalientes,Rail,Export,1133757903.0,0.0
+2019,Aguascalientes,Truck,Export,1507238969.0,0.0
+2019,Baja California,Other/Unknown,Export,696153.0,0.0
+2019,Baja California,Rail,Export,40259121.0,0.0
+2019,Baja California,Truck,Export,348337380.0,0.0
+2019,Baja California Sur,Other/Unknown,Export,38089.0,0.0
+2019,Baja California Sur,Rail,Export,580730.0,0.0
+2019,Baja California Sur,Truck,Export,4094422.0,0.0
+2019,Campeche,Other/Unknown,Export,268662.0,0.0
+2019,Campeche,Rail,Export,121934335.0,0.0
+2019,Campeche,Truck,Export,1546850905.0,0.0
+2019,Chiapas,Other/Unknown,Export,120376.0,0.0
+2019,Chiapas,Truck,Export,97947228.0,0.0
+2019,Chihuahua,Other/Unknown,Export,121724873.0,0.0
+2019,Chihuahua,Pipeline,Export,60024.0,0.0
+2019,Chihuahua,Rail,Export,526465587.0,0.0
+2019,Chihuahua,Truck,Export,24441531944.0,0.0
+2019,Coahuila,Other/Unknown,Export,15982528.0,0.0
+2019,Coahuila,Rail,Export,1425643261.0,0.0
+2019,Coahuila,Truck,Export,10234722288.0,0.0
+2019,Colima,Other/Unknown,Export,214070.0,0.0
+2019,Colima,Rail,Export,3604640.0,0.0
+2019,Colima,Truck,Export,78902344.0,0.0
+2019,Distrito Federal,Other/Unknown,Export,14860359.0,0.0
+2019,Distrito Federal,Pipeline,Export,3226868137.0,0.0
+2019,Distrito Federal,Rail,Export,3586088590.0,0.0
+2019,Distrito Federal,Truck,Export,8705057973.0,0.0
+2019,Durango,Other/Unknown,Export,971499.0,0.0
+2019,Durango,Rail,Export,647569729.0,0.0
+2019,Durango,Truck,Export,810569081.0,0.0
+2019,Estado de Mexico,Other/Unknown,Export,72570921.0,0.0
+2019,Estado de Mexico,Pipeline,Export,811414269.0,0.0
+2019,Estado de Mexico,Rail,Export,5304889657.0,0.0
+2019,Estado de Mexico,Truck,Export,16625705831.0,0.0
+2019,Guanajuato,Other/Unknown,Export,7218800.0,0.0
+2019,Guanajuato,Rail,Export,1511625752.0,0.0
+2019,Guanajuato,Truck,Export,6339413943.0,0.0
+2019,Guerrero,Other/Unknown,Export,355844.0,0.0
+2019,Guerrero,Truck,Export,8045946.0,0.0
+2019,Hidalgo,Other/Unknown,Export,1606823.0,0.0
+2019,Hidalgo,Pipeline,Export,283150821.0,0.0
+2019,Hidalgo,Rail,Export,247531326.0,0.0
+2019,Hidalgo,Truck,Export,659506192.0,0.0
+2019,Jalisco,Other/Unknown,Export,20343659.0,0.0
+2019,Jalisco,Rail,Export,1665777082.0,0.0
+2019,Jalisco,Truck,Export,4924985865.0,0.0
+2019,Michoacan,Other/Unknown,Export,2584730.0,0.0
+2019,Michoacan,Rail,Export,85058276.0,0.0
+2019,Michoacan,Truck,Export,216370803.0,0.0
+2019,Morelos,Other/Unknown,Export,1707976.0,0.0
+2019,Morelos,Rail,Export,23004444.0,0.0
+2019,Morelos,Truck,Export,426685159.0,0.0
+2019,Nuevo Leon,Other/Unknown,Export,64443200.0,0.0
+2019,Nuevo Leon,Pipeline,Export,48860379.0,0.0
+2019,Nuevo Leon,Rail,Export,2747112667.0,0.0
+2019,Nuevo Leon,Truck,Export,17761024436.0,0.0
+2019,Oaxaca,Other/Unknown,Export,614246.0,0.0
+2019,Oaxaca,Rail,Export,3719412.0,0.0
+2019,Oaxaca,Truck,Export,23979446.0,0.0
+2019,Puebla,Other/Unknown,Export,1979768.0,0.0
+2019,Puebla,Rail,Export,91700578.0,0.0
+2019,Puebla,Truck,Export,2618878858.0,0.0
+2019,Queretaro,Other/Unknown,Export,16126242.0,0.0
+2019,Queretaro,Rail,Export,894786306.0,0.0
+2019,Queretaro,Truck,Export,4565027609.0,0.0
+2019,Quintana Roo,Other/Unknown,Export,297502.0,0.0
+2019,Quintana Roo,Rail,Export,46670903.0,0.0
+2019,Quintana Roo,Truck,Export,74727499.0,0.0
+2019,San Luis Potosi,Other/Unknown,Export,3391657.0,0.0
+2019,San Luis Potosi,Rail,Export,753735758.0,0.0
+2019,San Luis Potosi,Truck,Export,3612932049.0,0.0
+2019,Sinaloa,Other/Unknown,Export,100678527.0,0.0
+2019,Sinaloa,Rail,Export,33707690.0,0.0
+2019,Sinaloa,Truck,Export,307324639.0,0.0
+2019,Sonora,Other/Unknown,Export,3474908.0,0.0
+2019,Sonora,Rail,Export,30699568.0,0.0
+2019,Sonora,Truck,Export,278987290.0,0.0
+2019,Tabasco,Other/Unknown,Export,1385535.0,0.0
+2019,Tabasco,Rail,Export,5500.0,0.0
+2019,Tabasco,Truck,Export,167582687.0,0.0
+2019,Tamaulipas,Other/Unknown,Export,197294065.0,0.0
+2019,Tamaulipas,Pipeline,Export,310182673.0,0.0
+2019,Tamaulipas,Rail,Export,118919518.0,0.0
+2019,Tamaulipas,Truck,Export,14115621692.0,0.0
+2019,Tlaxcala,Other/Unknown,Export,270254.0,0.0
+2019,Tlaxcala,Rail,Export,39091522.0,0.0
+2019,Tlaxcala,Truck,Export,262716441.0,0.0
+2019,Veracruz,Other/Unknown,Export,14274071.0,0.0
+2019,Veracruz,Rail,Export,83500880.0,0.0
+2019,Veracruz,Truck,Export,308959984.0,0.0
+2019,Yucatan,Other/Unknown,Export,197100.0,0.0
+2019,Yucatan,Rail,Export,136348093.0,0.0
+2019,Yucatan,Truck,Export,100909337.0,0.0
+2019,Zacatecas,Other/Unknown,Export,1069909.0,0.0
+2019,Zacatecas,Rail,Export,22935126.0,0.0
+2019,Zacatecas,Truck,Export,349555695.0,0.0
+2020,Aguascalientes,Other/Unknown,Export,9802598.0,0.0
+2020,Aguascalientes,Rail,Export,1028627568.0,0.0
+2020,Aguascalientes,Truck,Export,1366649414.0,0.0
+2020,Baja California,Other/Unknown,Export,1559037.0,0.0
+2020,Baja California,Rail,Export,65663644.0,0.0
+2020,Baja California,Truck,Export,347953313.0,0.0
+2020,Baja California Sur,Other/Unknown,Export,72154.0,0.0
+2020,Baja California Sur,Rail,Export,803693.0,0.0
+2020,Baja California Sur,Truck,Export,2844291.0,0.0
+2020,Campeche,Other/Unknown,Export,56757.0,0.0
+2020,Campeche,Rail,Export,181015969.0,0.0
+2020,Campeche,Truck,Export,1420935630.0,0.0
+2020,Chiapas,Other/Unknown,Export,160073.0,0.0
+2020,Chiapas,Truck,Export,69583318.0,0.0
+2020,Chihuahua,Other/Unknown,Export,129060613.0,0.0
+2020,Chihuahua,Pipeline,Export,18194932.0,0.0
+2020,Chihuahua,Rail,Export,265427884.0,0.0
+2020,Chihuahua,Truck,Export,23742358326.0,0.0
+2020,Coahuila,Other/Unknown,Export,14002137.0,0.0
+2020,Coahuila,Rail,Export,833579440.0,0.0
+2020,Coahuila,Truck,Export,7451449542.0,0.0
+2020,Colima,Other/Unknown,Export,110009.0,0.0
+2020,Colima,Rail,Export,1656259.0,0.0
+2020,Colima,Truck,Export,73962982.0,0.0
+2020,Distrito Federal,Other/Unknown,Export,25502730.0,0.0
+2020,Distrito Federal,Pipeline,Export,3413194117.0,0.0
+2020,Distrito Federal,Rail,Export,2653784830.0,0.0
+2020,Distrito Federal,Truck,Export,7331831016.0,0.0
+2020,Durango,Other/Unknown,Export,762007.0,0.0
+2020,Durango,Rail,Export,670759167.0,0.0
+2020,Durango,Truck,Export,739812417.0,0.0
+2020,Estado de Mexico,Other/Unknown,Export,90003382.0,0.0
+2020,Estado de Mexico,Pipeline,Export,338848851.0,0.0
+2020,Estado de Mexico,Rail,Export,4245064867.0,0.0
+2020,Estado de Mexico,Truck,Export,14827081436.0,0.0
+2020,Guanajuato,Other/Unknown,Export,5351292.0,0.0
+2020,Guanajuato,Rail,Export,647909430.0,0.0
+2020,Guanajuato,Truck,Export,5794671063.0,0.0
+2020,Guerrero,Other/Unknown,Export,377626.0,0.0
+2020,Guerrero,Rail,Export,11234837.0,0.0
+2020,Guerrero,Truck,Export,15896867.0,0.0
+2020,Hidalgo,Other/Unknown,Export,1110476.0,0.0
+2020,Hidalgo,Pipeline,Export,273807361.0,0.0
+2020,Hidalgo,Rail,Export,172989179.0,0.0
+2020,Hidalgo,Truck,Export,375747560.0,0.0
+2020,Jalisco,Other/Unknown,Export,16749207.0,0.0
+2020,Jalisco,Rail,Export,1521003154.0,0.0
+2020,Jalisco,Truck,Export,4359301395.0,0.0
+2020,Michoacan,Other/Unknown,Export,1893025.0,0.0
+2020,Michoacan,Rail,Export,97771369.0,0.0
+2020,Michoacan,Truck,Export,136708740.0,0.0
+2020,Morelos,Other/Unknown,Export,1293619.0,0.0
+2020,Morelos,Rail,Export,27304978.0,0.0
+2020,Morelos,Truck,Export,425627654.0,0.0
+2020,Nuevo Leon,Other/Unknown,Export,116613595.0,0.0
+2020,Nuevo Leon,Pipeline,Export,155623721.0,0.0
+2020,Nuevo Leon,Rail,Export,2445053422.0,0.0
+2020,Nuevo Leon,Truck,Export,15526434733.0,0.0
+2020,Oaxaca,Other/Unknown,Export,420436.0,0.0
+2020,Oaxaca,Rail,Export,1903132.0,0.0
+2020,Oaxaca,Truck,Export,21610280.0,0.0
+2020,Puebla,Other/Unknown,Export,4875446.0,0.0
+2020,Puebla,Rail,Export,86971055.0,0.0
+2020,Puebla,Truck,Export,2291261138.0,0.0
+2020,Queretaro,Other/Unknown,Export,10444619.0,0.0
+2020,Queretaro,Rail,Export,971706087.0,0.0
+2020,Queretaro,Truck,Export,4151594449.0,0.0
+2020,Quintana Roo,Other/Unknown,Export,201871.0,0.0
+2020,Quintana Roo,Rail,Export,31068700.0,0.0
+2020,Quintana Roo,Truck,Export,69335590.0,0.0
+2020,San Luis Potosi,Other/Unknown,Export,3078265.0,0.0
+2020,San Luis Potosi,Rail,Export,364174069.0,0.0
+2020,San Luis Potosi,Truck,Export,3189581367.0,0.0
+2020,Sinaloa,Other/Unknown,Export,106960415.0,0.0
+2020,Sinaloa,Rail,Export,40579834.0,0.0
+2020,Sinaloa,Truck,Export,323003546.0,0.0
+2020,Sonora,Other/Unknown,Export,2642846.0,0.0
+2020,Sonora,Rail,Export,28611145.0,0.0
+2020,Sonora,Truck,Export,181867480.0,0.0
+2020,Tabasco,Other/Unknown,Export,4041261.0,0.0
+2020,Tabasco,Truck,Export,148178428.0,0.0
+2020,Tamaulipas,Other/Unknown,Export,204047350.0,0.0
+2020,Tamaulipas,Pipeline,Export,377539305.0,0.0
+2020,Tamaulipas,Rail,Export,874821271.0,0.0
+2020,Tamaulipas,Truck,Export,11667082444.0,0.0
+2020,Tlaxcala,Other/Unknown,Export,286866.0,0.0
+2020,Tlaxcala,Rail,Export,28772892.0,0.0
+2020,Tlaxcala,Truck,Export,228720521.0,0.0
+2020,Veracruz,Other/Unknown,Export,7397510.0,0.0
+2020,Veracruz,Rail,Export,47591974.0,0.0
+2020,Veracruz,Truck,Export,388976114.0,0.0
+2020,Yucatan,Other/Unknown,Export,110098.0,0.0
+2020,Yucatan,Rail,Export,178964135.0,0.0
+2020,Yucatan,Truck,Export,74251326.0,0.0
+2020,Zacatecas,Other/Unknown,Export,1169219.0,0.0
+2020,Zacatecas,Rail,Export,26871747.0,0.0
+2020,Zacatecas,Truck,Export,274730216.0,0.0
+2021,Aguascalientes,Other/Unknown,Export,12487087.0,0.0
+2021,Aguascalientes,Rail,Export,1705076762.0,0.0
+2021,Aguascalientes,Truck,Export,1394191560.0,0.0
+2021,Baja California,Other/Unknown,Export,2138583.0,0.0
+2021,Baja California,Rail,Export,168738829.0,0.0
+2021,Baja California,Truck,Export,439871627.0,0.0
+2021,Baja California Sur,Other/Unknown,Export,364974.0,0.0
+2021,Baja California Sur,Rail,Export,3547379.0,0.0
+2021,Baja California Sur,Truck,Export,6334145.0,0.0
+2021,Campeche,Other/Unknown,Export,952329.0,0.0
+2021,Campeche,Pipeline,Export,137806272.0,0.0
+2021,Campeche,Rail,Export,316442396.0,0.0
+2021,Campeche,Truck,Export,1715334639.0,0.0
+2021,Chiapas,Other/Unknown,Export,83448.0,0.0
+2021,Chiapas,Rail,Export,1334970.0,0.0
+2021,Chiapas,Truck,Export,68539655.0,0.0
+2021,Chihuahua,Other/Unknown,Export,197900320.0,0.0
+2021,Chihuahua,Pipeline,Export,59289176.0,0.0
+2021,Chihuahua,Rail,Export,331480064.0,0.0
+2021,Chihuahua,Truck,Export,27190447736.0,0.0
+2021,Coahuila,Other/Unknown,Export,13151681.0,0.0
+2021,Coahuila,Rail,Export,952897054.0,0.0
+2021,Coahuila,Truck,Export,9031213246.0,0.0
+2021,Colima,Other/Unknown,Export,433187.0,0.0
+2021,Colima,Rail,Export,1460458.0,0.0
+2021,Colima,Truck,Export,91126494.0,0.0
+2021,Distrito Federal,Other/Unknown,Export,58294930.0,0.0
+2021,Distrito Federal,Pipeline,Export,8838626482.0,0.0
+2021,Distrito Federal,Rail,Export,3512135699.0,0.0
+2021,Distrito Federal,Truck,Export,8375397081.0,0.0
+2021,Durango,Other/Unknown,Export,3677558.0,0.0
+2021,Durango,Rail,Export,853102040.0,0.0
+2021,Durango,Truck,Export,892977195.0,0.0
+2021,Estado de Mexico,Other/Unknown,Export,85506973.0,0.0
+2021,Estado de Mexico,Pipeline,Export,442054148.0,0.0
+2021,Estado de Mexico,Rail,Export,5751449960.0,0.0
+2021,Estado de Mexico,Truck,Export,20945723175.0,0.0
+2021,Guanajuato,Other/Unknown,Export,8056826.0,0.0
+2021,Guanajuato,Rail,Export,1203743288.0,0.0
+2021,Guanajuato,Truck,Export,6471669055.0,0.0
+2021,Guerrero,Other/Unknown,Export,422870.0,0.0
+2021,Guerrero,Rail,Export,10048238.0,0.0
+2021,Guerrero,Truck,Export,14208176.0,0.0
+2021,Hidalgo,Other/Unknown,Export,4141493.0,0.0
+2021,Hidalgo,Pipeline,Export,411598741.0,0.0
+2021,Hidalgo,Rail,Export,437865710.0,0.0
+2021,Hidalgo,Truck,Export,709331584.0,0.0
+2021,Jalisco,Other/Unknown,Export,30316473.0,0.0
+2021,Jalisco,Rail,Export,2310692947.0,0.0
+2021,Jalisco,Truck,Export,5190428876.0,0.0
+2021,Michoacan,Other/Unknown,Export,1029460.0,0.0
+2021,Michoacan,Rail,Export,149720991.0,0.0
+2021,Michoacan,Truck,Export,150303032.0,0.0
+2021,Morelos,Other/Unknown,Export,1939956.0,0.0
+2021,Morelos,Rail,Export,57364605.0,0.0
+2021,Morelos,Truck,Export,573448847.0,0.0
+2021,Nuevo Leon,Other/Unknown,Export,201126638.0,0.0
+2021,Nuevo Leon,Pipeline,Export,406820489.0,0.0
+2021,Nuevo Leon,Rail,Export,4127785886.0,0.0
+2021,Nuevo Leon,Truck,Export,19182392530.0,0.0
+2021,Oaxaca,Other/Unknown,Export,342511.0,0.0
+2021,Oaxaca,Rail,Export,4423470.0,0.0
+2021,Oaxaca,Truck,Export,18600244.0,0.0
+2021,Puebla,Other/Unknown,Export,8554998.0,0.0
+2021,Puebla,Rail,Export,187610371.0,0.0
+2021,Puebla,Truck,Export,3294369966.0,0.0
+2021,Queretaro,Other/Unknown,Export,15711591.0,0.0
+2021,Queretaro,Rail,Export,1579268246.0,0.0
+2021,Queretaro,Truck,Export,4980937959.0,0.0
+2021,Quintana Roo,Other/Unknown,Export,14221060.0,0.0
+2021,Quintana Roo,Rail,Export,16874885.0,0.0
+2021,Quintana Roo,Truck,Export,79465023.0,0.0
+2021,San Luis Potosi,Other/Unknown,Export,4940138.0,0.0
+2021,San Luis Potosi,Rail,Export,539687933.0,0.0
+2021,San Luis Potosi,Truck,Export,3203885966.0,0.0
+2021,Sinaloa,Other/Unknown,Export,175112878.0,0.0
+2021,Sinaloa,Rail,Export,97109354.0,0.0
+2021,Sinaloa,Truck,Export,436142866.0,0.0
+2021,Sonora,Other/Unknown,Export,6220162.0,0.0
+2021,Sonora,Rail,Export,30677478.0,0.0
+2021,Sonora,Truck,Export,270399994.0,0.0
+2021,Tabasco,Other/Unknown,Export,6039958.0,0.0
+2021,Tabasco,Truck,Export,144830613.0,0.0
+2021,Tamaulipas,Other/Unknown,Export,240555751.0,0.0
+2021,Tamaulipas,Pipeline,Export,674822120.0,0.0
+2021,Tamaulipas,Rail,Export,1787730462.0,0.0
+2021,Tamaulipas,Truck,Export,13591207565.0,0.0
+2021,Tlaxcala,Other/Unknown,Export,208313.0,0.0
+2021,Tlaxcala,Rail,Export,37975973.0,0.0
+2021,Tlaxcala,Truck,Export,276528066.0,0.0
+2021,Veracruz,Other/Unknown,Export,1508348.0,0.0
+2021,Veracruz,Rail,Export,81345974.0,0.0
+2021,Veracruz,Truck,Export,649677904.0,0.0
+2021,Yucatan,Other/Unknown,Export,48923.0,0.0
+2021,Yucatan,Rail,Export,244764306.0,0.0
+2021,Yucatan,Truck,Export,92149842.0,0.0
+2021,Zacatecas,Other/Unknown,Export,981096.0,0.0
+2021,Zacatecas,Rail,Export,21790036.0,0.0
+2021,Zacatecas,Truck,Export,204143642.0,0.0
+2022,Aguascalientes,Other/Unknown,Export,15163544.0,0.0
+2022,Aguascalientes,Rail,Export,2458743949.0,0.0
+2022,Aguascalientes,Truck,Export,1809748055.0,0.0
+2022,Baja California,Other/Unknown,Export,2791117.0,0.0
+2022,Baja California,Rail,Export,107199674.0,0.0
+2022,Baja California,Truck,Export,378011210.0,0.0
+2022,Baja California Sur,Other/Unknown,Export,57243.0,0.0
+2022,Baja California Sur,Rail,Export,1033591.0,0.0
+2022,Baja California Sur,Truck,Export,5699321.0,0.0
+2022,Campeche,Other/Unknown,Export,320448.0,0.0
+2022,Campeche,Pipeline,Export,354239430.0,0.0
+2022,Campeche,Rail,Export,234053598.0,0.0
+2022,Campeche,Truck,Export,2102858910.0,0.0
+2022,Chiapas,Other/Unknown,Export,438543.0,0.0
+2022,Chiapas,Truck,Export,63412619.0,0.0
+2022,Chihuahua,Other/Unknown,Export,220659267.0,0.0
+2022,Chihuahua,Pipeline,Export,93960417.0,0.0
+2022,Chihuahua,Rail,Export,351344298.0,0.0
+2022,Chihuahua,Truck,Export,31049015339.0,0.0
+2022,Coahuila,Other/Unknown,Export,26804165.0,0.0
+2022,Coahuila,Rail,Export,1291924831.0,0.0
+2022,Coahuila,Truck,Export,10736665429.0,0.0
+2022,Colima,Other/Unknown,Export,1418342.0,0.0
+2022,Colima,Rail,Export,67936.0,0.0
+2022,Colima,Truck,Export,76693248.0,0.0
+2022,Distrito Federal,Other/Unknown,Export,33144229.0,0.0
+2022,Distrito Federal,Pipeline,Export,10911170306.0,0.0
+2022,Distrito Federal,Rail,Export,2974471950.0,0.0
+2022,Distrito Federal,Truck,Export,10316716693.0,0.0
+2022,Durango,Other/Unknown,Export,3563502.0,0.0
+2022,Durango,Rail,Export,1049017886.0,0.0
+2022,Durango,Truck,Export,956819382.0,0.0
+2022,Estado de Mexico,Other/Unknown,Export,108041115.0,0.0
+2022,Estado de Mexico,Pipeline,Export,343140703.0,0.0
+2022,Estado de Mexico,Rail,Export,6723131275.0,0.0
+2022,Estado de Mexico,Truck,Export,24842800910.0,0.0
+2022,Guanajuato,Other/Unknown,Export,18114430.0,0.0
+2022,Guanajuato,Rail,Export,1274398018.0,0.0
+2022,Guanajuato,Truck,Export,7668158152.0,0.0
+2022,Guerrero,Other/Unknown,Export,489344.0,0.0
+2022,Guerrero,Rail,Export,8966.0,0.0
+2022,Guerrero,Truck,Export,26280731.0,0.0
+2022,Hidalgo,Other/Unknown,Export,7621448.0,0.0
+2022,Hidalgo,Pipeline,Export,103619729.0,0.0
+2022,Hidalgo,Rail,Export,604714271.0,0.0
+2022,Hidalgo,Truck,Export,1223330324.0,0.0
+2022,Jalisco,Other/Unknown,Export,26296746.0,0.0
+2022,Jalisco,Rail,Export,2026155073.0,0.0
+2022,Jalisco,Truck,Export,6313393694.0,0.0
+2022,Michoacan,Other/Unknown,Export,3735516.0,0.0
+2022,Michoacan,Rail,Export,111022235.0,0.0
+2022,Michoacan,Truck,Export,165223232.0,0.0
+2022,Morelos,Other/Unknown,Export,3333770.0,0.0
+2022,Morelos,Rail,Export,38469860.0,0.0
+2022,Morelos,Truck,Export,433253491.0,0.0
+2022,Nuevo Leon,Other/Unknown,Export,359917745.0,0.0
+2022,Nuevo Leon,Pipeline,Export,729709857.0,0.0
+2022,Nuevo Leon,Rail,Export,4497197197.0,0.0
+2022,Nuevo Leon,Truck,Export,22305864013.0,0.0
+2022,Oaxaca,Other/Unknown,Export,1329514.0,0.0
+2022,Oaxaca,Rail,Export,221558.0,0.0
+2022,Oaxaca,Truck,Export,18509741.0,0.0
+2022,Puebla,Other/Unknown,Export,23286813.0,0.0
+2022,Puebla,Rail,Export,250817793.0,0.0
+2022,Puebla,Truck,Export,3801199828.0,0.0
+2022,Queretaro,Other/Unknown,Export,24317938.0,0.0
+2022,Queretaro,Rail,Export,1470053930.0,0.0
+2022,Queretaro,Truck,Export,5507001213.0,0.0
+2022,Quintana Roo,Other/Unknown,Export,885722.0,0.0
+2022,Quintana Roo,Rail,Export,1855413.0,0.0
+2022,Quintana Roo,Truck,Export,78701917.0,0.0
+2022,San Luis Potosi,Other/Unknown,Export,5747607.0,0.0
+2022,San Luis Potosi,Rail,Export,751209358.0,0.0
+2022,San Luis Potosi,Truck,Export,4062454324.0,0.0
+2022,Sinaloa,Other/Unknown,Export,188147217.0,0.0
+2022,Sinaloa,Rail,Export,98616601.0,0.0
+2022,Sinaloa,Truck,Export,393179483.0,0.0
+2022,Sonora,Other/Unknown,Export,15742760.0,0.0
+2022,Sonora,Rail,Export,43243502.0,0.0
+2022,Sonora,Truck,Export,269000889.0,0.0
+2022,Tabasco,Other/Unknown,Export,6956725.0,0.0
+2022,Tabasco,Truck,Export,243201336.0,0.0
+2022,Tamaulipas,Other/Unknown,Export,309157940.0,0.0
+2022,Tamaulipas,Pipeline,Export,1039641834.0,0.0
+2022,Tamaulipas,Rail,Export,432102633.0,0.0
+2022,Tamaulipas,Truck,Export,14709297137.0,0.0
+2022,Tlaxcala,Other/Unknown,Export,698648.0,0.0
+2022,Tlaxcala,Rail,Export,33207378.0,0.0
+2022,Tlaxcala,Truck,Export,288150171.0,0.0
+2022,Veracruz,Other/Unknown,Export,4298217.0,0.0
+2022,Veracruz,Rail,Export,78499087.0,0.0
+2022,Veracruz,Truck,Export,573686879.0,0.0
+2022,Yucatan,Other/Unknown,Export,204776.0,0.0
+2022,Yucatan,Rail,Export,202855312.0,0.0
+2022,Yucatan,Truck,Export,79437565.0,0.0
+2022,Zacatecas,Other/Unknown,Export,2573048.0,0.0
+2022,Zacatecas,Rail,Export,19420531.0,0.0
+2022,Zacatecas,Truck,Export,202841855.0,0.0
+2023,Aguascalientes,Other/Unknown,Export,21550399.0,0.0
+2023,Aguascalientes,Rail,Export,2049832573.0,0.0
+2023,Aguascalientes,Truck,Export,2006111461.0,0.0
+2023,Baja California,Other/Unknown,Export,2447256.0,0.0
+2023,Baja California,Rail,Export,92078450.0,0.0
+2023,Baja California,Truck,Export,583551652.0,0.0
+2023,Baja California Sur,Other/Unknown,Export,483953.0,0.0
+2023,Baja California Sur,Rail,Export,6152489.0,0.0
+2023,Baja California Sur,Truck,Export,3829690.0,0.0
+2023,Campeche,Other/Unknown,Export,1357570.0,0.0
+2023,Campeche,Pipeline,Export,167812304.0,0.0
+2023,Campeche,Rail,Export,210150088.0,0.0
+2023,Campeche,Truck,Export,2255680867.0,0.0
+2023,Chiapas,Other/Unknown,Export,1134781.0,0.0
+2023,Chiapas,Rail,Export,145242.0,0.0
+2023,Chiapas,Truck,Export,88995386.0,0.0
+2023,Chihuahua,Other/Unknown,Export,240683209.0,0.0
+2023,Chihuahua,Pipeline,Export,72796901.0,0.0
+2023,Chihuahua,Rail,Export,225820997.0,0.0
+2023,Chihuahua,Truck,Export,29913172007.0,0.0
+2023,Coahuila,Other/Unknown,Export,35957335.0,0.0
+2023,Coahuila,Rail,Export,1031002011.0,0.0
+2023,Coahuila,Truck,Export,10072275062.0,0.0
+2023,Colima,Other/Unknown,Export,2056715.0,0.0
+2023,Colima,Rail,Export,896158.0,0.0
+2023,Colima,Truck,Export,82887243.0,0.0
+2023,Distrito Federal,Other/Unknown,Export,44650837.0,0.0
+2023,Distrito Federal,Pipeline,Export,5507436915.0,0.0
+2023,Distrito Federal,Rail,Export,3024804061.0,0.0
+2023,Distrito Federal,Truck,Export,10982109001.0,0.0
+2023,Durango,Other/Unknown,Export,4779175.0,0.0
+2023,Durango,Rail,Export,976659149.0,0.0
+2023,Durango,Truck,Export,921834121.0,0.0
+2023,Estado de Mexico,Other/Unknown,Export,162368260.0,0.0
+2023,Estado de Mexico,Pipeline,Export,126073063.0,0.0
+2023,Estado de Mexico,Rail,Export,6676565122.0,0.0
+2023,Estado de Mexico,Truck,Export,27225977237.0,0.0
+2023,Guanajuato,Other/Unknown,Export,35071538.0,0.0
+2023,Guanajuato,Rail,Export,783133414.0,0.0
+2023,Guanajuato,Truck,Export,6188573649.0,0.0
+2023,Guerrero,Other/Unknown,Export,1405690.0,0.0
+2023,Guerrero,Truck,Export,59834930.0,0.0
+2023,Hidalgo,Other/Unknown,Export,11429290.0,0.0
+2023,Hidalgo,Pipeline,Export,69713155.0,0.0
+2023,Hidalgo,Rail,Export,644946430.0,0.0
+2023,Hidalgo,Truck,Export,975885809.0,0.0
+2023,Jalisco,Other/Unknown,Export,47294097.0,0.0
+2023,Jalisco,Rail,Export,2540537564.0,0.0
+2023,Jalisco,Truck,Export,7205357937.0,0.0
+2023,Michoacan,Other/Unknown,Export,8827909.0,0.0
+2023,Michoacan,Rail,Export,68222751.0,0.0
+2023,Michoacan,Truck,Export,174039274.0,0.0
+2023,Morelos,Other/Unknown,Export,2268268.0,0.0
+2023,Morelos,Rail,Export,53975500.0,0.0
+2023,Morelos,Truck,Export,484590906.0,0.0
+2023,Nuevo Leon,Other/Unknown,Export,214734442.0,0.0
+2023,Nuevo Leon,Pipeline,Export,249740246.0,0.0
+2023,Nuevo Leon,Rail,Export,4064339795.0,0.0
+2023,Nuevo Leon,Truck,Export,24192611914.0,0.0
+2023,Oaxaca,Other/Unknown,Export,3500595.0,0.0
+2023,Oaxaca,Rail,Export,2195803.0,0.0
+2023,Oaxaca,Truck,Export,18889096.0,0.0
+2023,Puebla,Other/Unknown,Export,26008438.0,0.0
+2023,Puebla,Rail,Export,295099068.0,0.0
+2023,Puebla,Truck,Export,3988112922.0,0.0
+2023,Queretaro,Other/Unknown,Export,30495502.0,0.0
+2023,Queretaro,Rail,Export,1384721503.0,0.0
+2023,Queretaro,Truck,Export,5986625232.0,0.0
+2023,Quintana Roo,Other/Unknown,Export,14163083.0,0.0
+2023,Quintana Roo,Rail,Export,21426983.0,0.0
+2023,Quintana Roo,Truck,Export,107816871.0,0.0
+2023,San Luis Potosi,Other/Unknown,Export,15381163.0,0.0
+2023,San Luis Potosi,Rail,Export,737809368.0,0.0
+2023,San Luis Potosi,Truck,Export,4847343320.0,0.0
+2023,Sinaloa,Other/Unknown,Export,199239340.0,0.0
+2023,Sinaloa,Rail,Export,151728993.0,0.0
+2023,Sinaloa,Truck,Export,370132522.0,0.0
+2023,Sonora,Other/Unknown,Export,13539154.0,0.0
+2023,Sonora,Rail,Export,32351100.0,0.0
+2023,Sonora,Truck,Export,271542331.0,0.0
+2023,Tabasco,Other/Unknown,Export,5396062.0,0.0
+2023,Tabasco,Truck,Export,370213955.0,0.0
+2023,Tamaulipas,Other/Unknown,Export,447053261.0,0.0
+2023,Tamaulipas,Pipeline,Export,425967117.0,0.0
+2023,Tamaulipas,Rail,Export,527935191.0,0.0
+2023,Tamaulipas,Truck,Export,15879580809.0,0.0
+2023,Tlaxcala,Other/Unknown,Export,1526307.0,0.0
+2023,Tlaxcala,Rail,Export,32679848.0,0.0
+2023,Tlaxcala,Truck,Export,332732133.0,0.0
+2023,Veracruz,Other/Unknown,Export,12902534.0,0.0
+2023,Veracruz,Rail,Export,113587807.0,0.0
+2023,Veracruz,Truck,Export,662405596.0,0.0
+2023,Yucatan,Other/Unknown,Export,714541.0,0.0
+2023,Yucatan,Rail,Export,188179878.0,0.0
+2023,Yucatan,Truck,Export,121493456.0,0.0
+2023,Zacatecas,Other/Unknown,Export,1706324.0,0.0
+2023,Zacatecas,Rail,Export,20765853.0,0.0
+2023,Zacatecas,Truck,Export,177362513.0,0.0
+2024,Aguascalientes,Other/Unknown,Export,18801402.0,0.0
+2024,Aguascalientes,Rail,Export,1613616882.0,0.0
+2024,Aguascalientes,Truck,Export,1888584122.0,0.0
+2024,Baja California,Other/Unknown,Export,3270512.0,0.0
+2024,Baja California,Rail,Export,34322358.0,0.0
+2024,Baja California,Truck,Export,756500847.0,0.0
+2024,Baja California Sur,Other/Unknown,Export,115747.0,0.0
+2024,Baja California Sur,Rail,Export,4545131.0,0.0
+2024,Baja California Sur,Truck,Export,8493131.0,0.0
+2024,Campeche,Other/Unknown,Export,742632.0,0.0
+2024,Campeche,Pipeline,Export,33008537.0,0.0
+2024,Campeche,Rail,Export,41890504.0,0.0
+2024,Campeche,Truck,Export,2364812637.0,0.0
+2024,Chiapas,Other/Unknown,Export,1725459.0,0.0
+2024,Chiapas,Pipeline,Export,19324.0,0.0
+2024,Chiapas,Rail,Export,26899551.0,0.0
+2024,Chiapas,Truck,Export,70529218.0,0.0
+2024,Chihuahua,Other/Unknown,Export,244221896.0,0.0
+2024,Chihuahua,Pipeline,Export,51801107.0,0.0
+2024,Chihuahua,Rail,Export,231767958.0,0.0
+2024,Chihuahua,Truck,Export,31823557728.0,0.0
+2024,Coahuila,Other/Unknown,Export,29329428.0,0.0
+2024,Coahuila,Rail,Export,941211569.0,0.0
+2024,Coahuila,Truck,Export,9580383717.0,0.0
+2024,Colima,Other/Unknown,Export,2014545.0,0.0
+2024,Colima,Rail,Export,1113505.0,0.0
+2024,Colima,Truck,Export,158926493.0,0.0
+2024,Distrito Federal,Other/Unknown,Export,114695910.0,0.0
+2024,Distrito Federal,Pipeline,Export,4640623700.0,0.0
+2024,Distrito Federal,Rail,Export,3412112936.0,0.0
+2024,Distrito Federal,Truck,Export,11838630621.0,0.0
+2024,Durango,Other/Unknown,Export,3617829.0,0.0
+2024,Durango,Rail,Export,750777831.0,0.0
+2024,Durango,Truck,Export,865528226.0,0.0
+2024,Estado de Mexico,Other/Unknown,Export,164468294.0,0.0
+2024,Estado de Mexico,Pipeline,Export,83322976.0,0.0
+2024,Estado de Mexico,Rail,Export,7227936963.0,0.0
+2024,Estado de Mexico,Truck,Export,27179086599.0,0.0
+2024,Guanajuato,Other/Unknown,Export,41905310.0,0.0
+2024,Guanajuato,Rail,Export,937520983.0,0.0
+2024,Guanajuato,Truck,Export,6265566340.0,0.0
+2024,Guerrero,Other/Unknown,Export,2621300.0,0.0
+2024,Guerrero,Truck,Export,63255646.0,0.0
+2024,Hidalgo,Other/Unknown,Export,15720362.0,0.0
+2024,Hidalgo,Pipeline,Export,165104697.0,0.0
+2024,Hidalgo,Rail,Export,631298169.0,0.0
+2024,Hidalgo,Truck,Export,802423589.0,0.0
+2024,Jalisco,Other/Unknown,Export,62166147.0,0.0
+2024,Jalisco,Rail,Export,2776481002.0,0.0
+2024,Jalisco,Truck,Export,7634800658.0,0.0
+2024,Michoacan,Other/Unknown,Export,13066197.0,0.0
+2024,Michoacan,Rail,Export,111652439.0,0.0
+2024,Michoacan,Truck,Export,194106416.0,0.0
+2024,Morelos,Other/Unknown,Export,4368828.0,0.0
+2024,Morelos,Rail,Export,26197499.0,0.0
+2024,Morelos,Truck,Export,503974821.0,0.0
+2024,Nuevo Leon,Other/Unknown,Export,281271777.0,0.0
+2024,Nuevo Leon,Pipeline,Export,75971761.0,0.0
+2024,Nuevo Leon,Rail,Export,3634379785.0,0.0
+2024,Nuevo Leon,Truck,Export,26292088378.0,0.0
+2024,Oaxaca,Other/Unknown,Export,5953860.0,0.0
+2024,Oaxaca,Rail,Export,5200509.0,0.0
+2024,Oaxaca,Truck,Export,22028859.0,0.0
+2024,Puebla,Other/Unknown,Export,29605719.0,0.0
+2024,Puebla,Rail,Export,439628745.0,0.0
+2024,Puebla,Truck,Export,3322259567.0,0.0
+2024,Queretaro,Other/Unknown,Export,62289047.0,0.0
+2024,Queretaro,Rail,Export,1094141640.0,0.0
+2024,Queretaro,Truck,Export,6611553349.0,0.0
+2024,Quintana Roo,Other/Unknown,Export,8938051.0,0.0
+2024,Quintana Roo,Rail,Export,38411241.0,0.0
+2024,Quintana Roo,Truck,Export,115180969.0,0.0
+2024,San Luis Potosi,Other/Unknown,Export,15201940.0,0.0
+2024,San Luis Potosi,Rail,Export,772437839.0,0.0
+2024,San Luis Potosi,Truck,Export,5330909429.0,0.0
+2024,Sinaloa,Other/Unknown,Export,249496082.0,0.0
+2024,Sinaloa,Rail,Export,170460775.0,0.0
+2024,Sinaloa,Truck,Export,369943263.0,0.0
+2024,Sonora,Other/Unknown,Export,9325925.0,0.0
+2024,Sonora,Rail,Export,32858759.0,0.0
+2024,Sonora,Truck,Export,268069929.0,0.0
+2024,Tabasco,Other/Unknown,Export,6278978.0,0.0
+2024,Tabasco,Truck,Export,365233340.0,0.0
+2024,Tamaulipas,Other/Unknown,Export,508624304.0,0.0
+2024,Tamaulipas,Pipeline,Export,356361439.0,0.0
+2024,Tamaulipas,Rail,Export,1386913557.0,0.0
+2024,Tamaulipas,Truck,Export,14341611878.0,0.0
+2024,Tlaxcala,Other/Unknown,Export,2440071.0,0.0
+2024,Tlaxcala,Rail,Export,45584430.0,0.0
+2024,Tlaxcala,Truck,Export,384815617.0,0.0
+2024,Veracruz,Other/Unknown,Export,9546988.0,0.0
+2024,Veracruz,Rail,Export,112152692.0,0.0
+2024,Veracruz,Truck,Export,505786954.0,0.0
+2024,Yucatan,Other/Unknown,Export,6613302.0,0.0
+2024,Yucatan,Rail,Export,183510719.0,0.0
+2024,Yucatan,Truck,Export,176634017.0,0.0
+2024,Zacatecas,Other/Unknown,Export,8461986.0,0.0
+2024,Zacatecas,Rail,Export,26364529.0,0.0
+2024,Zacatecas,Truck,Export,158343943.0,0.0
+2025,Aguascalientes,Other/Unknown,Export,15451013.0,0.0
+2025,Aguascalientes,Rail,Export,1756061550.0,0.0
+2025,Aguascalientes,Truck,Export,1855371677.0,0.0
+2025,Baja California,Other/Unknown,Export,3903968.0,0.0
+2025,Baja California,Rail,Export,41007417.0,0.0
+2025,Baja California,Truck,Export,988094471.0,0.0
+2025,Baja California Sur,Other/Unknown,Export,216908.0,0.0
+2025,Baja California Sur,Rail,Export,3056290.0,0.0
+2025,Baja California Sur,Truck,Export,16581577.0,0.0
+2025,Campeche,Other/Unknown,Export,624436.0,0.0
+2025,Campeche,Rail,Export,77006622.0,0.0
+2025,Campeche,Truck,Export,2212586541.0,0.0
+2025,Chiapas,Other/Unknown,Export,9446482.0,0.0
+2025,Chiapas,Rail,Export,31289686.0,0.0
+2025,Chiapas,Truck,Export,47987287.0,0.0
+2025,Chihuahua,Other/Unknown,Export,280159183.0,0.0
+2025,Chihuahua,Pipeline,Export,40178204.0,0.0
+2025,Chihuahua,Rail,Export,200473819.0,0.0
+2025,Chihuahua,Truck,Export,44220993821.0,0.0
+2025,Coahuila,Other/Unknown,Export,124645666.0,0.0
+2025,Coahuila,Rail,Export,679434560.0,0.0
+2025,Coahuila,Truck,Export,9115633837.0,0.0
+2025,Colima,Other/Unknown,Export,1692240.0,0.0
+2025,Colima,Rail,Export,91058.0,0.0
+2025,Colima,Truck,Export,158958049.0,0.0
+2025,Distrito Federal,Other/Unknown,Export,52243363.0,0.0
+2025,Distrito Federal,Pipeline,Export,6730366083.0,0.0
+2025,Distrito Federal,Rail,Export,3914198445.0,0.0
+2025,Distrito Federal,Truck,Export,11246472908.0,0.0
+2025,Durango,Other/Unknown,Export,4480738.0,0.0
+2025,Durango,Rail,Export,623153221.0,0.0
+2025,Durango,Truck,Export,804883733.0,0.0
+2025,Estado de Mexico,Other/Unknown,Export,164099984.0,0.0
+2025,Estado de Mexico,Pipeline,Export,104444404.0,0.0
+2025,Estado de Mexico,Rail,Export,7168141326.0,0.0
+2025,Estado de Mexico,Truck,Export,22475670424.0,0.0
+2025,Guanajuato,Other/Unknown,Export,35417894.0,0.0
+2025,Guanajuato,Rail,Export,885467067.0,0.0
+2025,Guanajuato,Truck,Export,6153928275.0,0.0
+2025,Guerrero,Other/Unknown,Export,3935883.0,0.0
+2025,Guerrero,Rail,Export,53763.0,0.0
+2025,Guerrero,Truck,Export,101167329.0,0.0
+2025,Hidalgo,Other/Unknown,Export,17921504.0,0.0
+2025,Hidalgo,Pipeline,Export,106894587.0,0.0
+2025,Hidalgo,Rail,Export,560101368.0,0.0
+2025,Hidalgo,Truck,Export,577811921.0,0.0
+2025,Jalisco,Other/Unknown,Export,65914110.0,0.0
+2025,Jalisco,Rail,Export,2210215349.0,0.0
+2025,Jalisco,Truck,Export,9004721904.0,0.0
+2025,Michoacan,Other/Unknown,Export,11474545.0,0.0
+2025,Michoacan,Rail,Export,87235201.0,0.0
+2025,Michoacan,Truck,Export,218838877.0,0.0
+2025,Morelos,Other/Unknown,Export,3654651.0,0.0
+2025,Morelos,Pipeline,Export,2321953.0,0.0
+2025,Morelos,Rail,Export,7370790.0,0.0
+2025,Morelos,Truck,Export,476007475.0,0.0
+2025,Nuevo Leon,Other/Unknown,Export,336355395.0,0.0
+2025,Nuevo Leon,Pipeline,Export,264835498.0,0.0
+2025,Nuevo Leon,Rail,Export,3110864045.0,0.0
+2025,Nuevo Leon,Truck,Export,23993651664.0,0.0
+2025,Oaxaca,Other/Unknown,Export,5491617.0,0.0
+2025,Oaxaca,Rail,Export,3191063.0,0.0
+2025,Oaxaca,Truck,Export,18310778.0,0.0
+2025,Puebla,Other/Unknown,Export,25806859.0,0.0
+2025,Puebla,Rail,Export,411909184.0,0.0
+2025,Puebla,Truck,Export,3115251680.0,0.0
+2025,Queretaro,Other/Unknown,Export,57346006.0,0.0
+2025,Queretaro,Rail,Export,678920518.0,0.0
+2025,Queretaro,Truck,Export,6881232162.0,0.0
+2025,Quintana Roo,Other/Unknown,Export,5534557.0,0.0
+2025,Quintana Roo,Rail,Export,26808717.0,0.0
+2025,Quintana Roo,Truck,Export,136649594.0,0.0
+2025,San Luis Potosi,Other/Unknown,Export,13878281.0,0.0
+2025,San Luis Potosi,Rail,Export,407082681.0,0.0
+2025,San Luis Potosi,Truck,Export,4193928820.0,0.0
+2025,Sinaloa,Other/Unknown,Export,243638196.0,0.0
+2025,Sinaloa,Rail,Export,210963320.0,0.0
+2025,Sinaloa,Truck,Export,271074708.0,0.0
+2025,Sonora,Other/Unknown,Export,17833272.0,0.0
+2025,Sonora,Rail,Export,48739016.0,0.0
+2025,Sonora,Truck,Export,285960491.0,0.0
+2025,Tabasco,Other/Unknown,Export,2904601.0,0.0
+2025,Tabasco,Rail,Export,24559898.0,0.0
+2025,Tabasco,Truck,Export,305213680.0,0.0
+2025,Tamaulipas,Other/Unknown,Export,528293765.0,0.0
+2025,Tamaulipas,Pipeline,Export,493465614.0,0.0
+2025,Tamaulipas,Rail,Export,946999974.0,0.0
+2025,Tamaulipas,Truck,Export,13810873824.0,0.0
+2025,Tlaxcala,Other/Unknown,Export,2523606.0,0.0
+2025,Tlaxcala,Rail,Export,48400261.0,0.0
+2025,Tlaxcala,Truck,Export,343348417.0,0.0
+2025,Veracruz,Other/Unknown,Export,13809849.0,0.0
+2025,Veracruz,Rail,Export,129026759.0,0.0
+2025,Veracruz,Truck,Export,700232739.0,0.0
+2025,Yucatan,Other/Unknown,Export,15555690.0,0.0
+2025,Yucatan,Rail,Export,163143098.0,0.0
+2025,Yucatan,Truck,Export,252368630.0,0.0
+2025,Zacatecas,Other/Unknown,Export,3202315.0,0.0
+2025,Zacatecas,Rail,Export,18378894.0,0.0
+2025,Zacatecas,Truck,Export,186890850.0,0.0

@@ -226,14 +226,8 @@ export default function OverviewPage() {
     {
       path: '/texas-mexico',
       title: 'Texas--Mexico Trade',
-      desc: 'The core TxDOT deliverable. Five-tab deep dive into Texas border ports: trade overview, individual port analysis, commodity flows, transportation modes, and monthly seasonality.',
+      desc: 'Deep dive into Texas border ports: port analysis, commodity flows, transportation modes, monthly patterns, and Mexican state trading partners.',
       Icon: MapPin,
-    },
-    {
-      path: '/trade-by-state',
-      title: 'By State',
-      desc: 'Which U.S. states drive cross-border trade? Rankings, trend lines for the top states, and export/import breakdowns. See how Texas compares to Michigan, California, and others.',
-      Icon: BarChart3,
     },
   ]
 

@@ -59,8 +59,8 @@ export default function ModesTab({ filteredPorts, filteredPortsNoYear, latestYea
       if (!d.Mode) return
       if (!byMode.has(d.Mode)) byMode.set(d.Mode, { label: d.Mode, exports: 0, imports: 0 })
       const row = byMode.get(d.Mode)
-      if (d.TradeType === 'Exports') row.exports += d.TradeValue || 0
-      else if (d.TradeType === 'Imports') row.imports += d.TradeValue || 0
+      if (d.TradeType === 'Export') row.exports += d.TradeValue || 0
+      else if (d.TradeType === 'Import') row.imports += d.TradeValue || 0
     })
     return Array.from(byMode.values())
       .sort((a, b) => (b.exports + b.imports) - (a.exports + a.imports))

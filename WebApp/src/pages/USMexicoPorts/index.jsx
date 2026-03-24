@@ -3,6 +3,7 @@ import { DollarSign, MapPin, Award, Truck } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency, buildFilterOptions, getAxisFormatter } from '@/lib/transborderHelpers'
 import { CHART_COLORS } from '@/lib/chartColors'
+import { MEXICAN_CROSSINGS } from '@/lib/portUtils'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterMultiSelect from '@/components/filters/FilterMultiSelect'
 import FilterSelect from '@/components/filters/FilterSelect'
@@ -13,6 +14,7 @@ import SectionBlock from '@/components/ui/SectionBlock'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
+import PortMap from '@/components/maps/PortMap'
 
 /* ── COVID annotation ─────────────────────────────────────────────── */
 const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
@@ -24,6 +26,15 @@ export default function USMexicoPortsPage() {
   useEffect(() => {
     loadDataset('usMexicoPorts')
   }, [loadDataset])
+
+  /* ── port coordinates (fetched once from static JSON) ──────────── */
+  const [portCoords, setPortCoords] = useState(null)
+  useEffect(() => {
+    fetch(`${import.meta.env.BASE_URL}data/port_coordinates.json`)
+      .then((r) => r.json())
+      .then(setPortCoords)
+      .catch(() => setPortCoords({}))
+  }, [])
 
   /* ── local filter state ──────────────────────────────────────────── */
   const [yearFilter, setYearFilter] = useState([])
@@ -160,6 +171,28 @@ export default function USMexicoPortsPage() {
     { key: 'Exports', label: 'Exports', render: (v) => formatCurrency(v) },
     { key: 'Imports', label: 'Imports', render: (v) => formatCurrency(v) },
   ]
+
+  /* ── Map markers (aggregate trade by port, join coordinates) ────── */
+  const mapPorts = useMemo(() => {
+    if (!portCoords) return []
+    const byPort = new Map()
+    filtered.forEach((d) => {
+      if (!d.Port) return
+      const code = d.PortCode?.replace(/\D/g, '')
+      if (!byPort.has(d.Port)) {
+        const coords = portCoords[code]
+        byPort.set(d.Port, {
+          name: d.Port,
+          lat: coords?.lat ?? null,
+          lng: coords?.lon ?? null,
+          value: 0,
+          portCode: d.PortCode,
+        })
+      }
+      byPort.get(d.Port).value += d.TradeValue || 0
+    })
+    return Array.from(byPort.values()).filter((p) => p.lat != null)
+  }, [filtered, portCoords])
 
   /* ── active filter count & tags ──────────────────────────────────── */
   const activeCount = yearFilter.length + (tradeTypeFilter ? 1 : 0) + modeFilter.length + stateFilter.length
@@ -299,16 +332,17 @@ export default function USMexicoPortsPage() {
         </div>
       </SectionBlock>
 
-      {/* Map placeholder */}
+      {/* Interactive port map */}
       <SectionBlock>
-        <ChartCard title="Port Locations" subtitle="U.S.-Mexico border ports of entry">
-          <div className="flex items-center justify-center h-80 bg-surface-alt rounded-lg border border-border-light">
-            <div className="text-center text-text-secondary">
-              <MapPin size={40} className="mx-auto mb-3 text-text-secondary/40" />
-              <p className="text-base font-medium">Map loading...</p>
-              <p className="text-sm text-text-secondary/70 mt-1">Interactive map will be added separately.</p>
-            </div>
-          </div>
+        <ChartCard title="Port Locations" subtitle="U.S.–Mexico border ports of entry — bubble size reflects trade value">
+          <PortMap
+            ports={mapPorts}
+            mexicanCrossings={MEXICAN_CROSSINGS}
+            formatValue={formatCurrency}
+            center={[29.5, -104.0]}
+            zoom={5}
+            height="520px"
+          />
         </ChartCard>
       </SectionBlock>
 

@@ -18,23 +18,11 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
     loadDataset('texasMexicoCommodities')
   }, [loadDataset])
 
-  /* ── spinner while loading ───────────────────────────────────────── */
-  if (!filteredCommodities) {
-    return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="text-center">
-          <div className="w-10 h-10 border-3 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-base text-text-secondary">Loading commodity data...</p>
-        </div>
-      </div>
-    )
-  }
-
-  /* eslint-disable react-hooks/rules-of-hooks */
   const [treemapDrill, setTreemapDrill] = useState(null)
 
   /* ── Treemap: top commodity groups or drilled-down HS codes ─────── */
   const commodityGroups = useMemo(() => {
+    if (!filteredCommodities) return []
     if (treemapDrill) {
       const map = new Map()
       filteredCommodities.forEach((d) => {
@@ -56,6 +44,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
 
   /* ── Top 10 individual commodities (bar) ─────────────────────────── */
   const topCommodities = useMemo(() => {
+    if (!filteredCommodities) return []
     const byCommodity = new Map()
     filteredCommodities.forEach((d) => {
       if (!d.Commodity) return
@@ -68,7 +57,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
 
   /* ── Top 5 commodity group trends (multi-series line) ────────────── */
   const groupTrends = useMemo(() => {
-    // Find top 5 groups by total
+    if (!filteredCommodities) return []
     const totals = new Map()
     filteredCommodities.forEach((d) => {
       if (!d.CommodityGroup) return
@@ -92,6 +81,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
 
   /* ── Commodity detail table ──────────────────────────────────────── */
   const tableData = useMemo(() => {
+    if (!filteredCommodities) return []
     const byKey = new Map()
     filteredCommodities.forEach((d) => {
       const key = `${d.Year}|${d.HSCode}|${d.Port}|${d.TradeType}`
@@ -114,10 +104,22 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, lates
     return Array.from(byKey.values()).sort((a, b) => b.TradeValue - a.TradeValue)
   }, [filteredCommodities])
 
+  /* ── spinner while loading ───────────────────────────────────────── */
+  if (!filteredCommodities) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="text-center">
+          <div className="w-10 h-10 border-3 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-base text-text-secondary">Loading commodity data...</p>
+        </div>
+      </div>
+    )
+  }
+
   const tableColumns = [
     { key: 'Year', label: 'Year' },
     { key: 'HSCode', label: 'HS Code' },
-    { key: 'Commodity', label: 'Commodity', wrap: true },
+    { key: 'Commodity', label: 'Commodity', wrap: true, minWidth: 260 },
     { key: 'CommodityGroup', label: 'Group', wrap: true },
     { key: 'Port', label: 'Port', wrap: true },
     { key: 'TradeType', label: 'Trade Type' },

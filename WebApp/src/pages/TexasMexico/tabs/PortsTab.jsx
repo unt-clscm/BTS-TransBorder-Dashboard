@@ -1,6 +1,6 @@
 /**
  * PortsTab — Port-level analysis of TX-MX surface freight trade.
- * Includes map placeholder, port ranking, top-5 port trends, and data table.
+ * Includes interactive port map, port ranking, top-5 port trends, and data table.
  */
 import { useMemo } from 'react'
 import SectionBlock from '@/components/ui/SectionBlock'
@@ -8,9 +8,24 @@ import ChartCard from '@/components/ui/ChartCard'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
+import PortMap from '@/components/maps/PortMap'
+import { MEXICAN_CROSSINGS } from '@/lib/portUtils'
 import { formatCurrency, formatCompact, formatNumber } from '@/lib/chartColors'
 
 export default function PortsTab({ filteredPorts, filteredPortsNoYear, latestYear }) {
+  /* ── Map markers (aggregate trade by port, attach coords) ────────── */
+  const mapPorts = useMemo(() => {
+    const byPort = new Map()
+    filteredPorts.forEach((d) => {
+      if (!d.Port || d.Lat == null || d.Lon == null) return
+      if (!byPort.has(d.Port)) {
+        byPort.set(d.Port, { name: d.Port, lat: d.Lat, lng: d.Lon, value: 0, portCode: d.PortCode })
+      }
+      byPort.get(d.Port).value += d.TradeValue || 0
+    })
+    return Array.from(byPort.values())
+  }, [filteredPorts])
+
   /* ── Port ranking (bar) ──────────────────────────────────────────── */
   const portRanking = useMemo(() => {
     const byPort = new Map()
@@ -83,15 +98,19 @@ export default function PortsTab({ filteredPorts, filteredPortsNoYear, latestYea
 
   return (
     <>
-      {/* Map placeholder */}
+      {/* Interactive port map */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <div className="rounded-xl border border-border bg-surface-alt p-12 text-center">
-            <p className="text-lg text-text-secondary font-medium">Map coming soon</p>
-            <p className="text-sm text-text-secondary/70 mt-1">
-              Interactive port map with trade volume bubbles will be added in a future update.
-            </p>
-          </div>
+          <ChartCard title="Texas-Mexico Ports of Entry" subtitle="Bubble size reflects total trade value for selected filters">
+            <PortMap
+              ports={mapPorts}
+              mexicanCrossings={MEXICAN_CROSSINGS}
+              formatValue={formatCurrency}
+              center={[28.5, -100.0]}
+              zoom={6}
+              height="520px"
+            />
+          </ChartCard>
         </div>
       </SectionBlock>
 

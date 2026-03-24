@@ -86,6 +86,7 @@ export default function LineChart({
   yKey = 'value',
   seriesKey,
   formatValue = formatCompact,
+  formatX,
   showArea = false,
   animate = true,
   annotations = [],
@@ -414,7 +415,7 @@ export default function LineChart({
         tipDiv.textContent = ''
         const header = document.createElement('div')
         Object.assign(header.style, { fontWeight: '700', fontSize: '16px', marginBottom: '6px' })
-        header.textContent = xVal
+        header.textContent = formatX ? formatX(xVal) : xVal
         tipDiv.appendChild(header)
 
         const body = document.createElement('div')
@@ -466,11 +467,18 @@ export default function LineChart({
     const xAxisG = g.append('g')
       .attr('transform', `translate(0,${innerH})`)
 
+    // Subsample ticks when there are too many unique x values
+    const maxTicks = Math.max(4, Math.floor(innerW / 80))
+    const tickVals = uniqueXValues.length > maxTicks
+      ? uniqueXValues.filter((_, i) => i % Math.ceil(uniqueXValues.length / maxTicks) === 0)
+      : uniqueXValues
+    const xTickFormat = formatX || d3.format('d')
+
     const styleXAxis = (sx) => {
       xAxisG.call(
         d3.axisBottom(sx)
-          .tickValues(uniqueXValues)
-          .tickFormat(d3.format('d'))
+          .tickValues(tickVals)
+          .tickFormat(xTickFormat)
           .tickSize(0)
       )
       xAxisG.select('.domain').remove()
@@ -685,7 +693,7 @@ export default function LineChart({
     }
 
     return () => { document.getElementById(tipId)?.remove() }
-  }, [data, width, containerHeight, isFullscreen, xKey, yKey, seriesKey, showArea, animate, annotations])
+  }, [data, width, containerHeight, isFullscreen, xKey, yKey, seriesKey, formatX, showArea, animate, annotations])
 
   // Ensure container expands for legend rows
   const seriesCount = seriesKey ? new Set(data.map(d => d[seriesKey])).size : 0

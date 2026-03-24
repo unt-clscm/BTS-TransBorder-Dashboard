@@ -41,8 +41,8 @@ const REGION_OPTIONS = [
 ]
 
 const TRADE_TYPE_OPTIONS = [
-  { value: 'Exports', label: 'Exports' },
-  { value: 'Imports', label: 'Imports' },
+  { value: 'Export', label: 'Export' },
+  { value: 'Import', label: 'Import' },
 ]
 
 export default function TexasMexicoPage() {
@@ -147,8 +147,8 @@ export default function TexasMexicoPage() {
     const prevTrade = prev.reduce((s, d) => s + (d.TradeValue || 0), 0)
     const tradeChange = prevTrade ? (totalTrade - prevTrade) / prevTrade : 0
 
-    const exports = latest.filter((d) => d.TradeType === 'Exports').reduce((s, d) => s + (d.TradeValue || 0), 0)
-    const imports = latest.filter((d) => d.TradeType === 'Imports').reduce((s, d) => s + (d.TradeValue || 0), 0)
+    const exports = latest.filter((d) => d.TradeType === 'Export').reduce((s, d) => s + (d.TradeValue || 0), 0)
+    const imports = latest.filter((d) => d.TradeType === 'Import').reduce((s, d) => s + (d.TradeValue || 0), 0)
     const portCount = new Set(latest.map((d) => d.Port)).size
 
     const modeMap = new Map()

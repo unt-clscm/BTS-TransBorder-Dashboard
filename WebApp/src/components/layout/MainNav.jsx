@@ -10,7 +10,7 @@ const navItems = [
   { label: 'US-Mexico', path: '/us-mexico' },
   { label: 'Texas-Mexico', path: '/texas-mexico' },
   { label: 'By Mode', path: '/trade-by-mode' },
-  { label: 'Commodities', path: '/commodities' },
+  { label: 'By Commodity', path: '/commodities' },
   { label: 'By State', path: '/trade-by-state' },
   { label: 'About', path: '/about' },
 ]

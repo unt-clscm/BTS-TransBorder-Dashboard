@@ -3,7 +3,7 @@
  * Loads monthlyTrends on mount and filters to Country=Mexico.
  * Shows continuous monthly line chart, seasonal stacked bar, and detail table.
  */
-import { useMemo, useEffect } from 'react'
+import { useMemo, useEffect, useCallback } from 'react'
 import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import LineChart from '@/components/charts/LineChart'
@@ -48,8 +48,17 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, latestYear })
       }
       byYM.get(key).value += d.TradeValue || 0
     })
-    return Array.from(byYM.values()).sort((a, b) => a.date.localeCompare(b.date))
+    const sorted = Array.from(byYM.values()).sort((a, b) => a.date.localeCompare(b.date))
+    // Assign sequential numeric index — LineChart requires numeric xKey
+    sorted.forEach((d, i) => { d.idx = i })
+    return sorted
   }, [filteredMonthly])
+
+  /* ── Format index → date label for x-axis ticks / tooltip ──────── */
+  const formatX = useCallback((idx) => {
+    const d = monthlyTimeSeries[idx]
+    return d ? d.date : ''
+  }, [monthlyTimeSeries])
 
   /* ── Seasonal pattern: month x year stacked bar ──────────────────── */
   const seasonalData = useMemo(() => {
@@ -113,9 +122,10 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, latestYear })
           <ChartCard title="Monthly Trade Trends" subtitle="Continuous monthly time series of TX-MX trade value">
             <LineChart
               data={monthlyTimeSeries}
-              xKey="date"
+              xKey="idx"
               yKey="value"
               formatValue={formatCurrency}
+              formatX={formatX}
             />
           </ChartCard>
         </div>

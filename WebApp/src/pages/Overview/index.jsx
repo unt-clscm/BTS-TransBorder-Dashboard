@@ -136,31 +136,31 @@ export default function OverviewPage() {
     {
       path: '/us-mexico',
       title: 'U.S.--Mexico Trade',
-      desc: 'National-level U.S.--Mexico trade by port of entry, mode, and direction.',
+      desc: 'All U.S. ports of entry on the Mexican border — trade totals, port rankings, mode breakdown, and trends. Covers Arizona, California, New Mexico, and Texas.',
       Icon: ArrowRightLeft,
     },
     {
       path: '/texas-mexico',
       title: 'Texas--Mexico Trade',
-      desc: 'Deep dive into Texas border ports, trade flows, and regional patterns.',
+      desc: 'The core TxDOT deliverable. Five-tab deep dive into Texas border ports: trade overview, individual port analysis, commodity flows, transportation modes, and monthly seasonality.',
       Icon: MapPin,
     },
     {
       path: '/trade-by-mode',
-      title: 'Trade by Mode',
-      desc: 'Compare truck, rail, pipeline, air, and vessel freight over time.',
+      title: 'By Mode',
+      desc: 'How goods move across the border — compare truck, rail, pipeline, air, and vessel freight. See which modes dominate exports vs. imports and how the mix has shifted over time.',
       Icon: Truck,
     },
     {
       path: '/commodities',
-      title: 'Commodities',
-      desc: 'Top commodity groups by value and weight across trade partners.',
+      title: 'By Commodity',
+      desc: 'What is being traded — explore HS 2-digit commodity groups by trade value. Click any group in the treemap to drill down into individual commodities and track the top groups over time.',
       Icon: Package,
     },
     {
       path: '/trade-by-state',
-      title: 'Trade by State',
-      desc: 'Which U.S. states drive the most cross-border trade with Mexico?',
+      title: 'By State',
+      desc: 'Which U.S. states drive cross-border trade? Rankings, trend lines for the top states, and export/import breakdowns. See how Texas compares to Michigan, California, and others.',
       Icon: BarChart3,
     },
   ]
@@ -358,7 +358,7 @@ export default function OverviewPage() {
             </a>.
           </p>
           <Link
-            to="/about-data"
+            to="/about"
             className="inline-flex items-center gap-1.5 text-base font-semibold text-brand-blue hover:underline mt-2"
           >
             Data details, methodology & limitations

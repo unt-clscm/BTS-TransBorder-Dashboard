@@ -114,15 +114,33 @@ export default function TradeByModePage() {
     return [...map.values()].sort((a, b) => a.Year - b.Year)
   }, [filteredNoYear])
 
-  /* ── stacked bar: mode composition by year ──────────────────────── */
-  const stackedData = useMemo(() => {
-    const map = new Map()
+  /* ── stacked bar: mode composition by year (wide format) ────────── */
+  const stackedByYear = useMemo(() => {
+    const modes = new Set()
+    const byYear = new Map()
     for (const d of filteredNoYear) {
-      const key = `${d.Year}-${d.Mode || 'Unknown'}`
-      if (!map.has(key)) map.set(key, { Year: d.Year, Mode: d.Mode || 'Unknown', TradeValue: 0 })
-      map.get(key).TradeValue += d.TradeValue || 0
+      if (!d.Year) continue
+      const mode = d.Mode || 'Unknown'
+      modes.add(mode)
+      if (!byYear.has(d.Year)) byYear.set(d.Year, { Year: d.Year })
+      byYear.get(d.Year)[mode] = (byYear.get(d.Year)[mode] || 0) + (d.TradeValue || 0)
     }
-    return [...map.values()].sort((a, b) => a.Year - b.Year)
+    // Sort modes by total descending
+    const modeTotals = new Map()
+    modes.forEach((m) => {
+      let total = 0
+      byYear.forEach((row) => { total += row[m] || 0 })
+      modeTotals.set(m, total)
+    })
+    const sortedModes = [...modes].sort((a, b) => modeTotals.get(b) - modeTotals.get(a))
+
+    const data = Array.from(byYear.values())
+      .map((row) => {
+        sortedModes.forEach((m) => { if (!(m in row)) row[m] = 0 })
+        return row
+      })
+      .sort((a, b) => a.Year - b.Year)
+    return { data, keys: sortedModes }
   }, [filteredNoYear])
 
   /* ── diverging bar: import/export balance by mode ───────────────── */
@@ -133,7 +151,7 @@ export default function TradeByModePage() {
       if (!map.has(mode)) map.set(mode, { label: mode, Exports: 0, Imports: 0 })
       const entry = map.get(mode)
       if (d.TradeType === 'Export') entry.Exports += d.TradeValue || 0
-      if (d.TradeType === 'Import') entry.Imports -= d.TradeValue || 0
+      if (d.TradeType === 'Import') entry.Imports += d.TradeValue || 0
     }
     return [...map.values()].sort((a, b) => (b.Exports + Math.abs(b.Imports)) - (a.Exports + Math.abs(a.Imports)))
   }, [latestFiltered])
@@ -290,14 +308,14 @@ export default function TradeByModePage() {
       {/* Stacked Bar: Mode Composition by Year */}
       <SectionBlock>
         <ChartCard title="Mode Composition by Year" subtitle="Stacked trade value showing mode mix over time">
-          <StackedBarChart data={stackedData} xKey="Year" yKey="TradeValue" seriesKey="Mode" formatValue={formatCurrency} />
+          <StackedBarChart data={stackedByYear.data} xKey="Year" stackKeys={stackedByYear.keys} formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 
       {/* Diverging Bar: Import/Export Balance by Mode */}
       <SectionBlock alt>
-        <ChartCard title={`Import/Export Balance by Mode (${latestYear || '—'})`} subtitle="Positive = exports, negative = imports">
-          <DivergingBarChart data={divergingData} labelKey="label" positiveKey="Exports" negativeKey="Imports" formatValue={formatCurrency} />
+        <ChartCard title={`Import/Export Balance by Mode (${latestYear || '—'})`} subtitle="Exports extend right, imports extend left">
+          <DivergingBarChart data={divergingData} labelKey="label" leftKey="Imports" rightKey="Exports" leftLabel="Imports" rightLabel="Exports" formatValue={formatCurrency} />
         </ChartCard>
       </SectionBlock>
 

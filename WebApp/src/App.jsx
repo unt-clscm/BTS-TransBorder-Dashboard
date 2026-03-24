@@ -1,5 +1,5 @@
 import { useEffect, lazy, Suspense } from 'react'
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
 import ErrorBoundary from '@/components/ui/ErrorBoundary'
@@ -9,7 +9,6 @@ import PageWrapper from '@/components/layout/PageWrapper'
 const OverviewPage = lazy(() => import('@/pages/Overview'))
 const USMexicoPage = lazy(() => import('@/pages/USMexico'))
 const TexasMexicoPage = lazy(() => import('@/pages/TexasMexico'))
-const TradeByStatePage = lazy(() => import('@/pages/TradeByState'))
 const AboutPage = lazy(() => import('@/pages/About'))
 const EmbedPage = lazy(() => import('@/pages/EmbedPage'))
 const NotFoundPage = lazy(() => import('@/pages/NotFound'))
@@ -76,7 +75,7 @@ function AppContent() {
               <Route path="/" element={<OverviewPage />} />
               <Route path="/us-mexico" element={<USMexicoPage />} />
               <Route path="/texas-mexico" element={<TexasMexicoPage />} />
-              <Route path="/trade-by-state" element={<TradeByStatePage />} />
+              <Route path="/trade-by-state" element={<Navigate to="/us-mexico?tab=states" replace />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="/embed/:pageId/:chartId" element={<EmbedPage />} />
 

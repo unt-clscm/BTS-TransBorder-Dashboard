@@ -1,13 +1,13 @@
 /**
  * TexasMexico/index.jsx — Texas-Mexico Deep-Dive (Surface Freight)
  * ----------------------------------------------------------------
- * Five-tab dashboard for Texas-Mexico border trade data (2007+).
- * Lazy-loads datasets: texasMexicoPorts on mount, texasMexicoCommodities
- * and monthlyTrends when their respective tabs become active.
+ * Three-tab dashboard: Ports | Commodities | States
+ * Ports tab includes mode breakdown and monthly patterns.
+ * States tab shows Mexican states trading through Texas ports.
  */
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { BarChart3, MapPin, ShoppingCart, Truck, CalendarDays, DollarSign, ArrowUpDown, Package } from 'lucide-react'
+import { MapPin, ShoppingCart, Map as MapIcon, ArrowRightLeft, DollarSign, ArrowUpDown, Package, Truck } from 'lucide-react'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency } from '@/lib/chartColors'
@@ -19,19 +19,17 @@ import StatCard from '@/components/ui/StatCard'
 import SectionBlock from '@/components/ui/SectionBlock'
 import TabBar from '@/components/ui/TabBar'
 
-import OverviewTab from './tabs/OverviewTab'
 import PortsTab from './tabs/PortsTab'
 import CommoditiesTab from './tabs/CommoditiesTab'
-import ModesTab from './tabs/ModesTab'
-import MonthlyTab from './tabs/MonthlyTab'
+import StatesTab from './tabs/StatesTab'
+import TradeFlowsTab from './tabs/TradeFlowsTab'
 
 /* ── tab configuration ─────────────────────────────────────────────── */
 const TAB_CONFIG = [
-  { key: 'overview',    label: 'Overview',     icon: BarChart3 },
   { key: 'ports',       label: 'Ports',        icon: MapPin },
   { key: 'commodities', label: 'Commodities',  icon: ShoppingCart },
-  { key: 'modes',       label: 'Modes',        icon: Truck },
-  { key: 'monthly',     label: 'Monthly',      icon: CalendarDays },
+  { key: 'states',      label: 'States',       icon: MapIcon },
+  { key: 'flows',       label: 'Trade Flows',  icon: ArrowRightLeft },
 ]
 
 const REGION_OPTIONS = [
@@ -48,6 +46,7 @@ const TRADE_TYPE_OPTIONS = [
 export default function TexasMexicoPage() {
   const {
     texasMexicoPorts, texasMexicoCommodities, monthlyTrends,
+    texasMexicanStateTrade, texasOdStateFlows,
     loading, datasetErrors, loadDataset,
   } = useTransborderStore()
 
@@ -61,23 +60,23 @@ export default function TexasMexicoPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const VALID_TABS = useMemo(() => new Set(TAB_CONFIG.map((t) => t.key)), [])
   const rawTab = searchParams.get('tab')
-  const activeTab = VALID_TABS.has(rawTab) ? rawTab : 'overview'
+  const activeTab = VALID_TABS.has(rawTab) ? rawTab : 'ports'
   const handleTabChange = useCallback((key) => {
     setSearchParams({ tab: key }, { replace: true })
   }, [setSearchParams])
   const tabBarRef = useRef(null)
 
   /* ── lazy dataset loading ────────────────────────────────────────── */
-  useEffect(() => {
-    loadDataset('texasMexicoPorts')
-  }, [loadDataset])
+  useEffect(() => { loadDataset('texasMexicoPorts') }, [loadDataset])
 
   useEffect(() => {
     if (activeTab === 'commodities') loadDataset('texasMexicoCommodities')
-    if (activeTab === 'monthly') loadDataset('monthlyTrends')
+    if (activeTab === 'ports') loadDataset('monthlyTrends')
+    if (activeTab === 'states') loadDataset('texasMexicanStateTrade')
+    if (activeTab === 'flows') loadDataset('texasOdStateFlows')
   }, [activeTab, loadDataset])
 
-  /* ── derived filter options (from texasMexicoPorts) ──────────────── */
+  /* ── derived filter options ──────────────────────────────────────── */
   const yearOptions = useMemo(() => {
     if (!texasMexicoPorts) return []
     return [...new Set(texasMexicoPorts.map((d) => d.Year))].filter(Number.isFinite).sort().map(String)
@@ -88,7 +87,7 @@ export default function TexasMexicoPage() {
     return [...new Set(texasMexicoPorts.map((d) => d.Mode))].filter(Boolean).sort()
   }, [texasMexicoPorts])
 
-  /* ── filtered data ───────────────────────────────────────────────── */
+  /* ── filtered data ─────────────────────────────────────────────── */
   const applyFilters = useCallback((data) => {
     if (!data) return []
     let result = data
@@ -119,7 +118,6 @@ export default function TexasMexicoPage() {
     return result
   }, [monthlyTrends, yearFilter, tradeTypeFilter, modeFilter])
 
-  /* ── year-agnostic filtered data (for trend charts) ──────────────── */
   const filteredPortsNoYear = useMemo(() => {
     if (!texasMexicoPorts) return []
     let result = texasMexicoPorts
@@ -129,7 +127,7 @@ export default function TexasMexicoPage() {
     return result
   }, [texasMexicoPorts, tradeTypeFilter, modeFilter, regionFilter])
 
-  /* ── KPIs ────────────────────────────────────────────────────────── */
+  /* ── KPIs ──────────────────────────────────────────────────────── */
   const latestYear = useMemo(() => {
     if (!filteredPorts.length) return null
     return Math.max(...filteredPorts.map((d) => d.Year).filter(Number.isFinite))
@@ -161,7 +159,7 @@ export default function TexasMexicoPage() {
     return { totalTrade, tradeChange, exports, imports, portCount, topMode, latestYear, prevYear }
   }, [filteredPorts, latestYear])
 
-  /* ── active filter count & reset ─────────────────────────────────── */
+  /* ── active filter count & reset ───────────────────────────────── */
   const activeCount = yearFilter.length + (tradeTypeFilter ? 1 : 0) + modeFilter.length + (regionFilter ? 1 : 0)
 
   const activeTags = useMemo(() => {
@@ -169,26 +167,19 @@ export default function TexasMexicoPage() {
     yearFilter.forEach((v) =>
       tags.push({ group: 'Year', label: v, onRemove: () => setYearFilter((prev) => prev.filter((x) => x !== v)) })
     )
-    if (tradeTypeFilter) {
-      tags.push({ group: 'Trade Type', label: tradeTypeFilter, onRemove: () => setTradeTypeFilter('') })
-    }
+    if (tradeTypeFilter) tags.push({ group: 'Trade Type', label: tradeTypeFilter, onRemove: () => setTradeTypeFilter('') })
     modeFilter.forEach((v) =>
       tags.push({ group: 'Mode', label: v, onRemove: () => setModeFilter((prev) => prev.filter((x) => x !== v)) })
     )
-    if (regionFilter) {
-      tags.push({ group: 'Region', label: regionFilter, onRemove: () => setRegionFilter('') })
-    }
+    if (regionFilter) tags.push({ group: 'Region', label: regionFilter, onRemove: () => setRegionFilter('') })
     return tags
   }, [yearFilter, tradeTypeFilter, modeFilter, regionFilter])
 
   const resetFilters = useCallback(() => {
-    setYearFilter([])
-    setTradeTypeFilter('')
-    setModeFilter([])
-    setRegionFilter('')
+    setYearFilter([]); setTradeTypeFilter(''); setModeFilter([]); setRegionFilter('')
   }, [])
 
-  /* ── render ──────────────────────────────────────────────────────── */
+  /* ── render ────────────────────────────────────────────────────── */
   if (datasetErrors.texasMexicoPorts) {
     return <DatasetError datasetName="Texas-Mexico Ports" error={datasetErrors.texasMexicoPorts} onRetry={() => loadDataset('texasMexicoPorts')} />
   }
@@ -208,7 +199,9 @@ export default function TexasMexicoPage() {
       <FilterMultiSelect label="Year" value={yearFilter} options={yearOptions} onChange={setYearFilter} />
       <FilterSelect label="Trade Type" value={tradeTypeFilter} options={TRADE_TYPE_OPTIONS} onChange={setTradeTypeFilter} />
       <FilterMultiSelect label="Mode" value={modeFilter} options={modeOptions} onChange={setModeFilter} />
-      <FilterSelect label="Region" value={regionFilter} options={REGION_OPTIONS} onChange={setRegionFilter} />
+      {activeTab === 'ports' && (
+        <FilterSelect label="Region" value={regionFilter} options={REGION_OPTIONS} onChange={setRegionFilter} />
+      )}
     </>
   )
 
@@ -220,7 +213,7 @@ export default function TexasMexicoPage() {
           Texas&ndash;Mexico Surface Freight Trade
         </h2>
         <p className="text-white/70 mt-2 text-base">
-          Deep dive into cross-border freight flows between Texas and Mexico ports of entry (2007&ndash;{latestYear || '…'}).
+          Deep dive into cross-border freight flows between Texas and Mexico (2007&ndash;{latestYear || '...'}).
         </p>
       </div>
     </div>
@@ -235,7 +228,7 @@ export default function TexasMexicoPage() {
       activeTags={activeTags}
       filteredEmpty={!filteredPorts.length}
     >
-      {/* KPI Cards — always visible above tabs */}
+      {/* KPI Cards */}
       <SectionBlock>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
           <StatCard
@@ -245,55 +238,28 @@ export default function TexasMexicoPage() {
             trendLabel={stats ? `${(stats.tradeChange * 100).toFixed(1)}% vs ${stats.prevYear}` : ''}
             highlight variant="primary" icon={DollarSign} delay={0}
           />
-          <StatCard
-            label={`Exports (${latestYear || '—'})`}
-            value={stats ? formatCurrency(stats.exports) : '—'}
-            highlight icon={ArrowUpDown} delay={100}
-          />
-          <StatCard
-            label={`Imports (${latestYear || '—'})`}
-            value={stats ? formatCurrency(stats.imports) : '—'}
-            highlight icon={Package} delay={200}
-          />
-          <StatCard
-            label={`Active Ports (${latestYear || '—'})`}
-            value={stats ? String(stats.portCount) : '—'}
-            highlight icon={MapPin} delay={300}
-          />
-          <StatCard
-            label={`Top Mode (${latestYear || '—'})`}
-            value={stats ? stats.topMode : '—'}
-            highlight icon={Truck} delay={400}
-          />
+          <StatCard label={`Exports (${latestYear || '—'})`} value={stats ? formatCurrency(stats.exports) : '—'} highlight icon={ArrowUpDown} delay={100} />
+          <StatCard label={`Imports (${latestYear || '—'})`} value={stats ? formatCurrency(stats.imports) : '—'} highlight icon={Package} delay={200} />
+          <StatCard label={`Active Ports (${latestYear || '—'})`} value={stats ? String(stats.portCount) : '—'} highlight icon={MapPin} delay={300} />
+          <StatCard label={`Top Mode (${latestYear || '—'})`} value={stats ? stats.topMode : '—'} highlight icon={Truck} delay={400} />
         </div>
       </SectionBlock>
 
       {/* Tab Bar */}
       <div ref={tabBarRef} className="sticky top-0 z-40 shadow-sm">
-        <TabBar
-          tabs={TAB_CONFIG}
-          activeTab={activeTab}
-          onChange={handleTabChange}
-          idPrefix="txmx-freight-tab"
-        />
+        <TabBar tabs={TAB_CONFIG} activeTab={activeTab} onChange={handleTabChange} idPrefix="txmx-freight-tab" />
       </div>
 
       {/* Tab Content */}
-      {activeTab === 'overview' && (
-        <div role="tabpanel" id="txmx-freight-tab-panel-overview" aria-labelledby="txmx-freight-tab-overview">
-          <OverviewTab
-            filteredPorts={filteredPorts}
-            filteredPortsNoYear={filteredPortsNoYear}
-            latestYear={latestYear}
-          />
-        </div>
-      )}
       {activeTab === 'ports' && (
         <div role="tabpanel" id="txmx-freight-tab-panel-ports" aria-labelledby="txmx-freight-tab-ports">
           <PortsTab
             filteredPorts={filteredPorts}
             filteredPortsNoYear={filteredPortsNoYear}
+            filteredMonthly={filteredMonthly}
+            loadDataset={loadDataset}
             latestYear={latestYear}
+            datasetError={datasetErrors.monthlyTrends}
           />
         </div>
       )}
@@ -307,22 +273,28 @@ export default function TexasMexicoPage() {
           />
         </div>
       )}
-      {activeTab === 'modes' && (
-        <div role="tabpanel" id="txmx-freight-tab-panel-modes" aria-labelledby="txmx-freight-tab-modes">
-          <ModesTab
-            filteredPorts={filteredPorts}
-            filteredPortsNoYear={filteredPortsNoYear}
-            latestYear={latestYear}
+      {activeTab === 'flows' && (
+        <div role="tabpanel" id="txmx-freight-tab-panel-flows" aria-labelledby="txmx-freight-tab-flows">
+          <TradeFlowsTab
+            texasOdStateFlows={texasOdStateFlows}
+            loadDataset={loadDataset}
+            yearFilter={yearFilter}
+            tradeTypeFilter={tradeTypeFilter}
+            modeFilter={modeFilter}
+            datasetError={datasetErrors.texasOdStateFlows}
           />
         </div>
       )}
-      {activeTab === 'monthly' && (
-        <div role="tabpanel" id="txmx-freight-tab-panel-monthly" aria-labelledby="txmx-freight-tab-monthly">
-          <MonthlyTab
-            filteredMonthly={filteredMonthly}
+      {activeTab === 'states' && (
+        <div role="tabpanel" id="txmx-freight-tab-panel-states" aria-labelledby="txmx-freight-tab-states">
+          <StatesTab
+            texasMexicanStateTrade={texasMexicanStateTrade}
             loadDataset={loadDataset}
             latestYear={latestYear}
-            datasetError={datasetErrors.monthlyTrends}
+            yearFilter={yearFilter}
+            tradeTypeFilter={tradeTypeFilter}
+            modeFilter={modeFilter}
+            datasetError={datasetErrors.texasMexicanStateTrade}
           />
         </div>
       )}

@@ -370,6 +370,64 @@ def build_texas_mexican_state_trade(conn, tx_ports):
     return run_query(conn, sql)
 
 
+def build_od_state_flows(conn):
+    """Dataset 11: Origin-destination flows US State x MX State x Port. Source: DOT1, 2007+.
+
+    Charts: US-Mexico Trade Flows tab (ChordDiagram, SankeyDiagram, HeatmapTable).
+            Shows which US states trade with which Mexican states through which ports.
+    """
+    sql = f"""
+        SELECT
+            "Year",
+            "State",
+            "MexState",
+            "PortCode",
+            "Port",
+            "Mode",
+            COALESCE("TradeType", 'Unknown') AS "TradeType",
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue"
+        FROM dot1_state_port
+        WHERE "Country" = 'Mexico' AND "Year" >= {MODERN_START_YEAR}
+          AND "State" IS NOT NULL AND "State" != ''
+          AND "MexState" IS NOT NULL AND "MexState" != ''
+          AND "MexState" NOT IN ('State Unknown', 'Unknown')
+        GROUP BY "Year", "State", "MexState", "PortCode", "Port",
+                 "Mode", COALESCE("TradeType", 'Unknown')
+        ORDER BY "Year", "State", "MexState", "PortCode", "Mode", "TradeType"
+    """
+    return run_query(conn, sql)
+
+
+def build_texas_od_state_flows(conn, tx_ports):
+    """Dataset 12: OD flows through Texas border ports. Source: DOT1, 2007+.
+
+    Charts: Texas-Mexico Trade Flows tab (ChordDiagram, SankeyDiagram, HeatmapTable).
+    """
+    port_list = ",".join(f"'{p}'" for p in tx_ports)
+    sql = f"""
+        SELECT
+            "Year",
+            "State",
+            "MexState",
+            "PortCode",
+            "Port",
+            "Mode",
+            COALESCE("TradeType", 'Unknown') AS "TradeType",
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue"
+        FROM dot1_state_port
+        WHERE "Country" = 'Mexico'
+          AND "PortCode" IN ({port_list})
+          AND "Year" >= {MODERN_START_YEAR}
+          AND "State" IS NOT NULL AND "State" != ''
+          AND "MexState" IS NOT NULL AND "MexState" != ''
+          AND "MexState" NOT IN ('State Unknown', 'Unknown')
+        GROUP BY "Year", "State", "MexState", "PortCode", "Port",
+                 "Mode", COALESCE("TradeType", 'Unknown')
+        ORDER BY "Year", "State", "MexState", "PortCode", "Mode", "TradeType"
+    """
+    return run_query(conn, sql)
+
+
 def build_monthly_trends(conn):
     """Dataset 7: Monthly time series by country/mode. Source: DOT1, 2007+.
 
@@ -423,6 +481,8 @@ def main():
         ("monthly_trends", lambda: build_monthly_trends(conn)),
         ("mexican_state_trade", lambda: build_mexican_state_trade(conn)),
         ("texas_mexican_state_trade", lambda: build_texas_mexican_state_trade(conn, tx_ports)),
+        ("od_state_flows", lambda: build_od_state_flows(conn)),
+        ("texas_od_state_flows", lambda: build_texas_od_state_flows(conn, tx_ports)),
     ]
 
     print("Building datasets...")

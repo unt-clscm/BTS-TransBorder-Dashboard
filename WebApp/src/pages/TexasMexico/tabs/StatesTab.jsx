@@ -14,8 +14,13 @@ import SankeyDiagram from '@/components/charts/SankeyDiagram'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
+import InsightCallout from '@/components/ui/InsightCallout'
+import { TrendingUp, Globe } from 'lucide-react'
 
-const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
+const ANNOTATIONS = [
+  { x: 2008, x2: 2009, label: '2008 Financial Crisis', color: 'rgba(217,13,13,0.06)', labelColor: '#b91c1c' },
+  { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
+]
 const BASE = import.meta.env.BASE_URL
 
 export default function StatesTab({
@@ -176,6 +181,40 @@ export default function StatesTab({
     return { nodes, links }
   }, [texasOdStateFlows, yearFilter, tradeTypeFilter, modeFilter])
 
+  /* ── Mexican state growth rates (earliest vs latest 3-year avg) ── */
+  const stateGrowth = useMemo(() => {
+    if (!filteredNoYear.length) return []
+    const byYearState = new Map()
+    filteredNoYear.forEach((d) => {
+      const st = d.MexState || 'Unknown'
+      const key = `${d.Year}|${st}`
+      if (!byYearState.has(key)) byYearState.set(key, { year: d.Year, state: st, value: 0 })
+      byYearState.get(key).value += d.TradeValue || 0
+    })
+    const years = [...new Set(filteredNoYear.map((d) => d.Year))].sort((a, b) => a - b)
+    if (years.length < 4) return []
+    const earlyYears = years.slice(0, 3)
+    const lateYears = years.slice(-3)
+
+    const states = new Map()
+    Array.from(byYearState.values()).forEach((d) => {
+      if (!states.has(d.state)) states.set(d.state, { early: 0, late: 0, earlyCount: 0, lateCount: 0 })
+      const s = states.get(d.state)
+      if (earlyYears.includes(d.year)) { s.early += d.value; s.earlyCount++ }
+      if (lateYears.includes(d.year)) { s.late += d.value; s.lateCount++ }
+    })
+
+    return Array.from(states, ([state, v]) => {
+      const earlyAvg = v.earlyCount > 0 ? v.early / v.earlyCount : 0
+      const lateAvg = v.lateCount > 0 ? v.late / v.lateCount : 0
+      const growth = earlyAvg > 0 ? ((lateAvg - earlyAvg) / earlyAvg) * 100 : 0
+      return { label: state, value: growth }
+    })
+      .filter((d) => d.value > 0 && d.value < 10000)
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 15)
+  }, [filteredNoYear])
+
   const tableColumns = [
     { key: 'State', label: 'Mexican State' },
     { key: 'Total', label: 'Total Trade', render: (v) => formatCurrency(v) },
@@ -209,6 +248,19 @@ export default function StatesTab({
 
   return (
     <>
+      {/* Narrative Intro */}
+      <SectionBlock>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-base text-text-secondary leading-relaxed">
+            Each Texas port serves specific Mexican states, creating distinct trade corridors along the border.{' '}
+            <strong>Chihuahua</strong> trades primarily through El Paso/Ysleta, <strong>Nuevo Le&oacute;n</strong> routes
+            through Laredo, and <strong>Tamaulipas</strong> connects via Pharr and Brownsville. Beyond these traditional
+            border partners, Mexico's emerging <strong>Baj&iacute;o corridor</strong> (Quer&eacute;taro, San Luis Potos&iacute;,
+            Guanajuato) is growing rapidly — and Texas ports remain the gateway.
+          </p>
+        </div>
+      </SectionBlock>
+
       {/* Interactive Mexican States + Port Bubbles Map */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
@@ -255,13 +307,44 @@ export default function StatesTab({
             <DataTable columns={tableColumns} data={tableData} />
           </ChartCard>
         </div>
+        <div className="max-w-4xl mx-auto mt-6 space-y-3">
+          <InsightCallout
+            finding="Mexico's manufacturing base is expanding south from the traditional border zone into the Bajio corridor."
+            context="Queretaro's trade through Texas ports has grown 5.5x since 2007, and San Luis Potosi 4.5x — driven by new auto manufacturing plants (BMW, GM, and others)."
+            variant="highlight"
+          />
+          <InsightCallout
+            finding="Each Texas port serves specific Mexican states, creating distinct trade corridors."
+            context="Chihuahua trades through El Paso/Ysleta; Nuevo Leon through Laredo; Tamaulipas through Pharr and Brownsville."
+            variant="default"
+          />
+        </div>
       </SectionBlock>
+
+      {/* Mexican State Growth Rates */}
+      {stateGrowth.length > 0 && (
+        <SectionBlock alt>
+          <div className="max-w-7xl mx-auto">
+            <ChartCard title="Fastest-Growing Mexican States" subtitle="Growth in average annual trade value (earliest 3 years vs. latest 3 years)">
+              <BarChart data={stateGrowth} xKey="label" yKey="value" horizontal formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" />
+            </ChartCard>
+            <div className="mt-4">
+              <InsightCallout
+                finding="Mexico's manufacturing base is expanding south from the traditional border zone into the Bajío corridor — Querétaro (5.5x growth), San Luis Potosí (4.5x), and Aguascalientes are all surging."
+                context="Texas ports remain the gateway for this growing interior trade."
+                icon={TrendingUp}
+                variant="highlight"
+              />
+            </div>
+          </div>
+        </SectionBlock>
+      )}
 
       {/* Top 5 State Trends */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
           <ChartCard title="Top 5 State Trends" subtitle="Annual trade value through Texas ports">
-            <LineChart data={stateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(trendMax, '$')} annotations={COVID_ANNOTATION} />
+            <LineChart data={stateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(trendMax, '$')} annotations={ANNOTATIONS} />
           </ChartCard>
         </div>
       </SectionBlock>

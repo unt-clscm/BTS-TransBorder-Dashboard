@@ -11,8 +11,12 @@ import ChoroplethMap from '@/components/maps/ChoroplethMap'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
+import InsightCallout from '@/components/ui/InsightCallout'
 
-const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
+const HISTORICAL_ANNOTATIONS = [
+  { x: 2008.5, x2: 2009.5, label: '2008 Financial Crisis', color: 'rgba(245,158,11,0.08)', labelColor: '#b45309' },
+  { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
+]
 const BASE = import.meta.env.BASE_URL
 
 export default function StatesTab({
@@ -189,6 +193,19 @@ export default function StatesTab({
 
   return (
     <>
+      {/* Narrative Intro */}
+      <SectionBlock>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-base text-text-secondary leading-relaxed">
+            Trade with Mexico reaches far beyond the border. On the U.S. side, <strong>Texas</strong> is
+            the dominant origin and destination, but <strong>Michigan</strong> (auto parts),{' '}
+            <strong>California</strong> (electronics, agriculture), and <strong>Illinois</strong> (machinery)
+            are major players. On the Mexican side, manufacturing powerhouses like <strong>Chihuahua</strong>,{' '}
+            <strong>Nuevo Le&oacute;n</strong>, and the emerging Baj&iacute;o corridor drive the flows.
+          </p>
+        </div>
+      </SectionBlock>
+
       {/* Choropleth Maps — side by side */}
       <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -223,6 +240,14 @@ export default function StatesTab({
         </div>
       </SectionBlock>
 
+      <SectionBlock>
+        <div className="max-w-7xl mx-auto">
+          <InsightCallout
+            finding="Trade with Mexico isn't just a border phenomenon — 38 of 50 U.S. states have Mexico as a top-3 trading partner, and Mexican manufacturing reaches into interior states far from the border."
+          />
+        </div>
+      </SectionBlock>
+
       {/* US Top 15 States + MX Top 15 States */}
       <SectionBlock>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -239,10 +264,10 @@ export default function StatesTab({
       <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard title="Top 5 U.S. State Trends" subtitle="Annual trade with Mexico">
-            <LineChart data={usStateTrends} xKey="year" yKey="value" seriesKey="State" formatY={getAxisFormatter(usTrendMax, '$')} annotations={COVID_ANNOTATION} />
+            <LineChart data={usStateTrends} xKey="year" yKey="value" seriesKey="State" formatY={getAxisFormatter(usTrendMax, '$')} annotations={HISTORICAL_ANNOTATIONS} />
           </ChartCard>
           <ChartCard title="Top 5 Mexican State Trends" subtitle="Annual trade with the U.S.">
-            <LineChart data={mxStateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(mxTrendMax, '$')} annotations={COVID_ANNOTATION} />
+            <LineChart data={mxStateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(mxTrendMax, '$')} annotations={HISTORICAL_ANNOTATIONS} />
           </ChartCard>
         </div>
       </SectionBlock>

@@ -15,6 +15,7 @@ import SankeyDiagram from '@/components/charts/SankeyDiagram'
 import HeatmapTable from '@/components/charts/HeatmapTable'
 import TradeFlowChoropleth from '@/components/maps/TradeFlowChoropleth'
 import LinkedStateMaps from '@/components/maps/LinkedStateMaps'
+import InsightCallout from '@/components/ui/InsightCallout'
 
 export default function TradeFlowsTab({
   odStateFlows,
@@ -161,6 +162,19 @@ export default function TradeFlowsTab({
 
   return (
     <>
+      {/* Narrative Intro */}
+      <SectionBlock>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-base text-text-secondary leading-relaxed">
+            Trade between the U.S. and Mexico flows through specific corridors built over decades.
+            The <strong>Texas–Nuevo Le&oacute;n corridor</strong> via Laredo is the single largest
+            trade relationship. <strong>Michigan–Chihuahua</strong> reflects the auto industry's
+            cross-border integration. Click on the maps below to explore how states connect through
+            border ports.
+          </p>
+        </div>
+      </SectionBlock>
+
       {/* Section 0: Linked State Choropleths */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">

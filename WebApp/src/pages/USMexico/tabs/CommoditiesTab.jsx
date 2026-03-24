@@ -10,9 +10,15 @@ import ChartCard from '@/components/ui/ChartCard'
 import TreemapChart from '@/components/charts/TreemapChart'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
+import DivergingBarChart from '@/components/charts/DivergingBarChart'
 import DataTable from '@/components/ui/DataTable'
+import InsightCallout from '@/components/ui/InsightCallout'
+import { Factory, ArrowRight } from 'lucide-react'
 
-const COVID_ANNOTATION = [{ x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' }]
+const HISTORICAL_ANNOTATIONS = [
+  { x: 2008.5, x2: 2009.5, label: '2008 Financial Crisis', color: 'rgba(245,158,11,0.08)', labelColor: '#b45309' },
+  { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
+]
 
 export default function CommoditiesTab({
   filteredCommodities,
@@ -104,6 +110,24 @@ export default function CommoditiesTab({
     return Array.from(byKey.values()).sort((a, b) => b.TradeValue - a.TradeValue)
   }, [filteredCommodities])
 
+  /* ── Maquiladora pattern: export vs import per commodity group ── */
+  const maquiladoraData = useMemo(() => {
+    if (!filteredCommodities?.length) return []
+    const byGroup = new Map()
+    filteredCommodities.forEach((d) => {
+      if (!d.CommodityGroup) return
+      const g = d.CommodityGroup
+      if (!byGroup.has(g)) byGroup.set(g, { label: g, exports: 0, imports: 0 })
+      const row = byGroup.get(g)
+      if (d.TradeType === 'Export') row.exports += d.TradeValue || 0
+      else if (d.TradeType === 'Import') row.imports += d.TradeValue || 0
+    })
+    return Array.from(byGroup.values())
+      .filter((d) => d.exports + d.imports > 0)
+      .sort((a, b) => (b.exports + b.imports) - (a.exports + a.imports))
+      .slice(0, 12)
+  }, [filteredCommodities])
+
   const tableColumns = [
     { key: 'Year', label: 'Year' },
     { key: 'HSCode', label: 'HS Code' },
@@ -139,6 +163,18 @@ export default function CommoditiesTab({
 
   return (
     <>
+      {/* Narrative Intro */}
+      <SectionBlock>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-base text-text-secondary leading-relaxed">
+            U.S.–Mexico trade is dominated by <strong>manufactured goods</strong> — this is a manufacturing
+            partnership, not just a raw-materials exchange. <strong>Machinery & Electrical Equipment</strong> and{' '}
+            <strong>Transportation Equipment</strong> (vehicles and parts) together account for more than
+            half of all cross-border freight value, reflecting the deep integration of cross-border supply chains.
+          </p>
+        </div>
+      </SectionBlock>
+
       {/* Treemap */}
       <SectionBlock alt>
         <ChartCard
@@ -167,10 +203,44 @@ export default function CommoditiesTab({
         </ChartCard>
       </SectionBlock>
 
+      {/* Cross-Border Manufacturing Pattern */}
+      {maquiladoraData.length > 0 && (
+        <SectionBlock alt>
+          <div className="max-w-7xl mx-auto">
+            <ChartCard
+              title="Cross-Border Manufacturing Pattern"
+              subtitle="Imports (left) vs. exports (right) by commodity group — reveals maquiladora supply chains"
+            >
+              <DivergingBarChart
+                data={maquiladoraData}
+                labelKey="label"
+                leftKey="imports"
+                rightKey="exports"
+                leftLabel="Imports (from Mexico)"
+                rightLabel="Exports (to Mexico)"
+                formatValue={formatCurrency}
+                maxBars={12}
+              />
+            </ChartCard>
+            <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <InsightCallout
+                finding="U.S.–Mexico trade isn't simple buying and selling — it's a cross-border assembly line. Parts and components flow south; finished products flow north."
+                icon={Factory}
+              />
+              <InsightCallout
+                finding="Energy products (Mineral Fuels) are heavily export-dominated — the U.S. supplies petroleum and natural gas to Mexico at a 26:1 export ratio."
+                variant="highlight"
+                icon={ArrowRight}
+              />
+            </div>
+          </div>
+        </SectionBlock>
+      )}
+
       {/* Commodity Group Trends */}
       <SectionBlock alt>
         <ChartCard title="Top 5 Commodity Group Trends" subtitle="Annual trade value for the five largest commodity groups">
-          <LineChart data={groupTrends} xKey="year" yKey="value" seriesKey="CommodityGroup" formatY={getAxisFormatter(trendMax, '$')} annotations={COVID_ANNOTATION} />
+          <LineChart data={groupTrends} xKey="year" yKey="value" seriesKey="CommodityGroup" formatY={getAxisFormatter(trendMax, '$')} annotations={HISTORICAL_ANNOTATIONS} />
         </ChartCard>
       </SectionBlock>
 

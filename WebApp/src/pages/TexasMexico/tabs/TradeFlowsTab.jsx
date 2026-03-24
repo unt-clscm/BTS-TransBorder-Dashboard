@@ -11,6 +11,7 @@ import BarChart from '@/components/charts/BarChart'
 import SankeyDiagram from '@/components/charts/SankeyDiagram'
 import HeatmapTable from '@/components/charts/HeatmapTable'
 import TradeFlowChoropleth from '@/components/maps/TradeFlowChoropleth'
+import InsightCallout from '@/components/ui/InsightCallout'
 
 export default function TradeFlowsTab({
   texasOdStateFlows,
@@ -143,6 +144,19 @@ export default function TradeFlowsTab({
 
   return (
     <>
+      {/* Narrative Intro */}
+      <SectionBlock>
+        <div className="max-w-4xl mx-auto">
+          <p className="text-base text-text-secondary leading-relaxed">
+            This tab reveals the specific corridors that define Texas–Mexico trade. <strong>Laredo</strong> connects
+            Monterrey's industrial base to the U.S. heartland. <strong>El Paso/Ysleta</strong> links
+            Ju&aacute;rez's maquiladoras to American markets. Each port-state pairing represents
+            a supply chain built over decades — use the interactive maps below to explore how trade
+            flows through the border.
+          </p>
+        </div>
+      </SectionBlock>
+
       {/* Interactive Trade Flow Map */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
@@ -166,6 +180,13 @@ export default function TradeFlowsTab({
         <ChartCard title="Top Trading Partners" subtitle="Largest bilateral trade flows between U.S. and Mexican states through Texas ports">
           <BarChart data={topPairsData} horizontal formatValue={formatCompact} maxBars={15} />
         </ChartCard>
+        <div className="max-w-4xl mx-auto mt-6">
+          <InsightCallout
+            finding="Trade routes through Texas ports are not interchangeable — each corridor serves specific industries and supply chains."
+            context="Disrupting one corridor (e.g., Laredo-Nuevo Leon) would affect different sectors than disrupting another (e.g., El Paso-Chihuahua)."
+            variant="default"
+          />
+        </div>
       </SectionBlock>
 
       <SectionBlock>

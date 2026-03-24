@@ -1,6 +1,8 @@
 # Web App Story: BTS TransBorder Freight Dashboard
 
-> *What this document is:* A narrative description of the web app as it exists today — what it shows, what story it tells, and what it's missing. Written so that someone who cannot see the screen could fully understand the dashboard's purpose, structure, and findings. Followed by a gap analysis of untold stories hiding in the database, and concrete recommendations to improve the storytelling.
+> *What this document is:* A narrative description of the web app as it exists today — what it shows, what story it tells, and what could still be improved. Written so that someone who cannot see the screen could fully understand the dashboard's purpose, structure, and findings.
+>
+> *Last updated:* March 2026 (after the storytelling enhancement sprint)
 
 ---
 
@@ -96,29 +98,46 @@ A well-structured documentation page with sticky sidebar navigation explaining t
 
 ---
 
-## Part 2: What the Database Knows That the Web App Doesn't Show
+## Part 2: Stories Now Told (Implemented in March 2026)
 
-The TransBorder database (10.3 GB SQLite, 39.5M records) contains far more analytical potential than the current 12 pre-aggregated datasets expose. Here are the **untold stories** hiding in the data.
+The following stories were identified as gaps and have now been **implemented** in the dashboard.
 
-### 2.1 The Widening Trade Deficit Story
+### 2.1 The Widening Trade Deficit — NOW SHOWN
 
-**What the data shows:** Texas's trade deficit with Mexico has grown from **-$29.5 billion in 2007 to -$125.2 billion in 2024** — a 4.2× widening. Imports have grown +182% while exports grew only +135%. This accelerated sharply after 2017.
+**Added:** Trade Balance Trend chart in both TX-MX and US-MX Ports tabs. Area chart showing exports minus imports with the deficit clearly visible as a growing negative area. Paired with an InsightCallout explaining the 4× widening from -$30B to -$125B.
 
-**Why it matters:** This is one of the single most important economic facts about the Texas-Mexico relationship, and it's barely visible in the current dashboard. The stat cards show exports and imports separately, but the *deficit itself* — and its trajectory — is never explicitly charted or called out. A user would have to mentally subtract to see it.
+### 2.2 The Maquiladora / Cross-Border Manufacturing Pattern — NOW SHOWN
 
-**Recommendation:** Add a dedicated **trade balance trend line** (or area chart showing the growing gap between exports and imports). Add an insight callout: *"Texas's trade deficit with Mexico has quadrupled since 2007, reaching $125B in 2024 — driven by imports of finished vehicles, electronics, and consumer goods."*
+**Added:** "Cross-Border Manufacturing Pattern" DivergingBarChart in both TX-MX and US-MX Commodities tabs. Shows imports on the left, exports on the right, for each commodity group — instantly revealing which groups flow south (chemicals, plastics = inputs) vs. north (vehicles, electronics = finished goods). Paired with InsightCallouts about the 3.9:1 Transportation Equipment import ratio and energy export dominance.
 
-### 2.2 The Maquiladora / Cross-Border Manufacturing Story
+### 2.3 The Laredo Concentration Risk — NOW SHOWN
 
-**What the data shows:** The clearest maquiladora signal in the data is in Transportation Equipment — Texas exports **$67B in vehicle parts/components** and imports **$259B in finished vehicles**, a 3.9:1 import ratio. The same pattern appears in Machinery & Electrical ($102B components out, $176B assembled products back) and Optical/Medical/Precision instruments (33% exports, 67% imports).
+**Added:** "Laredo's Share of TX-MX Trade" line chart in the TX-MX Ports tab. Shows Laredo's share growing from 52% to ~60% with an InsightCallout about $900M/day disruption risk.
 
-Meanwhile, **Plastics/Rubber** (67% exports) and **Chemicals** (73% exports) flow predominantly *south* — these are manufacturing inputs heading to Mexican factories.
+### 2.4 The COVID Resilience Story — NOW SHOWN
 
-**Why it matters:** This is the defining feature of U.S.-Mexico trade: it's not country-to-country commerce, it's an integrated manufacturing supply chain. Parts go south, finished goods come north. The current dashboard shows commodities but doesn't connect the dots to tell this supply-chain story.
+**Added:** "COVID-19 Impact & Recovery" monthly zoom panel in TX-MX Ports tab (inside the monthly patterns section). Shows the V-shaped recovery from April-May 2020, with InsightCallout about the 49% single-month plunge and four-month full recovery.
 
-**Recommendation:** Add a **"Manufacturing Integration" section** — perhaps a butterfly/diverging bar chart showing commodity groups that are export-heavy (inputs flowing south) on one side and import-heavy (finished goods flowing north) on the other. Add narrative text: *"Texas-Mexico trade isn't simple buying and selling — it's a cross-border assembly line. Texas sends raw materials and components south; Mexico sends finished products north."*
+### 2.5 The Mexican Industrial Corridor Shift — NOW SHOWN
 
-### 2.3 The Energy Export Story
+**Added:** "Fastest-Growing Mexican States" bar chart in TX-MX States tab. Shows growth rates from earliest 3-year average to latest 3-year average, highlighting the Bajío corridor (Querétaro 5.5×, San Luis Potosí 4.5×). InsightCallout explains the nearshoring trend.
+
+### 2.6 Narrative Voice — NOW ADDED
+
+**Added:** Every tab across both US-Mexico and Texas-Mexico pages now has:
+- A **narrative intro paragraph** at the top framing what the user is about to see
+- **2–3 InsightCallouts** highlighting the most important findings from that tab's data
+- **Historical annotations** on all line charts (Great Recession 2008–09, USMCA 2018, COVID-19 2020)
+
+### 2.7 Animated Commodity Rankings — NOW SHOWN
+
+**Added:** "Commodity Rankings Over Time" animated bar chart race in TX-MX Commodities tab. Play/pause button and year slider let users watch commodity groups shift in importance from 2007 to present. Machinery & Electrical and Transportation Equipment visibly pull away from everything else.
+
+---
+
+## Part 3: Remaining Opportunities
+
+### 3.1 The Energy Export Story
 
 **What the data shows:** Pipeline trade is 100% **Mineral Products** (petroleum and natural gas), and it's almost entirely one-directional: **$41.2B in exports vs $295M in imports** (2020–2024). Texas is Mexico's energy lifeline. When you add truck and rail shipments of mineral products, the total Texas→Mexico energy export is approximately **$59B cumulative**, making it the single largest export commodity group.
 
@@ -212,181 +231,77 @@ Meanwhile, **Plastics/Rubber** (67% exports) and **Chemicals** (73% exports) flo
 
 ## Part 3: Storytelling Improvements
 
-### 3.1 Add Narrative Text to Each Tab
+### ~~3.2 Port Specialization Profiles~~ — NOW SHOWN
 
-**Current state:** Charts have titles and subtitles but no explanatory paragraphs. Users must interpret visualizations on their own.
+**Added:** "Port Specialization" stacked bar chart in TX-MX Commodities tab. Shows top 5 commodity groups broken down by port, revealing each port's distinct economic personality (Laredo = manufacturing, Pharr = agriculture, Presidio = cattle). InsightCallout explains that Texas's 14 ports are not interchangeable.
 
-**Recommendation:** Add a **1–3 sentence narrative introduction** at the top of each tab that frames what the user is about to see and why it matters. Examples:
+### 3.3 Rail-vs-Truck Mode Competition by Commodity
 
-- **Ports tab intro:** *"Texas's 14 border ports of entry handled $553 billion in freight trade with Mexico in 2024 — roughly 66% of all U.S.–Mexico trade. Three ports (Laredo, El Paso/Ysleta, and Hidalgo/Pharr) account for over 85% of that total."*
+The overall truck/rail mode split looks stable at ~80/20, but commodity-level data shows rail losing manufactured goods to truck while gaining bulk mineral share. A mode-by-commodity stacked bar or small multiples chart would reveal this hidden competition.
 
-- **Commodities tab intro:** *"What crosses the Texas-Mexico border tells the story of an integrated manufacturing economy. Machinery and vehicle parts flow south to Mexican assembly plants; finished vehicles, electronics, and consumer goods flow north. Meanwhile, Texas sends energy south and imports fresh produce."*
+### 3.4 Weight-vs-Value Bubble Chart
 
-- **States tab intro:** *"Trade with Mexico reaches far beyond the border. On the U.S. side, Texas is the dominant origin/destination state, but Michigan, California, and Illinois are major players. On the Mexican side, manufacturing powerhouses like Chihuahua, Nuevo León, and the emerging Bajío corridor drive the flows."*
+The value-per-kilogram spread across commodities is dramatic ($1,442/kg for stone vs. $558,111/kg for precious metals). A bubble chart would reveal the "two economies" crossing the border — heavy bulk goods vs. lightweight precision goods.
 
-- **Trade Flows tab intro:** *"This tab reveals the specific corridors that define Texas-Mexico trade. Laredo connects Monterrey's industrial base to the U.S. heartland. El Paso/Ysleta links Juárez's maquiladoras to American markets. Each port-state pairing represents a supply chain built over decades."*
+### 3.5 Contextual Dollar Comparisons
 
-### 3.2 Add "Key Takeaway" Callouts to Each Major Chart
-
-**Current state:** The Overview page has auto-generated insight callouts, but the detail pages (U.S.–Mexico, Texas–Mexico) have none.
-
-**Recommendation:** Add 2–3 **insight callouts** per tab that highlight the most important findings. These should be data-driven and auto-generated from the dataset. Examples:
-
-- *"Laredo handles more trade than the next 5 Texas ports combined."*
-- *"Transportation Equipment imports through Texas have tripled since 2010."*
-- *"Querétaro's trade through Texas ports has grown 5.5× in 15 years, reflecting Mexico's expanding auto manufacturing corridor."*
-- *"Truck carries 83% of Texas-Mexico trade by value — but rail moves 41% of mineral products by weight."*
-
-### 3.3 Add a "Texas Share" Comparison Context
-
-**Current state:** The U.S.–Mexico page shows a "Texas Share" stat card, but there's no comparison visualization showing Texas vs. other states.
-
-**Recommendation:** Add a **simple stacked bar or pie** showing Texas vs. California vs. Arizona vs. New Mexico vs. Other in total U.S.–Mexico trade. This immediately contextualizes Texas's dominance. Narrative: *"Texas handles as much U.S.–Mexico trade as all other border states combined — and then some."*
-
-### 3.4 Improve the Trade Balance Visibility
-
-**Current state:** Exports and imports are shown as separate stat cards and separate lines on charts. The balance (surplus/deficit) requires mental arithmetic.
-
-**Recommendation:** Add a **trade balance area chart** showing the gap between exports and imports filling with color (red for deficit). Add a stat card showing the balance with directional arrow. The widening deficit from -$30B to -$125B in 17 years is a crucial story.
-
-### 3.5 Add Historical Context Annotations
-
-**Current state:** Only COVID-19 is annotated on time-series charts.
-
-**Recommendation:** Add annotations for other significant events:
-- **1994:** NAFTA takes effect
-- **2001:** Post-9/11 security tightening at border
-- **2008–2009:** Great Recession
-- **2018–2019:** USMCA renegotiation / tariff threats
-- **2020:** COVID-19 border disruptions
-- **2024:** Record trade year
-
-These annotations transform a line chart from "numbers going up" into a story about how policy, economics, and global events shaped trade.
-
-### 3.6 Add a "Story Mode" or Guided Tour
-
-**Current state:** The dashboard is exploration-oriented — users choose their own path through tabs and filters.
-
-**Recommendation:** Consider adding a **guided narrative mode** (perhaps as a toggle or separate entry point) that walks users through the key findings in a structured sequence:
-
-1. "Texas is the gateway" → Texas share stat
-2. "Three ports dominate" → Port map
-3. "It's a manufacturing partnership" → Commodity treemap + maquiladora chart
-4. "The deficit is widening" → Trade balance trend
-5. "COVID was a blip" → Monthly recovery chart
-6. "The corridor is shifting south" → Mexican state growth rates
-
-This serves users who want to be *told* the story, not just handed the tools to find it.
-
-### 3.7 Add Contextual Dollar Amounts in Relatable Terms
-
-**Current state:** Values are shown in billions (e.g., "$553B") but with no context for scale.
-
-**Recommendation:** Add occasional **contextual comparisons** in callouts or tooltips:
+Values shown in billions lack human scale. Adding occasional contextual comparisons in callouts would help:
 - *"Texas-Mexico trade ($553B) exceeds the GDP of Sweden."*
-- *"Laredo's daily trade volume (~$900M) is larger than the annual GDP of several Caribbean nations."*
-- *"One day of disruption at the Texas-Mexico border costs more than the annual budget of the City of Austin."*
+- *"Laredo's daily trade volume (~$900M) is larger than the annual budget of the City of Austin."*
 
-These make abstract billions tangible.
+### 3.6 Guided Tour / Story Mode
 
----
-
-## Part 4: Structural Recommendations
-
-### 4.1 Current Structure Assessment
-
-The current 3-page + About structure (Overview → U.S.–Mexico → Texas–Mexico) is logical and well-organized. The 4-tab structure within each detail page (Ports, Commodities, States, Trade Flows) provides comprehensive coverage. **The architecture is sound.**
-
-### 4.2 Missing Views to Add Within Existing Structure
-
-| Where to Add | What to Add | Why |
-|---|---|---|
-| **TX-MX Ports tab** | Trade balance trend chart | The deficit story is invisible |
-| **TX-MX Ports tab** | Laredo concentration share over time | The risk story needs a chart |
-| **TX-MX Commodities tab** | Import/Export directional chart (butterfly/diverging bar) | Maquiladora story needs visualization |
-| **TX-MX Commodities tab** | Weight vs. Value bubble chart | Two-economies story |
-| **TX-MX States tab** | Mexican state growth rate view | Bajío corridor shift |
-| **TX-MX Ports tab** | Port specialization mini-profiles (commodity breakdown per port) | Each port's economic personality |
-| **Both Commodities tabs** | Mode-by-commodity breakdown | Rail vs. truck competition |
-| **Overview page** | Milestone annotation on trend chart | Growth acceleration story |
-| **TX-MX Ports tab** | COVID monthly zoom panel | Resilience/recovery story |
-
-### 4.3 Data Pipeline Additions Needed
-
-To support the new views above, the `05_build_outputs.py` script would need to generate additional aggregated datasets:
-
-1. **Trade balance time series** — Annual exports, imports, and balance by scope (TX-MX, US-MX)
-2. **Port × commodity matrix** — Top N commodities per port for port profiles
-3. **Commodity direction ratios** — Export share vs. import share per commodity group
-4. **Mexican state growth rates** — Year-over-year and period-over-period growth by MexState
-5. **Mode × commodity trends** — Truck/rail share per commodity group over time
-6. **Monthly COVID zoom** — Monthly data for 2019–2021 period specifically
-
-Most of these can be derived from existing datasets on the frontend side through aggregation, but pre-computing them would keep the app fast.
-
-### 4.4 Textual Content to Add
-
-Each new or existing section should include:
-
-| Location | Content Type | Example |
-|---|---|---|
-| Tab headers | 1–3 sentence framing paragraph | See Section 3.1 above |
-| Key charts | Insight callout below chart | "Laredo handles 60% of TX-MX trade — more than the next 5 ports combined" |
-| Overview page | Milestone annotations | "NAFTA (1994)", "Great Recession", "COVID", "Record Year" |
-| Port map tooltips | Contextual detail | Port name + total trade + top commodity + YoY change |
-| About page | "How to read this dashboard" section | Brief user guide with suggested exploration paths |
+A toggle or separate entry point that walks users through key findings in sequence (gateway → concentration → manufacturing → deficit → recovery → corridor shift) would serve users who want to be *told* the story rather than explore it.
 
 ---
 
-## Part 5: Priority Ranking of Recommendations
+## Part 4: Implementation Notes
 
-### Tier 1 — High Impact, Relatively Easy
-1. **Add narrative intro paragraphs to each tab** — pure text, no new data needed
-2. **Add trade balance trend chart** — simple calculation from existing data
-3. **Add historical event annotations** (NAFTA, 9/11, Recession, USMCA, COVID) — text overlays on existing charts
-4. **Add insight callouts to detail pages** — leverage the existing insightEngine.js
-5. **Add Laredo concentration share line** — one calculation on existing port data
+### 4.1 Data Pipeline
 
-### Tier 2 — High Impact, Moderate Effort
-6. **Add maquiladora / commodity direction chart** — new visualization, data derivable from existing datasets
-7. **Add port specialization view** (commodity breakdown per port) — new viz, may need new dataset
-8. **Add Mexican state growth rate view** — new viz, calculation from existing data
-9. **Add COVID monthly zoom panel** — new viz, monthly_trends data already exists
-10. **Add contextual dollar comparisons** — text research needed for accurate comparisons
+The `05_build_outputs.py` script did **not** need any changes. All new visualizations derive their data from the existing 12 datasets through frontend `useMemo` aggregations:
+- Trade balance = sum exports - sum imports by year (from `texas_mexico_ports`)
+- Laredo share = Laredo trade / total trade by year (from `texas_mexico_ports`)
+- Maquiladora pattern = group by CommodityGroup, split Export/Import (from `texas_mexico_commodities`)
+- Bar chart race = group by Year × CommodityGroup (from `texas_mexico_commodities`)
+- State growth = earliest 3-year avg vs latest 3-year avg (from `texas_mexican_state_trade`)
+- COVID zoom = filter monthly_trends to 2019–2021
 
-### Tier 3 — Nice to Have, Higher Effort
-11. **Add weight vs. value bubble chart** — new viz type, data available
-12. **Add mode × commodity breakdown** — new viz, new aggregation needed
-13. **Add guided tour / story mode** — significant UI work
-14. **Add port × commodity heatmap** — new dataset, new viz
+### 4.2 Components Used
+
+All new visualizations used **existing chart components** — no new chart types were needed:
+- `DivergingBarChart` — maquiladora supply chain pattern
+- `BarChartRace` — animated commodity ranking over time
+- `LineChart` (with `showArea`) — trade balance, Laredo concentration, COVID zoom
+- `BarChart` — Mexican state growth rates
+- `InsightCallout` — narrative callouts throughout
 
 ---
 
-## Part 6: Summary — The Stories We're Telling vs. The Stories We Should Tell
+## Part 5: Summary — What We Now Tell
 
-### What We Tell Well
-- Texas is the dominant U.S.-Mexico trade gateway (map + stats)
-- Trade has grown enormously over 30 years (trend charts)
-- Truck is the dominant mode (donut + stacked bar)
-- Laredo is the largest port (bar chart + map)
-- Manufacturing goods dominate trade (treemap + commodity charts)
-- Mexican states connect to specific Texas ports (flow map + Sankey)
+### Stories the Dashboard Tells (after enhancements)
+- Texas is the dominant U.S.–Mexico trade gateway — 66% share (map + stats + narrative)
+- Trade has grown enormously over 30+ years (trend charts + historical annotations)
+- Truck is the dominant mode at ~83% (donut + stacked bar + callout)
+- Laredo handles ~60% of TX-MX trade and is growing in concentration (dedicated share chart + warning callout)
+- **The trade deficit is widening** — from -$30B to -$125B (trade balance area chart)
+- **This is a cross-border assembly line** — parts flow south, finished goods flow north (diverging bar chart + maquiladora callouts)
+- **COVID was a 2-month blip** — 49% drop, full recovery in 4 months (monthly zoom panel)
+- **Mexico's manufacturing is shifting south** — Bajío corridor surging (growth rate bar chart)
+- **Commodity leadership is evolving** — animated bar chart race shows the shift over time
+- Mexican states connect to specific Texas ports via distinct corridors (interactive flow maps + Sankey)
+- Historical events shaped trade — Great Recession, USMCA, COVID all annotated on line charts
 
-### What We Show But Don't Emphasize Enough
-- The widening trade deficit (data is there, story isn't told)
-- Laredo's growing concentration (visible in rankings, risk not framed)
-- COVID's remarkably fast recovery (annotation exists, V-shape story not told)
-- Port specialization differences (data exists in tables, not visualized)
-
-### What We Don't Show At All
-- The maquiladora supply chain pattern (parts south, finished goods north)
-- Texas as Mexico's energy lifeline (pipeline trade direction)
-- Mexico's industrial corridor shifting south (Bajío growth rates)
-- Rail losing to truck in specific commodity battles
-- The "two economies" (bulk-heavy vs. precision-light goods)
-- Trade growth acceleration (milestones and pacing)
-- Relatable scale context (comparisons to GDPs, city budgets)
+### What Could Still Be Added
+- Port specialization profiles (what each port carries, not just how much)
+- Rail-vs-truck competition at the commodity level
+- Weight-vs-value analysis (the "two economies" at the border)
+- Contextual dollar comparisons for human-scale understanding
+- Guided tour mode for narrative-first users
 
 ### The Bottom Line
 
-The current dashboard is **technically excellent** — it has the right data, good visualizations, and logical organization. What it lacks is **narrative voice**. The charts present facts but don't argue a thesis. Adding narrative text, insight callouts, a trade balance chart, the maquiladora story, and a few key annotations would transform this from a data exploration tool into a **data storytelling platform** — one that doesn't just show numbers but explains what they mean for Texas, for trade policy, and for the millions of jobs that depend on those trucks crossing at Laredo every day.
+The dashboard has evolved from a **data exploration tool** into a **data storytelling platform**. Every tab now opens with a narrative frame, key insights are called out alongside visualizations, historical context is woven into every time series, and the most important untold stories (deficit, maquiladora pattern, Laredo concentration, COVID resilience, Bajío corridor shift) are now explicitly visualized. The animated bar chart race for commodity rankings adds a dynamic dimension that static charts cannot match.
+
+The remaining opportunities (port specialization, mode-by-commodity, weight-vs-value) are refinements. The core story — **Texas as the gateway, manufacturing integration as the engine, and Laredo as the linchpin** — is now clearly told.

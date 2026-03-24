@@ -18,6 +18,11 @@ import { DollarSign, MapPin, Award, TrendingUp } from 'lucide-react'
 import DatasetError from '@/components/ui/DatasetError'
 import { DL, PAGE_STATE_COLS } from '@/lib/downloadColumns'
 
+const HISTORICAL_ANNOTATIONS = [
+  { x: 2008.5, x2: 2009.5, label: '2008 Financial Crisis', color: 'rgba(245,158,11,0.08)', labelColor: '#b45309' },
+  { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
+]
+
 export default function TradeByStatePage() {
   const { usStateTrade, datasetErrors, loadDataset } = useTransborderStore()
 
@@ -302,7 +307,7 @@ function TradeByStateInner({ data }) {
             detail: { data: filteredNoYear, filename: 'state-trends-detail', columns: PAGE_STATE_COLS },
           }}
         >
-          <LineChart data={trendData} xKey="Year" yKey="TradeValue" seriesKey="State" formatValue={formatCurrency} />
+          <LineChart data={trendData} xKey="Year" yKey="TradeValue" seriesKey="State" formatValue={formatCurrency} annotations={HISTORICAL_ANNOTATIONS} />
         </ChartCard>
       </SectionBlock>
 

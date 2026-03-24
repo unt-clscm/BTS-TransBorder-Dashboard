@@ -21,6 +21,11 @@ import StackedBarChart from '@/components/charts/StackedBarChart'
 import ChoroplethPortMap from '@/components/maps/ChoroplethPortMap'
 import { DL, PAGE_TRANSBORDER_COLS } from '@/lib/downloadColumns'
 
+const HISTORICAL_ANNOTATIONS = [
+  { x: 2008.5, x2: 2009.5, label: '2008 Financial Crisis', color: 'rgba(245,158,11,0.08)', labelColor: '#b45309' },
+  { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
+]
+
 /* ── Icon lookup for insightEngine string → component ────────────────── */
 const ICON_MAP = {
   TrendingUp, TrendingDown, DollarSign, ArrowRight, Database, Layers,
@@ -66,7 +71,7 @@ const MAP_LEGEND = [
 ]
 
 export default function OverviewPage() {
-  const { usTransborder, usMexicoPorts, usCanadaPorts, usStateTrade, odStateFlows, loading, loadDataset } = useTransborderStore()
+  const { usTransborder, usMexicoPorts, usCanadaPorts, usStateTrade, odStateFlows, odCanadaProvFlows, loading, loadDataset } = useTransborderStore()
 
   /* ── country filter state (per-section) ───────────────────────── */
   const [countryFilter, setCountryFilter] = useState('')      // stat cards
@@ -79,6 +84,7 @@ export default function OverviewPage() {
     loadDataset('usCanadaPorts')
     loadDataset('usStateTrade')
     loadDataset('odStateFlows')
+    loadDataset('odCanadaProvFlows')
   }, [loadDataset])
 
   const { portCoords: mxCoords } = usePortCoordinates()
@@ -123,6 +129,18 @@ export default function OverviewPage() {
     return Array.from(byState, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
   }, [odStateFlows])
 
+  /* ── Choropleth: Canadian provinces by total trade value ──────── */
+  const canProvMapData = useMemo(() => {
+    if (!odCanadaProvFlows?.length) return []
+    const byProv = new Map()
+    for (const d of odCanadaProvFlows) {
+      const prov = d.CanProv
+      if (!prov || prov === 'Unknown') continue
+      byProv.set(prov, (byProv.get(prov) || 0) + (d.TradeValue || 0))
+    }
+    return Array.from(byProv, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
+  }, [odCanadaProvFlows])
+
   /* ── Map layers config ─────────────────────────────────────────── */
   const mapLayers = useMemo(() => {
     const base = import.meta.env.BASE_URL
@@ -133,44 +151,49 @@ export default function OverviewPage() {
     if (mexStateMapData.length) {
       result.push({ url: `${base}data/mexican_states.geojson`, data: mexStateMapData, nameProperty: 'name', colorRange: ['#fee0d2', '#de2d26'], title: 'Mexican States' })
     }
-    // Canadian provinces: geographic context layer (no province-level trade data available)
-    result.push({ url: `${base}data/canadian_provinces.geojson`, data: [], nameProperty: 'name', colorRange: ['#e5f5e0', '#31a354'], title: 'Canadian Provinces' })
+    result.push({ url: `${base}data/canadian_provinces.geojson`, data: canProvMapData, nameProperty: 'name', colorRange: ['#e5f5e0', '#31a354'], title: 'Canadian Provinces' })
     return result
-  }, [stateMapData, mexStateMapData])
+  }, [stateMapData, mexStateMapData, canProvMapData])
 
-  /* ── Connections: US state ↔ port, Mexican state ↔ port ─────── */
+  /* ── Connections: US state ↔ port, MX/CA state ↔ port ────────── */
   const mapConnections = useMemo(() => {
     const stateToPort = new Map()   // stateName → Map<portCode, value>
     const portToState = new Map()   // portCode → Map<stateName, value>
-    if (!odStateFlows?.length) return { stateToPort, portToState }
 
-    for (const d of odStateFlows) {
-      if (!d.PortCode) continue
-      const code = d.PortCode.replace(/\D/g, '')
-      const val = d.TradeValue || 0
+    // Helper to add bidirectional connection
+    const addConnection = (name, code, val) => {
+      if (!stateToPort.has(name)) stateToPort.set(name, new Map())
+      const sp = stateToPort.get(name)
+      sp.set(code, (sp.get(code) || 0) + val)
+      if (!portToState.has(code)) portToState.set(code, new Map())
+      const ps = portToState.get(code)
+      ps.set(name, (ps.get(name) || 0) + val)
+    }
 
-      // US State ↔ Port
-      if (d.State && d.State !== 'Unknown') {
-        if (!stateToPort.has(d.State)) stateToPort.set(d.State, new Map())
-        const sp = stateToPort.get(d.State)
-        sp.set(code, (sp.get(code) || 0) + val)
-        if (!portToState.has(code)) portToState.set(code, new Map())
-        const ps = portToState.get(code)
-        ps.set(d.State, (ps.get(d.State) || 0) + val)
-      }
-
-      // Mexican State ↔ Port
-      if (d.MexState && d.MexState !== 'Unknown') {
-        if (!stateToPort.has(d.MexState)) stateToPort.set(d.MexState, new Map())
-        const sp = stateToPort.get(d.MexState)
-        sp.set(code, (sp.get(code) || 0) + val)
-        if (!portToState.has(code)) portToState.set(code, new Map())
-        const ps = portToState.get(code)
-        ps.set(d.MexState, (ps.get(d.MexState) || 0) + val)
+    // Mexico: US State ↔ Port, Mexican State ↔ Port
+    if (odStateFlows?.length) {
+      for (const d of odStateFlows) {
+        if (!d.PortCode) continue
+        const code = d.PortCode.replace(/\D/g, '')
+        const val = d.TradeValue || 0
+        if (d.State && d.State !== 'Unknown') addConnection(d.State, code, val)
+        if (d.MexState && d.MexState !== 'Unknown') addConnection(d.MexState, code, val)
       }
     }
+
+    // Canada: US State ↔ Port, Canadian Province ↔ Port
+    if (odCanadaProvFlows?.length) {
+      for (const d of odCanadaProvFlows) {
+        if (!d.PortCode) continue
+        const code = d.PortCode.replace(/\D/g, '')
+        const val = d.TradeValue || 0
+        if (d.State && d.State !== 'Unknown') addConnection(d.State, code, val)
+        if (d.CanProv && d.CanProv !== 'Unknown') addConnection(d.CanProv, code, val)
+      }
+    }
+
     return { stateToPort, portToState }
-  }, [odStateFlows])
+  }, [odStateFlows, odCanadaProvFlows])
 
   /* ── filtered data based on country selection ──────────────────── */
   const filteredData = useMemo(() => {
@@ -308,19 +331,42 @@ export default function OverviewPage() {
 
   return (
     <>
-      {/* ── Hero ─────────────────────────────────────────────────────── */}
+      {/* ── Hero with embedded map ──────────────────────────────────── */}
       <div className="gradient-blue text-white relative overflow-visible">
         <HeroStardust seed={42} animate tall />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 md:py-14 relative">
-          <h2 className="text-3xl md:text-4xl font-bold text-white text-balance">
-            U.S. TransBorder Freight Data ({minYear || 1993}--{latestYear || 2025})
-          </h2>
-          <p className="text-white/80 mt-3 text-base md:text-lg max-w-3xl">
-            A comprehensive look at surface, air, vessel, and pipeline freight flows between
-            the United States, Mexico, and Canada -- built on the BTS TransBorder Freight
-            Data program, the only publicly available data source with port-level detail on
-            North American trade.
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 relative">
+          {/* Intro text — title + subtitle stacked */}
+          <div className="pt-7 pb-3 md:pt-9 md:pb-4">
+            <h2 className="text-2xl md:text-3xl font-bold text-white text-balance">
+              U.S. TransBorder Freight Data ({minYear || 1993}--{latestYear || 2025})
+            </h2>
+            <p className="text-white/70 mt-2 text-sm md:text-base leading-relaxed">
+              Surface, air, vessel, and pipeline freight flows between the U.S., Mexico,
+              and Canada — the only public data source with port-level detail on North American trade.
+            </p>
+          </div>
+          {/* Map — large, full-width within hero */}
+          <div className="pb-4 md:pb-5">
+            <div className="rounded-xl overflow-hidden shadow-lg ring-1 ring-white/10" style={{ height: 572 }}>
+              {mapPorts.length > 0 ? (
+                <ChoroplethPortMap
+                  layers={mapLayers}
+                  ports={mapPorts}
+                  connections={mapConnections}
+                  formatValue={formatCurrency}
+                  center={[33.5, -100.0]}
+                  zoom={4}
+                  height="572px"
+                  groupColors={MAP_GROUP_COLORS}
+                  legendGroups={MAP_LEGEND}
+                />
+              ) : (
+                <div className="w-full h-full bg-white/5 flex items-center justify-center">
+                  <p className="text-white/40 text-sm">Loading map data...</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -404,28 +450,6 @@ export default function OverviewPage() {
         )}
       </div>
 
-      {/* ── Border Ports + State Choropleth Map ────────────────────── */}
-      {mapPorts.length > 0 && (
-        <SectionBlock>
-          <ChartCard title="U.S. Border Ports of Entry" subtitle="State trade value (choropleth) with border ports — click to explore connections">
-            <ChoroplethPortMap
-              layers={mapLayers}
-              ports={mapPorts}
-              connections={mapConnections}
-              formatValue={formatCurrency}
-              center={[35.0, -97.0]}
-              zoom={4}
-              height="560px"
-              groupColors={MAP_GROUP_COLORS}
-              legendGroups={MAP_LEGEND}
-            />
-            <p className="text-sm text-text-secondary mt-2 italic">
-              Note: Canadian province-level trade data is not available in the BTS TransBorder dataset.
-              Canadian provinces are shown for geographic context only.
-            </p>
-          </ChartCard>
-        </SectionBlock>
-      )}
 
       {/* ── Annual Trade Trends ────────────────────────────────────── */}
       <SectionBlock>
@@ -449,6 +473,7 @@ export default function OverviewPage() {
               yKey="value"
               seriesKey="series"
               formatValue={formatCurrency}
+              annotations={HISTORICAL_ANNOTATIONS}
             />
           </ChartCard>
         </div>
@@ -496,20 +521,20 @@ export default function OverviewPage() {
 
       {/* ── Navigation Cards ──────────────────────────────────────── */}
       <SectionBlock>
-        <div className="flex items-center gap-2.5 mb-5">
+        <div className="flex items-center gap-2.5 mb-2">
           <Database size={20} className="text-brand-blue" />
           <h3 className="text-xl font-bold text-text-primary">Explore the Data</h3>
         </div>
-        <p className="text-base text-text-secondary leading-relaxed mb-5">
+        <p className="text-lg text-text-secondary leading-relaxed mb-5">
           Each page below offers a focused lens on U.S. TransBorder freight data.
           Use the filter bar on any page to slice the data by year, country, mode, or trade type.
         </p>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
           {navPages.map((p) => (
             <Link
               key={p.path}
               to={p.path}
-              className="text-left relative rounded-xl border border-border-light bg-white p-5 flex flex-col
+              className="text-left relative rounded-xl border border-border-light bg-white p-6 flex flex-col
                          hover:shadow-md hover:-translate-y-0.5 hover:border-brand-blue/30
                          transition-all duration-200 group"
             >
@@ -518,7 +543,7 @@ export default function OverviewPage() {
                 <span className="text-base font-bold text-text-primary">{p.title}</span>
                 <ArrowRight size={14} className="ml-auto text-text-secondary group-hover:text-brand-blue transition-colors" />
               </div>
-              <p className="text-base text-text-secondary leading-relaxed">{p.desc}</p>
+              <p className="text-lg text-text-secondary leading-relaxed">{p.desc}</p>
             </Link>
           ))}
         </div>
@@ -531,7 +556,7 @@ export default function OverviewPage() {
             <Database size={20} className="text-text-secondary" />
             <h3 className="text-xl font-bold text-text-primary">Data Source</h3>
           </div>
-          <p className="text-base text-text-secondary leading-relaxed mb-3">
+          <p className="text-lg text-text-secondary leading-relaxed mb-3">
             All data in this dashboard comes from the{' '}
             <strong className="text-text-primary">Bureau of Transportation Statistics (BTS) TransBorder Freight Data</strong> program.
             TransBorder is the only public data source that provides port-level detail on U.S. trade
@@ -539,7 +564,7 @@ export default function OverviewPage() {
             Data is collected from U.S. Customs declarations and covers all commercial freight shipments
             crossing U.S. borders with its NAFTA/USMCA partners.
           </p>
-          <p className="text-base text-text-secondary leading-relaxed mb-3">
+          <p className="text-lg text-text-secondary leading-relaxed mb-3">
             The dataset spans {minYear || 1993} to {latestYear || 2025} and is released monthly by BTS.
             Raw data files are available at{' '}
             <a

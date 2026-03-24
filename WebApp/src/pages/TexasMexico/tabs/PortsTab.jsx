@@ -264,7 +264,7 @@ export default function PortsTab({
       {/* Narrative Intro */}
       <SectionBlock>
         <div className="max-w-4xl mx-auto">
-          <p className="text-base text-text-secondary leading-relaxed">
+          <p className="text-lg text-text-secondary leading-relaxed">
             Texas's 14 border ports of entry are the backbone of U.S.–Mexico trade, handling roughly two-thirds
             of all freight crossing the border. Three port clusters — <strong>Laredo</strong> (central),{' '}
             <strong>El Paso/Ysleta</strong> (west), and <strong>Hidalgo/Pharr</strong> (east) — account
@@ -342,7 +342,7 @@ export default function PortsTab({
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
           <ChartCard title="Laredo's Share of TX-MX Trade" subtitle="Percentage of total Texas-Mexico trade flowing through Laredo">
-            <LineChart data={laredoShare} xKey="year" yKey="value" formatValue={(v) => `${v.toFixed(1)}%`} showArea />
+            <LineChart data={laredoShare} xKey="year" yKey="value" formatValue={(v) => `${v.toFixed(1)}%`} showArea annotations={HISTORICAL_ANNOTATIONS} />
           </ChartCard>
           <div className="mt-4">
             <InsightCallout
@@ -393,7 +393,7 @@ export default function PortsTab({
             </SectionBlock>
           )}
           <SectionBlock alt>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
+            <div className="flex flex-col gap-6 max-w-7xl mx-auto">
               <ChartCard title="Monthly Trade Trends" subtitle="Continuous monthly time series"
                 downloadData={{ summary: { data: monthlyTimeSeries, filename: 'tx-mx-monthly-trends', columns: DL.tradeTrend } }}>
                 <LineChart data={monthlyTimeSeries} xKey="idx" yKey="value" formatValue={formatCurrency} formatX={formatX} />

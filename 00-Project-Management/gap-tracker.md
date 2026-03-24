@@ -4,14 +4,14 @@ Living document tracking known issues, missing pieces, and open questions across
 
 ---
 
-## Status Summary (as of 2026-03-23)
+## Status Summary (as of 2026-03-24)
 
 | Phase | Planning | Implementation |
 |---|---|---|
 | Phase 1 — Data Acquisition | Complete | **Complete** |
 | Phase 2 — Data Processing | Complete | **Complete** |
 | Phase 3 — WebApp & Pages | Complete | **Complete** |
-| Phase 4 — Design & Testing | Complete | Not started |
+| Phase 4 — Design & Testing | Complete | **Complete** |
 
 ---
 
@@ -187,13 +187,27 @@ All Phase 3 deliverables implemented. WebApp forked from Airport Dashboard (Task
 
 ## Phase 4: Design & Testing
 
-### Missing Deliverables
+### Completed Deliverables
 
-| Item | Priority | Blocked By |
-|---|---|---|
-| Testing scripts | Medium | WebApp implementation |
-| Deployment configuration | Medium | Hosting decision |
-| Design playbook application | Low | WebApp implementation |
+| Item | Date |
+|---|---|
+| Testing scripts suite (`check-all.js`, `schema-check.js`, `visual-check.js`, `deep-functional-check.js`, `responsive-check.js`, `cross-browser-check.js`) | 2026-03-24 |
+| Unit tests (`transborderHelpers.test.js`, `regressions.test.js`) with Vitest | 2026-03-24 |
+| Cross-browser testing (Chromium, Firefox, WebKit) | 2026-03-24 |
+| Responsive testing (desktop, tablet, mobile viewports) | 2026-03-24 |
+| Deep functional testing (chart rendering, filter interactions, data tables) | 2026-03-24 |
+| Visual regression screenshot baselines | 2026-03-24 |
+| Deployed to GitHub Pages | 2026-03-24 |
+| Pipeline review fixes (decouple datasets, fix arc math, add tests) | 2026-03-24 |
+| WebApp review fixes (perf, a11y, data layer, dead code cleanup) | 2026-03-24 |
+| Maps added to all pages, Canadian port data, country filter on Overview | 2026-03-24 |
+| Trade by Mode and Trade by Commodity standalone pages removed (consolidated) | 2026-03-24 |
+| `us_canada_ports` dataset added (223K rows) | 2026-03-24 |
+| `canadian_port_coordinates.json` (89 Canadian border ports) | 2026-03-24 |
+
+### Phase 4 — Complete
+
+All Phase 4 deliverables implemented. Testing suite covers schema validation, visual regression, deep functional checks, responsive design, and cross-browser compatibility. Dashboard deployed to GitHub Pages. Final review fixes applied to both pipeline and webapp.
 
 ### Open Questions
 
@@ -248,6 +262,7 @@ All Phase 3 deliverables implemented. WebApp forked from Airport Dashboard (Task
 
 | Date | Update |
 |---|---|
+| 2026-03-24 | **Phase 4 complete.** Testing suite built (schema, visual, functional, responsive, cross-browser). Dashboard deployed to GitHub Pages. Pipeline and webapp review fixes applied. Maps added to all pages. Canadian port data (89 ports) and `us_canada_ports` dataset (223K rows) added. Trade by Mode/Commodity standalone pages consolidated. Per-chart country filter dropdowns added to Overview. Root `README.md` created for project onboarding. |
 | 2026-03-23 | **Phase 3 complete.** WebApp built: 8 pages + 5 TexasMexico tabs + embed system. Forked from Airport Dashboard, all aviation code replaced. Treemap drilldown, lazy-loading store, port map, insight engine. Build: 492 KB JS, 48 KB CSS. |
 | 2026-03-23 | **BTS confirmation from Sean Jahanmir on legacy file semantics.** (1) A/B suffix = alternative geographic pivots from same raw ledger, not additive — validates D5B/D6B exclusion. (2) R-files = full replacements, X-files = supplemental deltas — validates R-file preference logic. (3) NAFTA-era carry-over context documented. Updated `legacy-to-modern-mapping.md` with authoritative quotes. |
 | 2026-03-23 | **Code review fixes (D5B/D6B, schema_mappings, doc drift).** D5B/D6B excluded from normalization (NTAR regions incompatible with DOT1 state×port). schema_mappings.json reclassified as reference doc (was loaded but unused). Phase 2 plan section 2.1 rewritten to match actual code behavior. S-suffix doc corrected in legacy-to-modern-mapping.md. |

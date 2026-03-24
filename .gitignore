@@ -40,7 +40,6 @@ __pycache__/
 01-Raw-Data/unpacked/modern/2007/DOT2_07.DBF
 01-Raw-Data/unpacked/modern/2008/natfd.csv
 02-Data-Staging/cleaned/dot1_state_port.csv
-02-Data-Staging/cleaned/dot1_state_port.csv
 02-Data-Staging/cleaned/dot2_state_commodity.csv
 02-Data-Staging/cleaned/dot3_port_commodity.csv
 02-Data-Staging/transborder.db

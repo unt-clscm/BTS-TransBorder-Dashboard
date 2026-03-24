@@ -300,6 +300,10 @@ function DonutChart({
     const centerOffset = (width - bbox.width) / 2 - bbox.x
     if (centerOffset > 0) wrapper.attr('transform', `translate(${centerOffset}, 0)`)
 
+    // Expand SVG height if legend extends beyond the donut diameter
+    const neededH = Math.ceil(bbox.y + bbox.height + 4)
+    if (neededH > size) svg.attr('height', neededH)
+
   }, [data, width, containerHeight, isFullscreen, nameKey, valueKey, selectedSlice, animate, showLegendRight, maxSizeProp, formatValue, legendMaxW, onSliceClick])
 
   return (

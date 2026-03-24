@@ -8,6 +8,7 @@ import {
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency } from '@/lib/chartColors'
 import { generateInsights } from '@/lib/insightEngine'
+import { PORT_REGION_MAP } from '@/lib/portUtils'
 import { usePortCoordinates, useCanadianPortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import HeroStardust from '@/components/ui/HeroStardust'
 import InsightCallout from '@/components/ui/InsightCallout'
@@ -34,6 +35,24 @@ const COUNTRY_OPTIONS = [
   { value: 'Canada', label: 'Canada' },
 ]
 
+/* ── Inline country select for chart headers ───────────────────────── */
+function CountrySelect({ value, onChange, id }) {
+  return (
+    <select
+      id={id}
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className="rounded-lg border border-border-light bg-white px-2 py-1 text-sm text-text-primary
+                 shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
+      aria-label="Filter by trading partner"
+    >
+      {COUNTRY_OPTIONS.map((opt) => (
+        <option key={opt.value} value={opt.value}>{opt.label}</option>
+      ))}
+    </select>
+  )
+}
+
 /* ── Map color scheme ────────────────────────────────────────────────── */
 const MAP_GROUP_COLORS = {
   texas:  { fill: '#d97706', stroke: '#92400e' },  // amber — TX-Mexico ports (focus)
@@ -46,13 +65,13 @@ const MAP_LEGEND = [
   { label: 'Canada Border Port', color: '#16a34a' },
 ]
 
-const TX_STATES = new Set(['Texas'])
-
 export default function OverviewPage() {
   const { usTransborder, usMexicoPorts, usCanadaPorts, loading, loadDataset } = useTransborderStore()
 
-  /* ── country filter state ──────────────────────────────────────── */
-  const [countryFilter, setCountryFilter] = useState('')
+  /* ── country filter state (per-section) ───────────────────────── */
+  const [countryFilter, setCountryFilter] = useState('')      // stat cards
+  const [trendCountry, setTrendCountry] = useState('')         // line chart
+  const [modeCountry, setModeCountry] = useState('')           // donut chart
 
   /* ── lazy-load port data for map ───────────────────────────────── */
   useEffect(() => {
@@ -70,8 +89,7 @@ export default function OverviewPage() {
 
     // Tag Mexico ports: Texas ones get 'texas', others get 'mexico'
     for (const p of mx) {
-      const state = usMexicoPorts.find((d) => d.PortCode === p.portCode)?.State
-      p.group = TX_STATES.has(state) ? 'texas' : 'mexico'
+      p.group = PORT_REGION_MAP[p.name] ? 'texas' : 'mexico'
     }
     for (const p of ca) {
       p.group = 'canada'
@@ -86,18 +104,16 @@ export default function OverviewPage() {
     return usTransborder.filter((d) => d.Country === countryFilter)
   }, [usTransborder, countryFilter])
 
-  /* ── Derived year bounds ─────────────────────────────────────────── */
+  /* ── Derived year bounds (always from full dataset) ──────────────── */
   const latestYear = useMemo(() => {
-    if (!filteredData.length) return null
-    return Math.max(...filteredData.map((d) => d.Year).filter(Number.isFinite))
-  }, [filteredData])
+    if (!usTransborder?.length) return null
+    return Math.max(...usTransborder.map((d) => d.Year).filter(Number.isFinite))
+  }, [usTransborder])
 
   const minYear = useMemo(() => {
-    if (!filteredData.length) return null
-    return Math.min(...filteredData.map((d) => d.Year).filter(Number.isFinite))
-  }, [filteredData])
-
-  const previousYear = latestYear ? latestYear - 1 : null
+    if (!usTransborder?.length) return null
+    return Math.min(...usTransborder.map((d) => d.Year).filter(Number.isFinite))
+  }, [usTransborder])
 
   /* ── Insight cards ───────────────────────────────────────────────── */
   const insights = useMemo(() => {
@@ -113,26 +129,35 @@ export default function OverviewPage() {
   const stats = useMemo(() => {
     if (!filteredData.length || !latestYear) return null
     const latestRows = filteredData.filter((d) => d.Year === latestYear)
-    const prevRows = previousYear
-      ? filteredData.filter((d) => d.Year === previousYear)
-      : []
 
     const sum = (rows) => rows.reduce((s, d) => s + (d.TradeValue || 0), 0)
 
     const totalLatest = sum(latestRows)
-    const totalPrev = sum(prevRows)
     const exports = sum(latestRows.filter((d) => /export/i.test(d.TradeType)))
     const imports = sum(latestRows.filter((d) => /import/i.test(d.TradeType)))
-    const yoyChange = totalPrev ? ((totalLatest - totalPrev) / totalPrev) * 100 : null
+    const tradeBalance = exports - imports
 
-    return { totalLatest, exports, imports, yoyChange }
-  }, [filteredData, latestYear, previousYear])
+    return { totalLatest, exports, imports, tradeBalance }
+  }, [filteredData, latestYear])
+
+  /* ── Per-chart filtered data ─────────────────────────────────────── */
+  const trendFiltered = useMemo(() => {
+    if (!usTransborder?.length) return []
+    if (!trendCountry) return usTransborder
+    return usTransborder.filter((d) => d.Country === trendCountry)
+  }, [usTransborder, trendCountry])
+
+  const modeFiltered = useMemo(() => {
+    if (!usTransborder?.length) return []
+    if (!modeCountry) return usTransborder
+    return usTransborder.filter((d) => d.Country === modeCountry)
+  }, [usTransborder, modeCountry])
 
   /* ── LineChart: Annual trade trends (Exports vs Imports) ─────────── */
   const trendData = useMemo(() => {
-    if (!filteredData.length) return []
+    if (!trendFiltered.length) return []
     const map = {}
-    for (const d of filteredData) {
+    for (const d of trendFiltered) {
       const yr = d.Year
       const type = /export/i.test(d.TradeType) ? 'Exports' : /import/i.test(d.TradeType) ? 'Imports' : null
       if (!yr || !type) continue
@@ -141,20 +166,20 @@ export default function OverviewPage() {
       map[key].value += d.TradeValue || 0
     }
     return Object.values(map).sort((a, b) => a.year - b.year || a.series.localeCompare(b.series))
-  }, [filteredData])
+  }, [trendFiltered])
 
   /* ── DonutChart: Trade by Mode (latest year) ─────────────────────── */
   const modeData = useMemo(() => {
-    if (!filteredData.length || !latestYear) return []
+    if (!modeFiltered.length || !latestYear) return []
     const map = {}
-    for (const d of filteredData) {
+    for (const d of modeFiltered) {
       if (d.Year !== latestYear || !d.Mode) continue
       map[d.Mode] = (map[d.Mode] || 0) + (d.TradeValue || 0)
     }
     return Object.entries(map)
       .map(([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-  }, [filteredData, latestYear])
+  }, [modeFiltered, latestYear])
 
   /* ── StackedBarChart: Canada vs Mexico trade by year ─────────────── */
   const countryStackData = useMemo(() => {
@@ -189,9 +214,6 @@ export default function OverviewPage() {
       </div>
     )
   }
-
-  /* ── Country label for titles ──────────────────────────────────── */
-  const countryLabel = countryFilter || 'U.S. TransBorder'
 
   /* ── Navigation page cards ───────────────────────────────────────── */
   const navPages = [
@@ -233,52 +255,27 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      {/* ── Stat Cards + Country Filter (grouped) ────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-5 pb-2">
+        <section className="rounded-xl border border-border-light bg-surface-alt/50 p-5">
+          <div className="flex items-center gap-3 mb-4">
+            <label htmlFor="country-filter" className="text-base font-semibold text-text-primary">
+              Trading Partner
+            </label>
+            <select
+              id="country-filter"
+              value={countryFilter}
+              onChange={(e) => setCountryFilter(e.target.value)}
+              className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary
+                         shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
+            >
+              {COUNTRY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </div>
 
-        {/* ── Country Filter ─────────────────────────────────────── */}
-        <div className="flex items-center gap-3 py-5">
-          <label htmlFor="country-filter" className="text-base font-semibold text-text-primary">
-            Trading Partner
-          </label>
-          <select
-            id="country-filter"
-            value={countryFilter}
-            onChange={(e) => setCountryFilter(e.target.value)}
-            className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary
-                       shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
-          >
-            {COUNTRY_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
-        </div>
-
-        {/* ── Insight Callouts ──────────────────────────────────────── */}
-        {!countryFilter && insights.length > 0 && (
-          <section className="pb-8">
-            <div className="flex items-center gap-2.5 mb-5">
-              <TrendingUp size={20} className="text-brand-blue" />
-              <h3 className="text-xl font-bold text-text-primary">Key Insights</h3>
-            </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {insights.map((ins, i) => {
-                const IconComp = ICON_MAP[ins.icon] || Lightbulb
-                return (
-                  <InsightCallout
-                    key={i}
-                    finding={ins.text}
-                    variant={ins.variant || 'default'}
-                    icon={IconComp}
-                  />
-                )
-              })}
-            </div>
-          </section>
-        )}
-
-        {/* ── Stat Cards ───────────────────────────────────────────── */}
-        {stats && (
-          <section className="pb-8">
+          {stats && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <StatCard
                 label={`Total Trade (${latestYear})`}
@@ -301,13 +298,38 @@ export default function OverviewPage() {
                 delay={200}
               />
               <StatCard
-                label="Year-over-Year Change"
-                value={stats.yoyChange != null ? `${stats.yoyChange >= 0 ? '+' : ''}${stats.yoyChange.toFixed(1)}%` : 'N/A'}
-                trend={stats.yoyChange != null ? (stats.yoyChange >= 0 ? 'up' : 'down') : 'neutral'}
-                trendLabel={stats.yoyChange != null ? `${previousYear} to ${latestYear}` : ''}
-                icon={TrendingUp}
+                label={`Trade Balance (${latestYear})`}
+                value={formatCurrency(Math.abs(stats.tradeBalance))}
+                trend={stats.tradeBalance >= 0 ? 'up' : 'down'}
+                trendLabel={stats.tradeBalance >= 0 ? 'Surplus (Exports > Imports)' : 'Deficit (Imports > Exports)'}
+                icon={Scale}
                 delay={300}
               />
+            </div>
+          )}
+        </section>
+      </div>
+
+      {/* ── Key Insights (always visible, independent of filter) ──── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {insights.length > 0 && (
+          <section className="py-6">
+            <div className="flex items-center gap-2.5 mb-5">
+              <TrendingUp size={20} className="text-brand-blue" />
+              <h3 className="text-xl font-bold text-text-primary">Key Insights</h3>
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {insights.map((ins, i) => {
+                const IconComp = ICON_MAP[ins.icon] || Lightbulb
+                return (
+                  <InsightCallout
+                    key={i}
+                    finding={ins.text}
+                    variant={ins.variant || 'default'}
+                    icon={IconComp}
+                  />
+                )
+              })}
             </div>
           </section>
         )}
@@ -338,11 +360,12 @@ export default function OverviewPage() {
         </div>
         <div className="grid grid-cols-1 gap-6">
           <ChartCard
-            title={`${countryLabel} Exports vs Imports`}
+            title={`${trendCountry || 'U.S. TransBorder'} Exports vs Imports`}
             subtitle={`Annual trade value, ${minYear || 1993}\u2013${latestYear || 2025}`}
+            headerRight={<CountrySelect value={trendCountry} onChange={setTrendCountry} id="trend-country" />}
             downloadData={{
               summary: { data: trendData, filename: 'us-transborder-exports-vs-imports', columns: DL.tradeTrendSeries },
-              detail:  { data: filteredData, filename: 'us-transborder-detail', columns: PAGE_TRANSBORDER_COLS },
+              detail:  { data: trendFiltered, filename: 'us-transborder-detail', columns: PAGE_TRANSBORDER_COLS },
             }}
           >
             <LineChart
@@ -364,8 +387,9 @@ export default function OverviewPage() {
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard
-            title={`Trade by Mode (${latestYear || ''})`}
+            title={`${modeCountry || 'All'} Trade by Mode (${latestYear || ''})`}
             subtitle="Share of total trade value by transportation mode"
+            headerRight={<CountrySelect value={modeCountry} onChange={setModeCountry} id="mode-country" />}
             downloadData={{
               summary: { data: modeData, filename: 'trade-by-mode', columns: DL.modeRank },
             }}

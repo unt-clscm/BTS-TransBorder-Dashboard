@@ -55,7 +55,7 @@ This project works with BTS (Bureau of Transportation Statistics) TransBorder fr
   5. Merge to main using the **merge queue** (see below).
   Skip branching only for trivial single-file edits (e.g., updating CLAUDE.md) when no other agents are active.
 - **Merge queue**: To prevent concurrent merge collisions, agents use a lock file at `.git/merge.lock`. The merge procedure is:
-  1. **Check lock**: If `.git/merge.lock` exists, read it. If the timestamp is older than 5 minutes, the merging agent likely crashed — alert the user: *"Stale merge lock detected (branch: X, started: Y). Another agent may have crashed. Please investigate and run `rm .git/merge.lock` to clear it."* Do NOT remove the lock automatically. If the lock is fresh (< 5 min), wait 10 seconds and retry, up to 6 attempts (60s total). If still locked after all retries, alert the user.
+  1. **Check lock**: If `.git/merge.lock` exists, read it. If the lock is fresh (< 5 min), wait 10 seconds and retry, up to 6 attempts (60s total). If still locked after all retries, alert the user. If the timestamp is older than 5 minutes, the locking agent likely crashed — handle the **stale lock recovery** (see below).
   2. **Acquire lock**: Write `.git/merge.lock` with this content:
      ```
      branch: <branch-name>
@@ -64,7 +64,15 @@ This project works with BTS (Bureau of Transportation Statistics) TransBorder fr
      ```
   3. **Merge**: `git checkout main && git pull && git merge <branch> && git push`.
   4. **Release lock**: Delete `.git/merge.lock` and delete the merged branch (`git branch -d <branch> && git push origin --delete <branch>`).
-  5. **On merge failure**: If the merge fails due to conflicts, delete `.git/merge.lock`, alert the user with the conflict details, and leave the feature branch intact for manual resolution.
+  5. **On merge failure**: If the merge fails due to conflicts, `git merge --abort`, delete `.git/merge.lock`, alert the user with the conflict details, and leave the feature branch intact for manual resolution.
+  6. **Stale lock recovery**: When a lock is older than 5 minutes, another agent crashed mid-merge. The recovering agent should:
+     - Alert the user: *"Stale merge lock detected — agent was merging branch `X`, started at `Y`. Attempting to recover."*
+     - Remove the stale `.git/merge.lock`.
+     - Check if the stale branch exists and was not yet merged: `git branch --list <stale-branch>`.
+     - If the branch exists, attempt to merge it: `git checkout main && git pull && git merge <stale-branch>`.
+       - If the merge is clean: push, delete the stale branch, and tell the user *"Recovered: merged stale branch `X` successfully."* Then proceed with its own branch merge (re-acquire lock from step 2).
+       - If conflicts: `git merge --abort`, alert the user *"Stale branch `X` has merge conflicts — leaving it for manual resolution."*, then proceed with its own merge.
+     - If the branch doesn't exist (already merged or deleted), just inform the user and proceed.
 - **Commit at milestones**: After completing a meaningful unit of work, commit immediately. Do not let work accumulate uncommitted.
 - **Push after commit**: Always push to GitHub immediately after committing.
 - **Gap tracker hygiene**: Whenever a gap, issue, or open question documented in `00-Project-Management/gap-tracker.md` is resolved during a session, update the gap tracker immediately in the same session — do not defer.

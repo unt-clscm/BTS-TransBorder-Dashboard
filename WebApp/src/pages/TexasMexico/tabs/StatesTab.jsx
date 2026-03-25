@@ -5,7 +5,7 @@
  */
 import { useMemo, useEffect, useState } from 'react'
 import { formatCurrency, getAxisFormatter } from '@/lib/transborderHelpers'
-import { CHART_COLORS, formatCompact, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import { CHART_COLORS, formatCompact, formatWeight, getMetricField, getMetricFormatter, getMetricLabel, getDataSubsetLabel } from '@/lib/chartColors'
 import YearRangeFilter from '@/components/filters/YearRangeFilter'
 import TopNSelector from '@/components/filters/TopNSelector'
 import SectionBlock from '@/components/ui/SectionBlock'
@@ -44,6 +44,9 @@ export default function StatesTab({
   const valueField = getMetricField(metric)
   const fmtValue = getMetricFormatter(metric)
   const metricLabel = getMetricLabel(metric)
+  // Computed after filtered/filteredNoYear are available (below)
+  // but we need filters object now for the label function
+  const filters = { tradeTypeFilter, modeFilter }
 
   const [stateTopN, setStateTopN] = useState(15)
   const [stateTrendTopN, setStateTrendTopN] = useState(5)
@@ -68,6 +71,9 @@ export default function StatesTab({
     if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return data
   }, [texasMexicanStateTrade, tradeTypeFilter, modeFilter, mexStateFilter])
+
+  const subsetLabel = getDataSubsetLabel(filtered, filters)
+  const subsetLabelNoYear = getDataSubsetLabel(filteredNoYear, filters)
 
   const allStateYears = useMemo(() => {
     const ys = new Set()
@@ -292,7 +298,7 @@ export default function StatesTab({
       {/* Interactive Mexican States + Port Bubbles Map */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Mexican States & Border Ports" subtitle="Click a state or port to explore trade connections">
+          <ChartCard title={`Mexican States & Border Ports${subsetLabel}`} subtitle="Click a state or port to explore trade connections">
             <InteractiveFlowMap
               geojsonUrl={`${BASE}data/mexican_states.geojson`}
               stateData={mapData}
@@ -313,7 +319,7 @@ export default function StatesTab({
       {/* Port → Mexican State Sankey */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Port–State Trade Flows" subtitle="How trade flows from Texas border ports to Mexican states">
+          <ChartCard title={`Port\u2013State Trade Flows${subsetLabel}`} subtitle="How trade flows from Texas border ports to Mexican states">
             <SankeyDiagram
               nodes={sankeyData.nodes}
               links={sankeyData.links}
@@ -328,10 +334,10 @@ export default function StatesTab({
       {/* Top 15 bar + Detail table side by side */}
       <SectionBlock>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
-          <ChartCard title={`Top ${stateTopN} Mexican States`} subtitle={`Ranked by ${metricLabel.toLowerCase()} through Texas ports`} headerRight={<TopNSelector value={stateTopN} onChange={setStateTopN} />}>
+          <ChartCard title={`Top ${stateTopN} Mexican States${subsetLabel}`} subtitle={`Ranked by ${metricLabel.toLowerCase()} through Texas ports`} headerRight={<TopNSelector value={stateTopN} onChange={setStateTopN} />}>
             <BarChart data={barData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(barMax, metric === 'weight' ? '' : '$')} color={CHART_COLORS[3]} />
           </ChartCard>
-          <ChartCard title="Mexican State Detail" subtitle="Trade summary by Mexican state">
+          <ChartCard title={`Mexican State Detail${subsetLabel}`} subtitle="Trade summary by Mexican state">
             <DataTable columns={tableColumns} data={tableData} />
           </ChartCard>
         </div>
@@ -353,7 +359,7 @@ export default function StatesTab({
       {stateGrowth.length > 0 && (
         <SectionBlock alt>
           <div className="max-w-7xl mx-auto">
-            <ChartCard title="Fastest-Growing Mexican States" subtitle="Growth in average annual trade value (earliest 3 years vs. latest 3 years)" headerRight={<TopNSelector value={growthTopN} onChange={setGrowthTopN} />}>
+            <ChartCard title={`Fastest-Growing Mexican States${subsetLabelNoYear}`} subtitle="Growth in average annual trade value (earliest 3 years vs. latest 3 years)" headerRight={<TopNSelector value={growthTopN} onChange={setGrowthTopN} />}>
               <BarChart data={stateGrowth} xKey="label" yKey="value" horizontal formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" />
             </ChartCard>
             <div className="mt-4">
@@ -370,11 +376,9 @@ export default function StatesTab({
 
       {/* Top 5 State Trends */}
       <SectionBlock alt>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title={`Top ${stateTrendTopN} State Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} through Texas ports`} headerRight={<><TopNSelector value={stateTrendTopN} onChange={setStateTrendTopN} /><YearRangeFilter years={allStateYears} value={trendYearRange} onChange={setTrendYearRange} /></>}>
-            <LineChart data={stateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(trendMax, metric === 'weight' ? '' : '$')} annotations={ANNOTATIONS} />
-          </ChartCard>
-        </div>
+        <ChartCard title={`Top ${stateTrendTopN} State Trends${subsetLabelNoYear}`} subtitle={`Annual ${metricLabel.toLowerCase()} through Texas ports`} headerRight={<><TopNSelector value={stateTrendTopN} onChange={setStateTrendTopN} /><YearRangeFilter years={allStateYears} value={trendYearRange} onChange={setTrendYearRange} /></>}>
+          <LineChart data={stateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(trendMax, metric === 'weight' ? '' : '$')} annotations={ANNOTATIONS} />
+        </ChartCard>
       </SectionBlock>
     </>
   )

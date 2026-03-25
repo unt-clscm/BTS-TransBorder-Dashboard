@@ -124,8 +124,7 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear, 
     <>
       {/* Continuous monthly trend */}
       <SectionBlock>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title="Monthly Trade Trends" subtitle="Continuous monthly time series of TX-MX trade value"
+        <ChartCard title="Monthly Trade Trends" subtitle="Continuous monthly time series of TX-MX trade value"
             downloadData={{ summary: { data: monthlyTimeSeries, filename: 'tx-mx-monthly-trends', columns: DL.tradeTrend } }}>
             <LineChart
               data={monthlyTimeSeries}
@@ -134,22 +133,19 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear, 
               formatValue={formatCurrency}
               formatX={formatX}
             />
-          </ChartCard>
-        </div>
+        </ChartCard>
       </SectionBlock>
 
       {/* Seasonal pattern stacked bar */}
       <SectionBlock alt>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title="Seasonal Patterns" subtitle="Trade value by month, stacked by year">
-            <StackedBarChart
-              data={seasonalData.data}
-              xKey="month"
-              stackKeys={seasonalData.keys}
-              formatValue={formatCurrency}
-            />
-          </ChartCard>
-        </div>
+        <ChartCard title="Seasonal Patterns" subtitle="Trade value by month, stacked by year">
+          <StackedBarChart
+            data={seasonalData.data}
+            xKey="month"
+            stackKeys={seasonalData.keys}
+            formatValue={formatCurrency}
+          />
+        </ChartCard>
       </SectionBlock>
 
       {/* Monthly detail table */}

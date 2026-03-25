@@ -13,7 +13,7 @@ import DonutChart from '@/components/charts/DonutChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import PortMap from '@/components/maps/PortMap'
-import { formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import { formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel, getDataSubsetLabel } from '@/lib/chartColors'
 import YearRangeFilter from '@/components/filters/YearRangeFilter'
 import TopNSelector from '@/components/filters/TopNSelector'
 import InsightCallout from '@/components/ui/InsightCallout'
@@ -38,12 +38,18 @@ export default function PortsTab({
   latestYear,
   datasetError,
   metric = 'value',
+  tradeTypeFilter = '',
+  modeFilter = [],
 }) {
   useEffect(() => { loadDataset('monthlyTrends') }, [loadDataset])
 
   const valueField = getMetricField(metric)
   const fmtValue = getMetricFormatter(metric)
   const metricLabel = getMetricLabel(metric)
+  const filters = { tradeTypeFilter, modeFilter }
+  const subsetLabel = getDataSubsetLabel(filteredPorts, filters)
+  const subsetLabelNoYear = getDataSubsetLabel(filteredPortsNoYear, filters)
+  const subsetLabelMonthly = getDataSubsetLabel(filteredMonthly, filters)
 
   // Chart-level controls
   const allYears = useMemo(() => {
@@ -304,7 +310,7 @@ export default function PortsTab({
       {/* Port Map */}
       <SectionBlock>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Texas-Mexico Ports of Entry" subtitle={`Bubble size reflects total ${metricLabel.toLowerCase()} for selected filters`}>
+          <ChartCard title={`Texas-Mexico Ports of Entry${subsetLabel}`} subtitle={`Bubble size reflects total ${metricLabel.toLowerCase()} for selected filters`}>
             <PortMap ports={mapPorts} formatValue={fmtValue} center={[28.5, -100.0]} zoom={6} height="520px" />
           </ChartCard>
         </div>
@@ -327,13 +333,13 @@ export default function PortsTab({
 
       {/* Trade Trends + Mode Donut (2-col) */}
       <SectionBlock alt>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
-          <ChartCard title="TX-MX Trade Trends" subtitle={`Annual ${metricLabel.toLowerCase()} by direction`}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <ChartCard title={`TX-MX Trade Trends${subsetLabelNoYear}`} subtitle={`Annual ${metricLabel.toLowerCase()} by direction`}
             headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}
             downloadData={{ summary: { data: tradeTrend, filename: 'tx-mx-trade-trends', columns: DL.tradeTrendSeries } }}>
             <LineChart data={tradeTrend} xKey="year" yKey="value" seriesKey="TradeType" formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
           </ChartCard>
-          <ChartCard title="Trade by Mode" subtitle="All selected years combined"
+          <ChartCard title={`Trade by Mode${subsetLabel}`} subtitle="All selected years combined"
             downloadData={{ summary: { data: tradeByMode, filename: 'tx-mx-trade-by-mode', columns: DL.modeRank } }}>
             <DonutChart data={tradeByMode} nameKey="label" valueKey="value" formatValue={fmtValue} />
           </ChartCard>
@@ -342,24 +348,22 @@ export default function PortsTab({
 
       {/* Trade Balance Trend */}
       <SectionBlock>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title="Trade Balance Trend" subtitle="Exports minus imports — negative values indicate a trade deficit">
-            <LineChart data={tradeBalance} xKey="year" yKey="value" formatValue={formatCurrency} showArea annotations={HISTORICAL_ANNOTATIONS} />
-          </ChartCard>
-          <div className="mt-4">
-            <InsightCallout
-              finding="Texas's trade deficit with Mexico has widened from roughly -$30B in 2007 to over -$125B in 2024 — a 4x increase driven by imports of finished vehicles, electronics, and consumer goods."
-              icon={TrendingDown}
-              variant="warning"
-            />
-          </div>
+        <ChartCard title={`Trade Balance Trend${subsetLabelNoYear}`} subtitle="Exports minus imports — negative values indicate a trade deficit">
+          <LineChart data={tradeBalance} xKey="year" yKey="value" formatValue={formatCurrency} showArea annotations={HISTORICAL_ANNOTATIONS} />
+        </ChartCard>
+        <div className="mt-4 max-w-7xl mx-auto">
+          <InsightCallout
+            finding="Texas's trade deficit with Mexico has widened from roughly -$30B in 2007 to over -$125B in 2024 — a 4x increase driven by imports of finished vehicles, electronics, and consumer goods."
+            icon={TrendingDown}
+            variant="warning"
+          />
         </div>
       </SectionBlock>
 
       {/* Port Ranking */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Port Ranking" subtitle={`Top ${portTopN} ports by ${metricLabel.toLowerCase()}`}
+          <ChartCard title={`Port Ranking${subsetLabel}`} subtitle={`Top ${portTopN} ports by ${metricLabel.toLowerCase()}`}
             headerRight={<TopNSelector value={portTopN} onChange={setPortTopN} />}
             downloadData={{ summary: { data: portRanking, filename: 'tx-mx-port-ranking', columns: DL.portRank } }}>
             <BarChart data={portRanking} xKey="label" yKey="value" horizontal formatValue={fmtValue} />
@@ -369,39 +373,33 @@ export default function PortsTab({
 
       {/* Laredo Concentration */}
       <SectionBlock alt>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title="Laredo's Share of TX-MX Trade" subtitle="Percentage of total Texas-Mexico trade flowing through Laredo">
-            <LineChart data={laredoShare} xKey="year" yKey="value" formatValue={(v) => `${v.toFixed(1)}%`} showArea annotations={HISTORICAL_ANNOTATIONS} />
-          </ChartCard>
-          <div className="mt-4">
-            <InsightCallout
-              finding="Laredo's share has grown from 52% in 2007 to nearly 60% in 2024. At current volumes, a single day of disruption at Laredo delays an estimated $900M in freight."
-              icon={AlertTriangle}
-              variant="warning"
-            />
-          </div>
+        <ChartCard title={`Laredo's Share of TX-MX Trade${subsetLabelNoYear}`} subtitle="Percentage of total Texas-Mexico trade flowing through Laredo">
+          <LineChart data={laredoShare} xKey="year" yKey="value" formatValue={(v) => `${v.toFixed(1)}%`} showArea annotations={HISTORICAL_ANNOTATIONS} />
+        </ChartCard>
+        <div className="mt-4 max-w-7xl mx-auto">
+          <InsightCallout
+            finding="Laredo's share has grown from 52% in 2007 to nearly 60% in 2024. At current volumes, a single day of disruption at Laredo delays an estimated $900M in freight."
+            icon={AlertTriangle}
+            variant="warning"
+          />
         </div>
       </SectionBlock>
 
       {/* Top 5 Port Trends */}
       <SectionBlock alt>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title={`Top ${portTrendTopN} Port Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} for the largest ports`}
+        <ChartCard title={`Top ${portTrendTopN} Port Trends${subsetLabelNoYear}`} subtitle={`Annual ${metricLabel.toLowerCase()} for the largest ports`}
             headerRight={<><TopNSelector value={portTrendTopN} onChange={setPortTrendTopN} /><YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} /></>}
             downloadData={{ summary: { data: portTrends, filename: 'tx-mx-top5-port-trends', columns: DL.tradeTrendSeries } }}>
             <LineChart data={portTrends} xKey="year" yKey="value" seriesKey="Port" formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
-          </ChartCard>
-        </div>
+        </ChartCard>
       </SectionBlock>
 
       {/* Mode Composition by Year */}
       <SectionBlock>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title="Mode Composition by Year" subtitle={`Annual ${metricLabel.toLowerCase()} stacked by transport mode`}
+        <ChartCard title={`Mode Composition by Year${subsetLabelNoYear}`} subtitle={`Annual ${metricLabel.toLowerCase()} stacked by transport mode`}
             headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}>
-            <StackedBarChart data={modeByYear.data} xKey="year" stackKeys={modeByYear.keys} formatValue={fmtValue} />
-          </ChartCard>
-        </div>
+          <StackedBarChart data={modeByYear.data} xKey="year" stackKeys={modeByYear.keys} formatValue={fmtValue} />
+        </ChartCard>
       </SectionBlock>
 
       {/* Monthly Patterns (if data loaded) */}
@@ -409,27 +407,25 @@ export default function PortsTab({
         <>
           {covidZoom.length > 0 && (
             <SectionBlock>
-              <div className="max-w-7xl mx-auto">
-                <ChartCard title="COVID-19 Impact & Recovery" subtitle="Monthly trade, January 2019 – December 2021">
-                  <LineChart data={covidZoom} xKey="idx" yKey="value" formatValue={fmtValue} formatX={formatCovidX} showArea />
-                </ChartCard>
-                <div className="mt-4">
-                  <InsightCallout
-                    finding="Trade plunged 49% in April 2020 — from $32B to $17B in a single month. But within four months, Texas-Mexico trade had fully rebounded, underscoring how tightly integrated these economies are."
-                    icon={Zap}
-                    variant="highlight"
-                  />
-                </div>
+              <ChartCard title={`COVID-19 Impact & Recovery${subsetLabelMonthly}`} subtitle="Monthly trade, January 2019 – December 2021">
+                <LineChart data={covidZoom} xKey="idx" yKey="value" formatValue={fmtValue} formatX={formatCovidX} showArea />
+              </ChartCard>
+              <div className="mt-4 max-w-7xl mx-auto">
+                <InsightCallout
+                  finding="Trade plunged 49% in April 2020 — from $32B to $17B in a single month. But within four months, Texas-Mexico trade had fully rebounded, underscoring how tightly integrated these economies are."
+                  icon={Zap}
+                  variant="highlight"
+                />
               </div>
             </SectionBlock>
           )}
           <SectionBlock alt>
-            <div className="flex flex-col gap-6 max-w-7xl mx-auto">
-              <ChartCard title="Monthly Trade Trends" subtitle="Continuous monthly time series"
+            <div className="flex flex-col gap-6">
+              <ChartCard title={`Monthly Trade Trends${subsetLabelMonthly}`} subtitle="Continuous monthly time series"
                 downloadData={{ summary: { data: monthlyTimeSeries, filename: 'tx-mx-monthly-trends', columns: DL.tradeTrend } }}>
                 <LineChart data={monthlyTimeSeries} xKey="idx" yKey="value" formatValue={fmtValue} formatX={formatX} />
               </ChartCard>
-              <ChartCard title="Seasonal Patterns" subtitle={`${metricLabel} by month, stacked by year`}>
+              <ChartCard title={`Seasonal Patterns${subsetLabelMonthly}`} subtitle={`${metricLabel} by month, stacked by year`}>
                 <StackedBarChart data={seasonalData.data} xKey="month" stackKeys={seasonalData.keys} formatValue={fmtValue} />
               </ChartCard>
             </div>
@@ -440,7 +436,7 @@ export default function PortsTab({
       {/* Port Detail Table */}
       <SectionBlock alt={!(filteredMonthly && filteredMonthly.length > 0)}>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title="Port Detail" subtitle="Aggregated by year, port, mode, and trade type"
+          <ChartCard title={`Port Detail${subsetLabel}`} subtitle="Aggregated by year, port, mode, and trade type"
             downloadData={{ summary: { data: portTableData, filename: 'tx-mx-port-detail', columns: PAGE_PORT_COLS } }}>
             <DataTable data={portTableData} columns={tableColumns} pageSize={15} />
           </ChartCard>

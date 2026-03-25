@@ -218,6 +218,38 @@ export function buildFilterOptions(data, keys) {
 }
 
 /**
+ * Build cross-filtered options: for each key in `keys`, apply all filters from
+ * `filterSpec` EXCEPT that key, then extract the unique sorted values.  This
+ * way each filter dropdown shows only values that would produce at least one
+ * result given all the *other* active filters.
+ *
+ * @param {Array<Object>} data
+ * @param {Object<string, string|string[]>} filterSpec — same shape as applyStandardFilters
+ * @param {string[]} keys — column names to extract cross-filtered options for
+ * @returns {Object<string, Array>}
+ */
+export function buildCrossFilterOptions(data, filterSpec, keys) {
+  if (!data?.length || !filterSpec) return {}
+  const result = {}
+  for (const key of keys) {
+    const otherSpec = { ...filterSpec }
+    delete otherSpec[key]
+    const filtered = applyStandardFilters(data, otherSpec)
+    const values = new Set()
+    for (const d of filtered) {
+      const v = d[key]
+      if (v != null && v !== '') values.add(v)
+    }
+    const arr = [...values]
+    arr.sort((a, b) =>
+      typeof a === 'number' && typeof b === 'number' ? a - b : String(a).localeCompare(String(b)),
+    )
+    result[key] = arr
+  }
+  return result
+}
+
+/**
  * Apply a set of standard filters to a data array.
  *
  * `filterSpec` is an object mapping data-column names to the current filter

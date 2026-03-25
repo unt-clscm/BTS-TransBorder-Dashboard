@@ -10,7 +10,8 @@ import { useSearchParams } from 'react-router-dom'
 import { MapPin, ShoppingCart, Map as MapIcon, ArrowRightLeft, DollarSign, ArrowUpDown, Package, Truck } from 'lucide-react'
 import HeroStardust from '@/components/ui/HeroStardust'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import { formatCurrency, getMetricField, getMetricFormatter, getMetricLabel, hasSurfaceExports, isAllSurfaceExports } from '@/lib/chartColors'
+import { buildCrossFilterOptions, applyStandardFilters } from '@/lib/transborderHelpers'
 import DatasetError from '@/components/ui/DatasetError'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import FilterSelect from '@/components/filters/FilterSelect'
@@ -33,16 +34,6 @@ const TAB_CONFIG = [
   { key: 'flows',       label: 'Trade Flows',  icon: ArrowRightLeft },
 ]
 
-const REGION_OPTIONS = [
-  { value: 'El Paso', label: 'El Paso' },
-  { value: 'Laredo', label: 'Laredo' },
-  { value: 'Pharr', label: 'Pharr' },
-]
-
-const TRADE_TYPE_OPTIONS = [
-  { value: 'Export', label: 'Export' },
-  { value: 'Import', label: 'Import' },
-]
 
 export default function TexasMexicoPage() {
   const {
@@ -70,7 +61,6 @@ export default function TexasMexicoPage() {
   }, [setSearchParams])
 
   const handleTabChange = useCallback((key) => updateParams({ tab: key }), [updateParams])
-  const setMetric = useCallback((v) => updateParams({ metric: v }), [updateParams])
 
   /* ── local filter state ──────────────────────────────────────────── */
   const [yearFilter, setYearFilter] = useState([])
@@ -79,8 +69,14 @@ export default function TexasMexicoPage() {
   const [regionFilter, setRegionFilter] = useState('')
   const [portFilter, setPortFilter] = useState([])
   const [commodityGroupFilter, setCommodityGroupFilter] = useState([])
+  const [commodityFilter, setCommodityFilter] = useState([])
   const [mexStateFilter, setMexStateFilter] = useState([])
   const tabBarRef = useRef(null)
+
+  const setMetric = useCallback((v) => {
+    updateParams({ metric: v })
+    if (v === 'weight' && tradeTypeFilter === 'Export') setTradeTypeFilter('')
+  }, [updateParams, tradeTypeFilter])
 
   /* ── lazy dataset loading ────────────────────────────────────────── */
   useEffect(() => { loadDataset('texasMexicoPorts') }, [loadDataset])
@@ -92,31 +88,72 @@ export default function TexasMexicoPage() {
     if (activeTab === 'flows') loadDataset('texasOdStateFlows')
   }, [activeTab, loadDataset])
 
-  /* ── derived filter options ──────────────────────────────────────── */
-  const yearOptions = useMemo(() => {
-    if (!texasMexicoPorts) return []
-    return [...new Set(texasMexicoPorts.map((d) => d.Year))].filter(Number.isFinite).sort().map(String)
-  }, [texasMexicoPorts])
+  /* ── cross-filtered options (each filter shows only values that produce results given all other active filters) ── */
+  const crossOptions = useMemo(() => {
+    if (activeTab === 'commodities' && texasMexicoCommodities) {
+      return buildCrossFilterOptions(texasMexicoCommodities, {
+        Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter,
+        CommodityGroup: commodityGroupFilter, Commodity: commodityFilter, Port: portFilter,
+      }, ['Year', 'TradeType', 'Mode', 'CommodityGroup', 'Commodity', 'Port'])
+    }
+    if (activeTab === 'states' && texasMexicanStateTrade) {
+      return buildCrossFilterOptions(texasMexicanStateTrade, {
+        Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter, MexState: mexStateFilter,
+      }, ['Year', 'TradeType', 'Mode', 'MexState'])
+    }
+    if (activeTab === 'flows' && texasOdStateFlows) {
+      return buildCrossFilterOptions(texasOdStateFlows, {
+        Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter,
+        Port: portFilter, MexState: mexStateFilter,
+      }, ['Year', 'TradeType', 'Mode', 'Port', 'MexState'])
+    }
+    // Ports tab or fallback
+    if (!texasMexicoPorts) return {}
+    return buildCrossFilterOptions(texasMexicoPorts, {
+      Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter,
+      Region: regionFilter, Port: portFilter,
+    }, ['Year', 'TradeType', 'Mode', 'Region', 'Port'])
+  }, [activeTab, texasMexicoPorts, texasMexicoCommodities, texasMexicanStateTrade, texasOdStateFlows,
+      yearFilter, tradeTypeFilter, modeFilter, regionFilter, portFilter,
+      commodityGroupFilter, commodityFilter, mexStateFilter])
 
-  const modeOptions = useMemo(() => {
-    if (!texasMexicoPorts) return []
-    return [...new Set(texasMexicoPorts.map((d) => d.Mode))].filter(Boolean).sort()
-  }, [texasMexicoPorts])
+  const yearOptions = useMemo(() => (crossOptions.Year || []).map(String), [crossOptions])
+  const tradeTypeOptions = crossOptions.TradeType || []
+  const modeOptions = crossOptions.Mode || []
+  const portOptions = crossOptions.Port || []
+  const regionOptions = crossOptions.Region || []
+  const commodityGroupOptions = crossOptions.CommodityGroup || []
+  const commodityOptions = crossOptions.Commodity || []
+  const mexStateOptions = crossOptions.MexState || []
 
-  const portOptions = useMemo(() => {
-    if (!texasMexicoPorts) return []
-    return [...new Set(texasMexicoPorts.map((d) => d.Port))].filter(Boolean).sort()
-  }, [texasMexicoPorts])
+  /* ── auto-prune stale multi-select values when options narrow ────── */
+  useEffect(() => {
+    const prune = (opts, setter, asStr) => {
+      if (!opts) return
+      const valid = new Set(asStr ? opts.map(String) : opts)
+      setter(prev => {
+        if (!prev.length) return prev
+        const next = prev.filter(v => valid.has(v))
+        return next.length === prev.length ? prev : next
+      })
+    }
+    prune(crossOptions.Year, setYearFilter, true)
+    prune(crossOptions.Mode, setModeFilter)
+    prune(crossOptions.Port, setPortFilter)
+    prune(crossOptions.CommodityGroup, setCommodityGroupFilter)
+    prune(crossOptions.Commodity, setCommodityFilter)
+    prune(crossOptions.MexState, setMexStateFilter)
+  }, [crossOptions]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const commodityGroupOptions = useMemo(() => {
-    if (!texasMexicoCommodities) return []
-    return [...new Set(texasMexicoCommodities.map((d) => d.CommodityGroup))].filter(Boolean).sort()
-  }, [texasMexicoCommodities])
-
-  const mexStateOptions = useMemo(() => {
-    if (!texasMexicanStateTrade) return []
-    return [...new Set(texasMexicanStateTrade.map((d) => d.MexState))].filter(Boolean).sort()
-  }, [texasMexicanStateTrade])
+  /* ── auto-prune stale single-select values ─────────────────────── */
+  useEffect(() => {
+    if (tradeTypeFilter && tradeTypeOptions.length && !tradeTypeOptions.includes(tradeTypeFilter)) {
+      setTradeTypeFilter('')
+    }
+    if (regionFilter && regionOptions.length && !regionOptions.includes(regionFilter)) {
+      setRegionFilter('')
+    }
+  }, [tradeTypeOptions, regionOptions, tradeTypeFilter, regionFilter])
 
   /* ── filtered data ─────────────────────────────────────────────── */
   const applyFilters = useCallback((data) => {
@@ -139,9 +176,10 @@ export default function TexasMexicoPage() {
     if (tradeTypeFilter) result = result.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter.length) result = result.filter((d) => modeFilter.includes(d.Mode))
     if (commodityGroupFilter.length) result = result.filter((d) => commodityGroupFilter.includes(d.CommodityGroup))
+    if (commodityFilter.length) result = result.filter((d) => commodityFilter.includes(d.Commodity))
     if (portFilter.length) result = result.filter((d) => portFilter.includes(d.Port))
     return result
-  }, [texasMexicoCommodities, yearFilter, tradeTypeFilter, modeFilter, commodityGroupFilter, portFilter])
+  }, [texasMexicoCommodities, yearFilter, tradeTypeFilter, modeFilter, commodityGroupFilter, commodityFilter, portFilter])
 
   const filteredMonthly = useMemo(() => {
     if (!monthlyTrends) return null
@@ -182,9 +220,12 @@ export default function TexasMexicoPage() {
     const prevTrade = prev.reduce((s, d) => s + (d[valueField] || 0), 0)
     const tradeChange = prevTrade ? (totalTrade - prevTrade) / prevTrade : 0
 
-    const exports = latest.filter((d) => d.TradeType === 'Export').reduce((s, d) => s + (d[valueField] || 0), 0)
+    const exportRows = latest.filter((d) => d.TradeType === 'Export')
+    const exports = exportRows.reduce((s, d) => s + (d[valueField] || 0), 0)
     const imports = latest.filter((d) => d.TradeType === 'Import').reduce((s, d) => s + (d[valueField] || 0), 0)
     const portCount = new Set(latest.map((d) => d.Port)).size
+    const exportWeightNA = metric === 'weight' && hasSurfaceExports(exportRows)
+    const totalWeightNA = metric === 'weight' && isAllSurfaceExports(latest)
 
     const modeMap = new Map()
     latest.forEach((d) => {
@@ -195,12 +236,12 @@ export default function TexasMexicoPage() {
     let topModeVal = 0
     modeMap.forEach((v, k) => { if (v > topModeVal) { topMode = k; topModeVal = v } })
 
-    return { totalTrade, tradeChange, exports, imports, portCount, topMode, latestYear, prevYear }
+    return { totalTrade, tradeChange, exports, imports, portCount, topMode, latestYear, prevYear, exportWeightNA, totalWeightNA }
   }, [filteredPorts, latestYear, valueField])
 
   /* ── active filter count & reset ───────────────────────────────── */
   const activeCount = yearFilter.length + (tradeTypeFilter ? 1 : 0) + modeFilter.length + (regionFilter ? 1 : 0)
-    + portFilter.length + commodityGroupFilter.length + mexStateFilter.length
+    + portFilter.length + commodityGroupFilter.length + commodityFilter.length + mexStateFilter.length
 
   const activeTags = useMemo(() => {
     const tags = []
@@ -216,17 +257,20 @@ export default function TexasMexicoPage() {
       tags.push({ group: 'Port', label: v, onRemove: () => setPortFilter((prev) => prev.filter((x) => x !== v)) })
     )
     commodityGroupFilter.forEach((v) =>
-      tags.push({ group: 'Commodity', label: v, onRemove: () => setCommodityGroupFilter((prev) => prev.filter((x) => x !== v)) })
+      tags.push({ group: 'Commodity Group', label: v, onRemove: () => setCommodityGroupFilter((prev) => prev.filter((x) => x !== v)) })
+    )
+    commodityFilter.forEach((v) =>
+      tags.push({ group: 'Commodity', label: v, onRemove: () => setCommodityFilter((prev) => prev.filter((x) => x !== v)) })
     )
     mexStateFilter.forEach((v) =>
       tags.push({ group: 'MX State', label: v, onRemove: () => setMexStateFilter((prev) => prev.filter((x) => x !== v)) })
     )
     return tags
-  }, [metric, yearFilter, tradeTypeFilter, modeFilter, regionFilter, portFilter, commodityGroupFilter, mexStateFilter])
+  }, [metric, yearFilter, tradeTypeFilter, modeFilter, regionFilter, portFilter, commodityGroupFilter, commodityFilter, mexStateFilter])
 
   const resetFilters = useCallback(() => {
     setMetric('value'); setYearFilter([]); setTradeTypeFilter(''); setModeFilter([])
-    setRegionFilter(''); setPortFilter([]); setCommodityGroupFilter([]); setMexStateFilter([])
+    setRegionFilter(''); setPortFilter([]); setCommodityGroupFilter([]); setCommodityFilter([]); setMexStateFilter([])
   }, [])
 
   /* ── render ────────────────────────────────────────────────────── */
@@ -248,19 +292,25 @@ export default function TexasMexicoPage() {
     <>
       <MetricToggle value={metric} onChange={setMetric} />
       <FilterMultiSelect label="Year" value={yearFilter} options={yearOptions} onChange={setYearFilter} />
-      <FilterSelect label="Trade Type" value={tradeTypeFilter} options={TRADE_TYPE_OPTIONS} onChange={setTradeTypeFilter} />
+      <FilterSelect label="Trade Type" value={tradeTypeFilter} options={tradeTypeOptions} onChange={setTradeTypeFilter} disabledValues={metric === 'weight' ? ['Export'] : []} />
       <FilterMultiSelect label="Mode" value={modeFilter} options={modeOptions} onChange={setModeFilter} />
       {activeTab === 'ports' && (
         <>
-          <FilterSelect label="Region" value={regionFilter} options={REGION_OPTIONS} onChange={setRegionFilter} />
+          <FilterSelect label="Region" value={regionFilter} options={regionOptions} onChange={setRegionFilter} />
           <FilterMultiSelect label="Port" value={portFilter} options={portOptions} onChange={setPortFilter} searchable />
         </>
       )}
       {activeTab === 'commodities' && (
         <>
           <FilterMultiSelect label="Commodity Group" value={commodityGroupFilter} options={commodityGroupOptions} onChange={setCommodityGroupFilter} searchable />
+          {commodityOptions.length > 0 && (
+            <FilterMultiSelect label="Commodity" value={commodityFilter} options={commodityOptions} onChange={setCommodityFilter} searchable />
+          )}
           <FilterMultiSelect label="Port" value={portFilter} options={portOptions} onChange={setPortFilter} searchable />
         </>
+      )}
+      {activeTab === 'flows' && portOptions.length > 0 && (
+        <FilterMultiSelect label="Port" value={portFilter} options={portOptions} onChange={setPortFilter} searchable />
       )}
       {(activeTab === 'states' || activeTab === 'flows') && mexStateOptions.length > 0 && (
         <FilterMultiSelect label="Mexican State" value={mexStateFilter} options={mexStateOptions} onChange={setMexStateFilter} searchable />
@@ -296,12 +346,12 @@ export default function TexasMexicoPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-7xl mx-auto">
           <StatCard
             label={`Total TX-MX Trade (${latestYear || '—'})`}
-            value={stats ? fmtValue(stats.totalTrade) : '—'}
-            trend={stats?.tradeChange > 0 ? 'up' : stats?.tradeChange < 0 ? 'down' : undefined}
-            trendLabel={stats ? `${(stats.tradeChange * 100).toFixed(1)}% vs ${stats.prevYear}` : ''}
+            value={stats ? (stats.totalWeightNA ? 'N/A' : fmtValue(stats.totalTrade)) : '—'}
+            trend={stats && !stats.totalWeightNA && stats.tradeChange > 0 ? 'up' : stats && !stats.totalWeightNA && stats.tradeChange < 0 ? 'down' : undefined}
+            trendLabel={stats && !stats.totalWeightNA ? `${(stats.tradeChange * 100).toFixed(1)}% vs ${stats.prevYear}` : ''}
             highlight variant="primary" icon={DollarSign} delay={0}
           />
-          <StatCard label={`Exports (${latestYear || '—'})`} value={stats ? fmtValue(stats.exports) : '—'} highlight icon={ArrowUpDown} delay={100} />
+          <StatCard label={`Exports (${latestYear || '—'})`} value={stats ? (stats.exportWeightNA ? 'N/A' : fmtValue(stats.exports)) : '—'} highlight icon={ArrowUpDown} delay={100} />
           <StatCard label={`Imports (${latestYear || '—'})`} value={stats ? fmtValue(stats.imports) : '—'} highlight icon={Package} delay={200} />
           <StatCard label={`Active Ports (${latestYear || '—'})`} value={stats ? String(stats.portCount) : '—'} highlight icon={MapPin} delay={300} />
           <StatCard label={`Top Mode (${latestYear || '—'})`} value={stats ? stats.topMode : '—'} highlight icon={Truck} delay={400} />
@@ -324,6 +374,8 @@ export default function TexasMexicoPage() {
             latestYear={latestYear}
             datasetError={datasetErrors.monthlyTrends}
             metric={metric}
+            tradeTypeFilter={tradeTypeFilter}
+            modeFilter={modeFilter}
           />
         </div>
       )}
@@ -335,6 +387,8 @@ export default function TexasMexicoPage() {
             latestYear={latestYear}
             datasetError={datasetErrors.texasMexicoCommodities}
             metric={metric}
+            tradeTypeFilter={tradeTypeFilter}
+            modeFilter={modeFilter}
           />
         </div>
       )}
@@ -346,6 +400,7 @@ export default function TexasMexicoPage() {
             yearFilter={yearFilter}
             tradeTypeFilter={tradeTypeFilter}
             modeFilter={modeFilter}
+            portFilter={portFilter}
             mexStateFilter={mexStateFilter}
             datasetError={datasetErrors.texasOdStateFlows}
             metric={metric}

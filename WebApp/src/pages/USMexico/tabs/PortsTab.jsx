@@ -248,17 +248,15 @@ export default function PortsTab({
 
       {/* Trade Balance — always in dollars */}
       <SectionBlock alt>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title="U.S.–Mexico Trade Balance" subtitle="Exports minus imports — negative values indicate a trade deficit with Mexico">
-            <LineChart data={tradeBalanceData} xKey="year" yKey="value" formatValue={formatCurrency} showArea annotations={HISTORICAL_ANNOTATIONS} />
-          </ChartCard>
-          <div className="mt-4">
-            <InsightCallout
-              finding="The U.S. trade deficit with Mexico has grown from -$74B in 2007 to over -$190B in 2024, driven by growing imports of manufactured goods, vehicles, and electronics."
-              icon={TrendingDown}
-              variant="warning"
-            />
-          </div>
+        <ChartCard title="U.S.–Mexico Trade Balance" subtitle="Exports minus imports — negative values indicate a trade deficit with Mexico">
+          <LineChart data={tradeBalanceData} xKey="year" yKey="value" formatValue={formatCurrency} showArea annotations={HISTORICAL_ANNOTATIONS} />
+        </ChartCard>
+        <div className="mt-4 max-w-7xl mx-auto">
+          <InsightCallout
+            finding="The U.S. trade deficit with Mexico has grown from -$74B in 2007 to over -$190B in 2024, driven by growing imports of manufactured goods, vehicles, and electronics."
+            icon={TrendingDown}
+            variant="warning"
+          />
         </div>
       </SectionBlock>
 

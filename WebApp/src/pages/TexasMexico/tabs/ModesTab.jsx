@@ -118,16 +118,14 @@ export default function ModesTab({ filteredPorts, filteredPortsNoYear, _latestYe
 
       {/* Mode composition by year (stacked) */}
       <SectionBlock alt>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title="Mode Composition by Year" subtitle="Annual trade value stacked by transport mode">
-            <StackedBarChart
-              data={modeByYear.data}
-              xKey="year"
-              stackKeys={modeByYear.keys}
-              formatValue={formatCurrency}
-            />
-          </ChartCard>
-        </div>
+        <ChartCard title="Mode Composition by Year" subtitle="Annual trade value stacked by transport mode">
+          <StackedBarChart
+            data={modeByYear.data}
+            xKey="year"
+            stackKeys={modeByYear.keys}
+            formatValue={formatCurrency}
+          />
+        </ChartCard>
       </SectionBlock>
 
       {/* Import/Export balance by mode (diverging) */}

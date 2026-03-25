@@ -15,7 +15,7 @@ import DivergingBarChart from '@/components/charts/DivergingBarChart'
 import BarChartRace from '@/components/charts/BarChartRace'
 import InsightCallout from '@/components/ui/InsightCallout'
 import { Factory, Play, Pause, SkipBack, SkipForward, ArrowRight } from 'lucide-react'
-import { formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel } from '@/lib/chartColors'
+import { formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel, getDataSubsetLabel } from '@/lib/chartColors'
 import YearRangeFilter from '@/components/filters/YearRangeFilter'
 import TopNSelector from '@/components/filters/TopNSelector'
 import DatasetError from '@/components/ui/DatasetError'
@@ -26,7 +26,7 @@ const ANNOTATIONS = [
   { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
 ]
 
-export default function CommoditiesTab({ filteredCommodities, loadDataset, _latestYear, datasetError, metric = 'value' }) {
+export default function CommoditiesTab({ filteredCommodities, loadDataset, _latestYear, datasetError, metric = 'value', tradeTypeFilter = '', modeFilter = [] }) {
   /* ── ensure dataset is loaded ────────────────────────────────────── */
   useEffect(() => {
     loadDataset('texasMexicoCommodities')
@@ -35,6 +35,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
   const valueField = getMetricField(metric)
   const fmtValue = getMetricFormatter(metric)
   const metricLabel = getMetricLabel(metric)
+  const subsetLabel = getDataSubsetLabel(filteredCommodities, { tradeTypeFilter, modeFilter })
 
   if (datasetError) {
     return <DatasetError datasetName="Commodity Data" error={datasetError} onRetry={() => loadDataset('texasMexicoCommodities')} />
@@ -333,7 +334,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       {/* Treemap of commodity groups with drilldown */}
       <SectionBlock>
         <ChartCard
-          title={treemapDrill ? `${treemapDrill} — HS 2-Digit Detail` : 'Commodity Groups'}
+          title={treemapDrill ? `${treemapDrill} — HS 2-Digit Detail${subsetLabel}` : `Commodity Groups${subsetLabel}`}
           subtitle={treemapDrill ? 'Individual commodities within group' : `${metricLabel} by commodity group — click to drill down`}
           downloadData={{ summary: { data: commodityGroups, filename: 'tx-mx-commodity-groups', columns: DL.commodityGroupRank } }}
         >
@@ -366,7 +367,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       {/* Top 10 individual commodities */}
       <SectionBlock alt>
         <div className="max-w-7xl mx-auto">
-          <ChartCard title={`Top ${topCommodityN} Commodities`} subtitle={`Individual commodities ranked by ${metricLabel}`}
+          <ChartCard title={`Top ${topCommodityN} Commodities${subsetLabel}`} subtitle={`Individual commodities ranked by ${metricLabel}`}
             headerRight={<TopNSelector value={topCommodityN} onChange={setTopCommodityN} />}
             downloadData={{ summary: { data: topCommodities, filename: 'tx-mx-top-commodities', columns: DL.commodityRank } }}>
             <BarChart
@@ -385,7 +386,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
         <SectionBlock>
           <div className="max-w-7xl mx-auto">
             <ChartCard
-              title="Cross-Border Manufacturing Pattern"
+              title={`Cross-Border Manufacturing Pattern${subsetLabel}`}
               subtitle="Imports (left) vs. exports (right) by commodity group — reveals supply chain direction"
               headerRight={<TopNSelector value={divergingTopN} onChange={setDivergingTopN} />}
             >
@@ -418,20 +419,18 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
 
       {/* Top 5 commodity group trends */}
       <SectionBlock alt>
-        <div className="max-w-7xl mx-auto">
-          <ChartCard title={`Top ${groupTrendTopN} Commodity Group Trends`} subtitle={`Annual ${metricLabel} for leading groups`}
-            headerRight={<><TopNSelector value={groupTrendTopN} onChange={setGroupTrendTopN} /><YearRangeFilter years={allCommodityYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} /></>}
-            downloadData={{ summary: { data: groupTrends, filename: 'tx-mx-commodity-group-trends', columns: DL.tradeTrendSeries } }}>
-            <LineChart
-              data={groupTrends}
-              xKey="year"
-              yKey="value"
-              seriesKey="CommodityGroup"
-              formatValue={fmtValue}
-              annotations={ANNOTATIONS}
-            />
-          </ChartCard>
-        </div>
+        <ChartCard title={`Top ${groupTrendTopN} Commodity Group Trends${subsetLabel}`} subtitle={`Annual ${metricLabel} for leading groups`}
+          headerRight={<><TopNSelector value={groupTrendTopN} onChange={setGroupTrendTopN} /><YearRangeFilter years={allCommodityYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} /></>}
+          downloadData={{ summary: { data: groupTrends, filename: 'tx-mx-commodity-group-trends', columns: DL.tradeTrendSeries } }}>
+          <LineChart
+            data={groupTrends}
+            xKey="year"
+            yKey="value"
+            seriesKey="CommodityGroup"
+            formatValue={fmtValue}
+            annotations={ANNOTATIONS}
+          />
+        </ChartCard>
       </SectionBlock>
 
       {/* Animated Bar Chart Race — Commodity Groups Over Time */}
@@ -439,7 +438,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
         <SectionBlock alt>
           <div className="max-w-7xl mx-auto">
             <ChartCard
-              title="Commodity Rankings Over Time"
+              title={`Commodity Rankings Over Time${subsetLabel}`}
               subtitle="Watch how commodity groups have shifted in importance since 2007"
             >
               {/* Playback controls */}
@@ -530,7 +529,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
         <SectionBlock>
           <div className="max-w-7xl mx-auto">
             <ChartCard
-              title="Port Specialization"
+              title={`Port Specialization${subsetLabel}`}
               subtitle="Top commodity groups by port — each port has a distinct economic personality"
             >
               <StackedBarChart
@@ -552,7 +551,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
 
       {/* Commodity detail table */}
       <SectionBlock alt>
-        <ChartCard title="Commodity Detail" subtitle="Aggregated by year, commodity, port, and trade type"
+        <ChartCard title={`Commodity Detail${subsetLabel}`} subtitle="Aggregated by year, commodity, port, and trade type"
           downloadData={{ summary: { data: tableData, filename: 'tx-mx-commodity-detail', columns: PAGE_COMMODITY_COLS } }}>
           <DataTable data={tableData} columns={tableColumns} pageSize={15} fullWidth />
         </ChartCard>

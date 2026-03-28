@@ -54,25 +54,31 @@ This project works with BTS (Bureau of Transportation Statistics) TransBorder fr
   4. `git push -u origin <branch>` to push the feature branch.
   5. Merge to main using the **merge queue** (see below).
   Skip branching only for trivial single-file edits (e.g., updating CLAUDE.md) when no other agents are active.
-- **Merge queue**: To prevent concurrent merge collisions, agents use a lock file at `.git/merge.lock`. The merge procedure is:
-  1. **Check lock**: If `.git/merge.lock` exists, read it. If the lock is fresh (< 5 min), wait 10 seconds and retry, up to 6 attempts (60s total). If still locked after all retries, alert the user. If the timestamp is older than 5 minutes, the locking agent likely crashed — handle the **stale lock recovery** (see below).
-  2. **Acquire lock**: Write `.git/merge.lock` with this content:
+- **Merge to main**: A GitHub merge queue is configured on `main`. A branch protection rule requires a pull request — direct pushes to `main` will be rejected. Agents must never merge locally or push directly to `main`. Instead:
+  1. Open a PR with a clear, plain-language description (see **PR writing style** below), then enable auto-merge:
      ```
-     branch: <branch-name>
-     agent: <short task description>
-     timestamp: <ISO 8601 UTC>
+     gh pr create --base main --title "<short plain-language title>" --body "<description>"
+     gh pr merge --auto --merge
      ```
-  3. **Merge**: `git checkout main && git pull && git merge <branch> && git push`.
-  4. **Release lock**: Delete `.git/merge.lock` and delete the merged branch (`git branch -d <branch> && git push origin --delete <branch>`).
-  5. **On merge failure**: If the merge fails due to conflicts, `git merge --abort`, delete `.git/merge.lock`, alert the user with the conflict details, and leave the feature branch intact for manual resolution.
-  6. **Stale lock recovery**: When a lock is older than 5 minutes, another agent crashed mid-merge. The recovering agent should:
-     - Alert the user: *"Stale merge lock detected — agent was merging branch `X`, started at `Y`. Attempting to recover."*
-     - Remove the stale `.git/merge.lock`.
-     - Check if the stale branch exists and was not yet merged: `git branch --list <stale-branch>`.
-     - If the branch exists, attempt to merge it: `git checkout main && git pull && git merge <stale-branch>`.
-       - If the merge is clean: push, delete the stale branch, and tell the user *"Recovered: merged stale branch `X` successfully."* Then proceed with its own branch merge (re-acquire lock from step 2).
-       - If conflicts: `git merge --abort`, alert the user *"Stale branch `X` has merge conflicts — leaving it for manual resolution."*, then proceed with its own merge.
-     - If the branch doesn't exist (already merged or deleted), just inform the user and proceed.
+     If a PR already exists: `gh pr merge --auto --merge`
+  2. Done. GitHub runs CI, queues the merge, and merges automatically. The agent does not need to wait or poll.
+  3. On failure: fix the issue on the branch, push, and the queue re-tests automatically.
+     For merge conflicts: `git pull --rebase origin main && git push --force-with-lease`
+- **PR writing style**: The project lead is not a developer — PRs must be understandable without reading code. Write for someone who uses the dashboard and manages the research project, not for a software engineer.
+  - **Title**: One plain-English sentence describing what changed from a user's perspective. Good: "Fixed the dashboard so export weight no longer shows as zero". Bad: "Nullify Weight=0 for export modes that don't report weight".
+  - **Body**: Use this structure:
+    ```
+    ## What changed
+    <1-3 bullet points in plain language describing what the user will see or experience differently>
+
+    ## Why
+    <Brief explanation of the problem or motivation — no jargon>
+
+    ## Technical details (for the record)
+    <Optional: brief technical notes for future reference, can use developer language here>
+    ```
+  - Avoid jargon in the title and "What changed" / "Why" sections. Terms like "prop", "portal", "null-aware summing", "colgroup", "Bezier curves" belong only in "Technical details" if anywhere.
+  - Do NOT use `--fill` (which just copies commit messages). Always write a custom title and body.
 - **Commit at milestones**: After completing a meaningful unit of work, commit immediately. Do not let work accumulate uncommitted.
 - **Push after commit**: Always push to GitHub immediately after committing.
 - **Gap tracker hygiene**: Whenever a gap, issue, or open question documented in `00-Project-Management/gap-tracker.md` is resolved during a session, update the gap tracker immediately in the same session — do not defer.

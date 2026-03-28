@@ -9,14 +9,15 @@
 01-Raw-Data/unpacked/
 !01-Raw-Data/unpacked/README.md
 
-# Claude Code
-.claude/
+# Claude Code settings (CLAUDE.md is force-tracked)
+.claude/settings.json
 
 # Large/generated data files (pre-commit hook also catches files >99MB)
 *.db
 02-Data-Staging/cleaned/
 
-# OS files
+# IDE / OS files
+.vscode/
 Thumbs.db
 .DS_Store
 
@@ -44,3 +45,6 @@ __pycache__/
 02-Data-Staging/cleaned/dot3_port_commodity.csv
 02-Data-Staging/transborder.db
 02-Data-Staging/transborder.db-wal
+02-Data-Staging/transborder.db-shm
+02-Data-Staging/cleaned/dot2_state_commodity-P16.csv
+02-Data-Staging/cleaned/dot3_port_commodity-P16.csv

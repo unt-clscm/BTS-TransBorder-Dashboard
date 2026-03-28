@@ -16,9 +16,15 @@
 *.db
 02-Data-Staging/cleaned/
 
+# IDE
+.vscode/
+
 # OS files
 Thumbs.db
 .DS_Store
+
+# Scratch files
+dreamer-prompt.txt
 
 # Python
 __pycache__/

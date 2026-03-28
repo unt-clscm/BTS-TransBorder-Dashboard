@@ -45,7 +45,7 @@ COMMODITY_GROUP_TO_BTS = {
     "Wood & Wood Products":                 "44 - 49",
     "Pulp, Paper & Paperboard":             "44 - 49",  # HS 47-49 in BTS 44-49
     "Textiles & Apparel":                   "50 - 63",
-    "Footwear, Headwear & Umbrellas":       "64 - 67",
+    "Footwear, Headgear & Umbrellas":       "64 - 67",
     "Stone, Ceramic & Glass Products":      "68 - 71",
     "Precious Metals & Stones":             "68 - 71",  # HS 71 in BTS 68-71
     "Base Metals & Articles":               "72 - 83",

@@ -24,6 +24,7 @@ Usage:
   python 03_normalize.py
 """
 
+import csv
 import json
 import os
 import re
@@ -137,11 +138,31 @@ def load_json(name):
         return json.load(f)
 
 
+def load_commodity_short_names():
+    """Load commodity_short_names.csv and return (name_dict, group_dict).
+
+    name_dict:  HS code -> short commodity name  (e.g. "87" -> "Vehicles & Parts")
+    group_dict: HS code -> commodity group name   (e.g. "87" -> "Transportation Equipment")
+    """
+    path = CONFIG_DIR / "commodity_short_names.csv"
+    name_dict = {}
+    group_dict = {}
+    with open(path, encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            hs = row["HS_Code"].strip().zfill(2)
+            name_dict[hs] = row["Commodity"].strip()
+            group_dict[hs] = row["Commodity_Group"].strip()
+    return name_dict, group_dict
+
+
 def load_configs():
     """Load all lookup config files. Returns a dict of lookup dicts."""
+    commodity_names, commodity_groups = load_commodity_short_names()
     return {
         "mode": load_json("mode_codes.json"),
-        "commodity": load_json("commodity_codes.json"),
+        "commodity": commodity_names,
+        "commodity_group": commodity_groups,
         "country": load_json("country_codes.json"),
         "trade_type": load_json("trade_type_codes.json"),
         "state": load_json("state_codes.json"),
@@ -178,6 +199,20 @@ def lookup(configs, category, code, field="name"):
         return value
     unknown_codes[category].add(key)
     return key
+
+
+def lookup_nullable(configs, category, code):
+    """Look up a code, but return None instead of the raw code when missing."""
+    if code is None or (isinstance(code, float) and pd.isna(code)):
+        return None
+    key = str(code).strip()
+    if key == "" or key.lower() == "nan":
+        return None
+    value = configs[category].get(key)
+    if value is not None:
+        return value
+    unknown_codes[category].add(key)
+    return None
 
 
 # ===============================================================================
@@ -844,7 +879,9 @@ def decode_dataframe(df, table_type, configs):
         out["Commodity"] = hs.map(
             lambda x: lookup(configs, "commodity", x)
         )
-        out["CommodityGroup"] = hs.map(get_commodity_group)
+        out["CommodityGroup"] = hs.map(
+            lambda x: lookup_nullable(configs, "commodity_group", x)
+        )
     elif table_type in ("dot2", "dot3"):
         out["HSCode"] = pd.NA
         out["Commodity"] = pd.NA

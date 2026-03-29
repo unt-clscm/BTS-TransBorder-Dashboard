@@ -15,6 +15,7 @@ import InteractiveFlowMap from '@/components/maps/InteractiveFlowMap'
 import { usePortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import SankeyDiagram from '@/components/charts/SankeyDiagram'
 import BarChart from '@/components/charts/BarChart'
+import StackedBarChart from '@/components/charts/StackedBarChart'
 import LineChart from '@/components/charts/LineChart'
 import DataTable from '@/components/ui/DataTable'
 import InsightCallout from '@/components/ui/InsightCallout'
@@ -29,6 +30,7 @@ const BASE = import.meta.env.BASE_URL
 export default function StatesTab({
   texasMexicanStateTrade,
   texasOdStateFlows,
+  commodityMexstateTrade,
   loadDataset,
   latestYear,
   yearFilter,
@@ -283,6 +285,51 @@ export default function StatesTab({
   const barMax = Math.max(...barData.map((d) => d.value), 0)
   const trendMax = Math.max(...stateTrends.map((d) => d.value), 0)
 
+  /* ── Mexican state commodity specialization ─────────────────────── */
+  const mexStateSpecialization = useMemo(() => {
+    if (!commodityMexstateTrade?.length) return { data: [], keys: [] }
+    let data = commodityMexstateTrade
+    if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
+    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
+    if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
+    // Top 8 Mexican states by total trade
+    const stateTotals = new Map()
+    data.forEach((d) => {
+      if (!d.MexState || d.MexState === 'Unknown') return
+      stateTotals.set(d.MexState, (stateTotals.get(d.MexState) || 0) + (d.TradeValue || 0))
+    })
+    const topStates = [...stateTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([n]) => n)
+    const topSet = new Set(topStates)
+    // Top 5 commodity groups
+    const groupTotals = new Map()
+    data.forEach((d) => {
+      if (!d.CommodityGroup || !topSet.has(d.MexState)) return
+      groupTotals.set(d.CommodityGroup, (groupTotals.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+    })
+    const topGroups = [...groupTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
+    // Build stacked data
+    const stateGroupMap = new Map()
+    data.forEach((d) => {
+      if (!topSet.has(d.MexState) || !d.CommodityGroup) return
+      if (!stateGroupMap.has(d.MexState)) stateGroupMap.set(d.MexState, new Map())
+      const gm = stateGroupMap.get(d.MexState)
+      gm.set(d.CommodityGroup, (gm.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+    })
+    const chartData = topStates.map((state) => {
+      const gm = stateGroupMap.get(state) || new Map()
+      const row = { state }
+      topGroups.forEach((g) => { row[g] = gm.get(g) || 0 })
+      let other = 0
+      gm.forEach((v, g) => { if (!topGroups.includes(g)) other += v })
+      if (other > 0) row['Other'] = other
+      return row
+    })
+    const keys = [...topGroups]
+    if (chartData.some((d) => d['Other'] > 0)) keys.push('Other')
+    return { data: chartData, keys }
+  }, [commodityMexstateTrade, yearFilter, tradeTypeFilter, modeFilter, mexStateFilter])
+
   return (
     <>
       {/* Narrative Intro */}
@@ -395,6 +442,31 @@ export default function StatesTab({
           <LineChart data={stateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(trendMax, metric === 'weight' ? '' : '$')} annotations={ANNOTATIONS} />
         </ChartCard>
       </SectionBlock>
+
+      {/* What Each Mexican State Trades */}
+      {mexStateSpecialization.data.length > 0 && (
+        <SectionBlock>
+          <div className="max-w-7xl mx-auto">
+            <ChartCard
+              title="What Each Mexican State Trades Through Texas"
+              subtitle="Top commodity groups per Mexican state — reveals each state's economic personality"
+            >
+              <StackedBarChart
+                data={mexStateSpecialization.data}
+                xKey="state"
+                stackKeys={mexStateSpecialization.keys}
+                formatValue={fmtValue}
+              />
+            </ChartCard>
+            <div className="mt-4">
+              <InsightCallout
+                finding="Nuevo Leon and Chihuahua are machinery-and-auto powerhouses. Tamaulipas is more mixed. Queretaro and San Luis Potosi — the Bajio newcomers — are heavily concentrated in Transportation Equipment, reflecting new auto manufacturing plants."
+                context="Understanding what each state trades helps explain why specific ports serve specific corridors and what industries are at risk if those corridors are disrupted."
+              />
+            </div>
+          </div>
+        </SectionBlock>
+      )}
     </>
   )
 }

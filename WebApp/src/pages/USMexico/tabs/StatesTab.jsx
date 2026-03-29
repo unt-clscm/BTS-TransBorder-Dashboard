@@ -13,6 +13,7 @@ import ChartCard from '@/components/ui/ChartCard'
 import ChoroplethMap from '@/components/maps/ChoroplethMap'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
+import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import InsightCallout from '@/components/ui/InsightCallout'
 
@@ -25,6 +26,7 @@ const BASE = import.meta.env.BASE_URL
 export default function StatesTab({
   usStateTrade,
   mexicanStateTrade,
+  stateCommodityTrade,
   loadDataset,
   latestYear,
   yearFilter,
@@ -316,6 +318,50 @@ export default function StatesTab({
   const axisPrefix = metric === 'weight' ? '' : '$'
   const axisSuffix = metric === 'weight' ? ' lb' : ''
 
+  /* ── State-by-commodity specialization (top 5 states, top 5 groups) ── */
+  const stateSpecialization = useMemo(() => {
+    if (!stateCommodityTrade?.length) return { data: [], keys: [] }
+    let data = stateCommodityTrade.filter((d) => d.Country === 'Mexico')
+    if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
+    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
+    if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    // Get top 8 states by total trade
+    const stateTotals = new Map()
+    data.forEach((d) => {
+      if (!d.State || d.State === 'Unknown') return
+      stateTotals.set(d.State, (stateTotals.get(d.State) || 0) + (d.TradeValue || 0))
+    })
+    const topStates = [...stateTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([n]) => n)
+    const topStateSet = new Set(topStates)
+    // Get top 5 commodity groups globally
+    const groupTotals = new Map()
+    data.forEach((d) => {
+      if (!d.CommodityGroup || !topStateSet.has(d.State)) return
+      groupTotals.set(d.CommodityGroup, (groupTotals.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+    })
+    const topGroups = [...groupTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
+    // Build stacked data
+    const stateGroupMap = new Map()
+    data.forEach((d) => {
+      if (!topStateSet.has(d.State) || !d.CommodityGroup) return
+      if (!stateGroupMap.has(d.State)) stateGroupMap.set(d.State, new Map())
+      const gm = stateGroupMap.get(d.State)
+      gm.set(d.CommodityGroup, (gm.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+    })
+    const chartData = topStates.map((state) => {
+      const gm = stateGroupMap.get(state) || new Map()
+      const row = { state }
+      topGroups.forEach((g) => { row[g] = gm.get(g) || 0 })
+      let other = 0
+      gm.forEach((v, g) => { if (!topGroups.includes(g)) other += v })
+      if (other > 0) row['Other'] = other
+      return row
+    })
+    const keys = [...topGroups]
+    if (chartData.some((d) => d['Other'] > 0)) keys.push('Other')
+    return { data: chartData, keys }
+  }, [stateCommodityTrade, yearFilter, tradeTypeFilter, modeFilter])
+
   return (
     <>
       {/* Narrative Intro */}
@@ -420,6 +466,31 @@ export default function StatesTab({
                 <BarChart data={mxStateGrowth} xKey="label" yKey="value" horizontal formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" />
               </ChartCard>
             )}
+          </div>
+        </SectionBlock>
+      )}
+
+      {/* State Commodity Specialization */}
+      {stateSpecialization.data.length > 0 && (
+        <SectionBlock>
+          <div className="max-w-7xl mx-auto">
+            <ChartCard
+              title="What Each State Trades with Mexico"
+              subtitle="Top commodity groups per state — reveals what makes Texas different from Michigan, California, and others"
+            >
+              <StackedBarChart
+                data={stateSpecialization.data}
+                xKey="state"
+                stackKeys={stateSpecialization.keys}
+                formatValue={fmtValue}
+              />
+            </ChartCard>
+            <div className="mt-4">
+              <InsightCallout
+                finding="Texas trades broadly across all commodity groups — it is the gateway for everything. Michigan is narrowly focused on Transportation Equipment (auto parts and vehicles). California mixes electronics with agriculture."
+                context="This explains why a disruption at a Texas port has wider economic impact than a disruption elsewhere — Texas carries all industries, not just one."
+              />
+            </div>
           </div>
         </SectionBlock>
       )}

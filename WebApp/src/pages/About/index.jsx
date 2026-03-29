@@ -234,7 +234,7 @@ export default function AboutPage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <a
-              href="/data/dot1_state_port.csv"
+              href={`${import.meta.env.BASE_URL}data/dot1_state_port.csv`}
               download
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-blue text-white rounded-lg hover:bg-brand-blue-dark transition-colors text-sm font-medium"
             >
@@ -242,7 +242,7 @@ export default function AboutPage() {
               DOT1 &mdash; State &times; Port
             </a>
             <a
-              href="/data/dot2_state_commodity.csv"
+              href={`${import.meta.env.BASE_URL}data/dot2_state_commodity.csv`}
               download
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-blue text-white rounded-lg hover:bg-brand-blue-dark transition-colors text-sm font-medium"
             >
@@ -250,7 +250,7 @@ export default function AboutPage() {
               DOT2 &mdash; State &times; Commodity
             </a>
             <a
-              href="/data/dot3_port_commodity.csv"
+              href={`${import.meta.env.BASE_URL}data/dot3_port_commodity.csv`}
               download
               className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-blue text-white rounded-lg hover:bg-brand-blue-dark transition-colors text-sm font-medium"
             >

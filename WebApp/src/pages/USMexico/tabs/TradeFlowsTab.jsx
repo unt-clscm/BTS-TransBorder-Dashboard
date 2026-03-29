@@ -227,7 +227,7 @@ export default function TradeFlowsTab({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-7xl mx-auto">
           <InsightCallout
             finding="The Texas-to-Nuevo Leon corridor via Laredo is the single largest bilateral trade relationship on the U.S.-Mexico border — larger than many countries' total trade."
-            context="This corridor carries automotive, machinery, and electronics traffic for the maquiladora manufacturing network."
+            context="This corridor carries automotive, machinery, and electronics traffic for the maquiladora (cross-border factory) manufacturing network."
           />
           <InsightCallout
             finding="Trade corridors are not interchangeable. Disrupting Laredo affects manufacturing supply chains, while disrupting Nogales affects agriculture. Each port serves a different economic function."

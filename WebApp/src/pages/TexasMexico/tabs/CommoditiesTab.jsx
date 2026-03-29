@@ -279,7 +279,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
       if (!d.CommodityGroup || !d.Mode) return
       if (!byGroup.has(d.CommodityGroup)) byGroup.set(d.CommodityGroup, new Map())
       const modes = byGroup.get(d.CommodityGroup)
-      modes.set(d.Mode, (modes.get(d.Mode) || 0) + (d.TradeValue || 0))
+      modes.set(d.Mode, (modes.get(d.Mode) || 0) + (d[valueField] || 0))
     })
     // Sort by total trade, take top 10
     const sortedGroups = [...byGroup.entries()]
@@ -300,7 +300,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
       return row
     })
     return { data, keys }
-  }, [filteredCommodities])
+  }, [filteredCommodities, valueField])
 
   /* ── Weight-vs-Value bubble chart (imports only, where weight is reliable) ── */
   const weightValueData = useMemo(() => {
@@ -342,7 +342,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
     const groupTotals = new Map()
     data.forEach((d) => {
       if (!d.CommodityGroup) return
-      groupTotals.set(d.CommodityGroup, (groupTotals.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+      groupTotals.set(d.CommodityGroup, (groupTotals.get(d.CommodityGroup) || 0) + (d[valueField] || 0))
     })
     const topGroups = [...groupTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
     const topSet = new Set(topGroups)
@@ -352,7 +352,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
     data.forEach((d) => {
       if (!d.Month || !topSet.has(d.CommodityGroup)) return
       const key = `${d.Month}|${d.CommodityGroup}`
-      byMonthGroup.set(key, (byMonthGroup.get(key) || 0) + (d.TradeValue || 0))
+      byMonthGroup.set(key, (byMonthGroup.get(key) || 0) + (d[valueField] || 0))
       const yk = `${d.Month}`
       if (!yearCounts.has(yk)) {
         const yrs = new Set()
@@ -372,7 +372,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
       chartData.push(row)
     }
     return { data: chartData, keys: topGroups }
-  }, [monthlyCommodityTrends, tradeTypeFilter, modeFilter])
+  }, [monthlyCommodityTrends, tradeTypeFilter, modeFilter, valueField])
 
   /* ── Commodity detail table ──────────────────────────────────────── */
   const tableData = useMemo(() => {
@@ -475,6 +475,20 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
         </div>
       </SectionBlock>
 
+      {/* Reading guide */}
+      <SectionBlock>
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-brand-blue/5 border border-brand-blue/15 rounded-xl p-4">
+            <p className="text-sm font-semibold text-brand-blue mb-2">How to read this page</p>
+            <ol className="text-sm text-text-secondary space-y-1 list-decimal list-inside">
+              <li><strong>What Moves</strong> — See which commodities dominate Texas-Mexico trade and how they compare</li>
+              <li><strong>Supply Chain Direction</strong> — Understand the import/export balance and how parts flow south while finished goods flow north</li>
+              <li><strong>Trade Structure</strong> — Discover which ports specialize in which commodities and how seasonal patterns shape the border</li>
+            </ol>
+          </div>
+        </div>
+      </SectionBlock>
+
       {/* Weight caveat banner */}
       {(weightAllNA || weightPartial) && (
         <SectionBlock>
@@ -497,7 +511,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
       <SectionBlock>
         <ChartCard
           title={treemapDrill ? `${treemapDrill} — HS 2-Digit Detail${subsetLabel}` : treemapView === 'commodities' ? `Top 30 Commodities${subsetLabel}` : `Commodity Groups${subsetLabel}`}
-          subtitle={treemapDrill ? 'Individual commodities within group' : treemapView === 'commodities' ? `${metricLabel} by individual commodity (HS 2-digit)` : `${metricLabel} by commodity group — click to drill down`}
+          subtitle={treemapDrill ? 'Individual commodities within group' : treemapView === 'commodities' ? `${metricLabel} by individual commodity (HS 2-digit codes classify traded goods into ~99 categories)` : `${metricLabel} by commodity group \u2014 click to drill down`}
           headerRight={
             <div className="inline-flex rounded-lg border border-border-light overflow-hidden text-sm">
               <button
@@ -591,7 +605,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
             <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
               <InsightCallout
                 finding="Transportation Equipment has a 3.9:1 import ratio — Texas sends $67B in parts south and receives $259B in finished vehicles north."
-                context="This is the clearest maquiladora signal in the data."
+                context="This is the clearest maquiladora (cross-border factory) signal in the data."
                 icon={Factory}
               />
               <InsightCallout
@@ -769,7 +783,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
           <div className="max-w-7xl mx-auto">
             <ChartCard
               title={`Trade Balance by Commodity Group${subsetLabel}`}
-              subtitle="Exports minus imports per group — positive = surplus (Texas exports more), negative = deficit (Mexico ships more)"
+              subtitle="Exports minus imports per group — positive = surplus (Texas exports more), negative = deficit (Mexico ships more). Always shown in dollars (trade balance is a monetary concept)."
               headerRight={
                 <YearRangeFilter years={allCommodityYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />
               }
@@ -802,13 +816,13 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
           <div className="max-w-7xl mx-auto">
             <ChartCard
               title={`Mode of Transport by Commodity Group${subsetLabel}`}
-              subtitle="How each commodity group moves across the border — truck, rail, pipeline, or other"
+              subtitle={`How each commodity group moves across the border — truck, rail, pipeline, or other (${metricLabel.toLowerCase()})`}
             >
               <StackedBarChart
                 data={modeByCommodity.data}
                 xKey="group"
                 stackKeys={modeByCommodity.keys}
-                formatValue={formatCurrency}
+                formatValue={fmtValue}
               />
             </ChartCard>
             <div className="mt-4">
@@ -837,7 +851,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
           <div className="max-w-7xl mx-auto">
             <ChartCard
               title={`Weight vs. Value: Two Economies at the Border${subsetLabel}`}
-              subtitle="Each bubble is a commodity group (imports only, where weight is reliably reported). Bubble size = total value."
+              subtitle="Each bubble is a commodity group (imports only, where weight is reliably reported). Bubble size = total value. This chart always shows both weight and dollar value regardless of the metric toggle."
             >
               <ScatterPlot
                 data={weightValueData}
@@ -879,13 +893,13 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
             <div className="max-w-7xl mx-auto">
               <ChartCard
                 title="Seasonal Commodity Patterns"
-                subtitle="Average monthly trade value by commodity group — reveals winter produce peaks and year-round manufacturing"
+                subtitle={`Average monthly ${metricLabel.toLowerCase()} by commodity group — reveals winter produce peaks and year-round manufacturing`}
               >
                 <StackedBarChart
                   data={seasonalCommodityData.data}
                   xKey="month"
                   stackKeys={seasonalCommodityData.keys}
-                  formatValue={formatCurrency}
+                  formatValue={fmtValue}
                 />
               </ChartCard>
               <div className="mt-4">
@@ -909,7 +923,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
         if (vegData.length < 12) return null
         // Get top ports by vegetable trade
         const portTotals = new Map()
-        vegData.forEach((d) => { portTotals.set(d.Port, (portTotals.get(d.Port) || 0) + (d.TradeValue || 0)) })
+        vegData.forEach((d) => { portTotals.set(d.Port, (portTotals.get(d.Port) || 0) + (d[valueField] || 0)) })
         const topPorts = [...portTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 4).map(([n]) => n)
         const topSet = new Set(topPorts)
         // Build monthly averages per port
@@ -919,7 +933,7 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
           if (!topSet.has(d.Port) || !d.Month) return
           yearSet.add(d.Year)
           const key = `${d.Month}|${d.Port}`
-          byMonthPort.set(key, (byMonthPort.get(key) || 0) + (d.TradeValue || 0))
+          byMonthPort.set(key, (byMonthPort.get(key) || 0) + (d[valueField] || 0))
         })
         const nYears = yearSet.size || 1
         const chartData = []
@@ -935,13 +949,13 @@ export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTr
             <div className="max-w-7xl mx-auto">
               <ChartCard
                 title="Port-Level Produce Seasonality"
-                subtitle="Average monthly vegetable imports by port — shows which ports bear winter produce pressure"
+                subtitle={`Average monthly vegetable imports by port (${metricLabel.toLowerCase()}) — shows which ports bear winter produce pressure`}
               >
                 <StackedBarChart
                   data={chartData}
                   xKey="month"
                   stackKeys={topPorts}
-                  formatValue={formatCurrency}
+                  formatValue={fmtValue}
                 />
               </ChartCard>
               <div className="mt-4">

@@ -15,6 +15,7 @@ import SankeyDiagram from '@/components/charts/SankeyDiagram'
 import HeatmapTable from '@/components/charts/HeatmapTable'
 import TradeFlowChoropleth from '@/components/maps/TradeFlowChoropleth'
 import InsightCallout from '@/components/ui/InsightCallout'
+import GlossaryTerm from '@/components/ui/GlossaryTerm'
 
 export default function TradeFlowsTab({
   texasOdStateFlows,
@@ -56,7 +57,7 @@ export default function TradeFlowsTab({
     if (portFilter?.length) data = data.filter((d) => portFilter.includes(d.Port))
     if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return data
-  }, [texasOdStateFlows, tradeTypeFilter, modeFilter, portFilter, mexStateFilter])
+  }, [texasOdStateFlows, tradeTypeFilter, modeFilter, stateFilter, portFilter, mexStateFilter])
 
   const filtered = useMemo(() => {
     if (!filteredNoYear.length) return []
@@ -211,7 +212,7 @@ export default function TradeFlowsTab({
           <p className="text-lg text-text-secondary leading-relaxed">
             This tab reveals the specific corridors that define Texas–Mexico trade. <strong>Laredo</strong> connects
             Monterrey's industrial base to the U.S. heartland. <strong>El Paso/Ysleta</strong> links
-            Ju&aacute;rez's maquiladoras to American markets. Each port-state pairing represents
+            Ju&aacute;rez's <GlossaryTerm term="maquiladora" display="maquiladoras" /> to American markets. Each port-state pairing represents
             a supply chain built over decades — use the interactive maps below to explore how trade
             flows through the border.
           </p>
@@ -252,7 +253,7 @@ export default function TradeFlowsTab({
             }
           >
             <TradeFlowChoropleth
-              data={texasOdStateFlows || []}
+              data={filteredNoYear}
               yearFilter={mapYear ? [mapYear] : []}
               center={[28, -100]}
               zoom={5}
@@ -313,8 +314,8 @@ export default function TradeFlowsTab({
             </ChartCard>
             <div className="mt-4">
               <InsightCallout
-                finding="The fastest-growing corridors are not the biggest ones. Emerging corridors connecting U.S. interior states to Mexico's Bajio region are growing much faster than the established Texas-Nuevo Leon route — reflecting the geographic expansion of cross-border manufacturing."
-                context="Growth is measured as the percentage increase in average annual trade between the first 3 years and last 3 years of available data."
+                finding="The fastest-growing corridors are not the biggest ones. Emerging corridors connecting U.S. interior states to Mexico's Baj\u00edo region are growing much faster than the established Texas-Nuevo Leon route — reflecting the geographic expansion of cross-border manufacturing."
+                context="Baj\u00edo refers to central Mexico (Guanajuato, Quer\u00e9taro, Aguascalientes, San Luis Potos\u00ed) — a fast-growing auto and aerospace hub. Growth is measured as the percentage increase in average annual trade between the first 3 years and last 3 years of available data."
               />
             </div>
           </div>

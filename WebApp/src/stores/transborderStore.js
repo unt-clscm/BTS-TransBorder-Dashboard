@@ -22,6 +22,8 @@ const DATASET_FILES = {
   odCanadaProvFlows: 'od_canada_prov_flows.json',
   texasOdStateFlows: 'texas_od_state_flows.json',
   monthlyCommodityTrends: 'monthly_commodity_trends.json',
+  stateCommodityTrade: 'state_commodity_trade.json',
+  commodityMexstateTrade: 'commodity_mexstate_trade.json',
 }
 
 const FETCH_TIMEOUT_MS = 30_000
@@ -85,6 +87,8 @@ export const useTransborderStore = create((set, get) => ({
   odCanadaProvFlows: null,
   texasOdStateFlows: null,
   monthlyCommodityTrends: null,
+  stateCommodityTrade: null,
+  commodityMexstateTrade: null,
 
   // Loading state
   loading: true,

@@ -21,6 +21,7 @@ export default function TradeFlowsTab({
   yearFilter,
   tradeTypeFilter,
   modeFilter,
+  stateFilter = [],
   portFilter,
   mexStateFilter,
   datasetError,
@@ -50,6 +51,7 @@ export default function TradeFlowsTab({
     let data = texasOdStateFlows
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    if (stateFilter?.length) data = data.filter((d) => stateFilter.includes(d.State))
     if (portFilter?.length) data = data.filter((d) => portFilter.includes(d.Port))
     if (mexStateFilter?.length) data = data.filter((d) => mexStateFilter.includes(d.MexState))
     return data
@@ -247,6 +249,16 @@ export default function TradeFlowsTab({
         <ChartCard title={`Trade Routes${subsetLabelWithYear}`} subtitle="How trade flows from U.S. states through Texas border ports to Mexican states">
           <SankeyDiagram nodes={sankeyData.nodes} links={sankeyData.links} formatValue={fmtValue} height={550} />
         </ChartCard>
+      </SectionBlock>
+
+      <SectionBlock>
+        <div className="max-w-4xl mx-auto">
+          <InsightCallout
+            finding="The Sankey diagram reveals that Laredo doesn't just carry the most trade — it connects the widest range of U.S. and Mexican states. El Paso/Ysleta, by contrast, routes mostly to Chihuahua's maquiladoras."
+            context="This concentration pattern means Laredo disruptions cascade across many supply chains, while El Paso disruptions are more contained but deeper in the auto sector."
+            variant="highlight"
+          />
+        </div>
       </SectionBlock>
 
       <SectionBlock alt>

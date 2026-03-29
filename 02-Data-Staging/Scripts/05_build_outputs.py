@@ -536,6 +536,62 @@ def build_monthly_commodity_trends(conn):
     return run_query(conn, sql)
 
 
+def build_state_commodity_trade(conn):
+    """Dataset 15: State-level commodity trade. Source: DOT2, Mexico only, 2007+.
+
+    Charts: Texas vs other states by commodity — what Texas specializes in
+    relative to Michigan, California, Illinois.
+    Aggregated by Year/State/CommodityGroup/Mode/TradeType.
+    """
+    sql = f"""
+        SELECT
+            "Year",
+            "StateCode",
+            "State",
+            "CommodityGroup",
+            "Mode",
+            COALESCE("TradeType", 'Unknown') AS "TradeType",
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight"
+        FROM dot2_state_commodity
+        WHERE "Country" = 'Mexico' AND "Year" >= {MODERN_START_YEAR}
+          AND "State" IS NOT NULL AND "State" != ''
+        GROUP BY "Year", "StateCode", "State", "CommodityGroup", "Mode",
+                 COALESCE("TradeType", 'Unknown')
+        ORDER BY "Year", "State", "CommodityGroup", "Mode", "TradeType"
+    """
+    return run_query(conn, sql)
+
+
+def build_commodity_mexstate_trade(conn):
+    """Dataset 16: Commodity trade by Mexican state. Source: DOT2, Mexico only, 2007+.
+
+    Charts: What each Mexican state trades — Nuevo Leon is machinery-heavy,
+    Tamaulipas is mixed, Queretaro is auto.
+    Aggregated by Year/MexState/CommodityGroup/Mode/TradeType.
+    """
+    sql = f"""
+        SELECT
+            "Year",
+            "MexState",
+            "CommodityGroup",
+            "Mode",
+            COALESCE("TradeType", 'Unknown') AS "TradeType",
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight"
+        FROM dot2_state_commodity
+        WHERE "Country" = 'Mexico' AND "Year" >= {MODERN_START_YEAR}
+          AND "MexState" IS NOT NULL AND "MexState" != ''
+          AND "MexState" NOT IN ('State Unknown', 'Unknown')
+        GROUP BY "Year", "MexState", "CommodityGroup", "Mode",
+                 COALESCE("TradeType", 'Unknown')
+        ORDER BY "Year", "MexState", "CommodityGroup", "Mode", "TradeType"
+    """
+    return run_query(conn, sql)
+
+
 def main():
     if not DB_PATH.exists():
         print(f"ERROR: Database not found: {DB_PATH}")
@@ -572,6 +628,8 @@ def main():
         ("od_canada_prov_flows", lambda: build_od_canada_prov_flows(conn)),
         ("texas_od_state_flows", lambda: build_texas_od_state_flows(conn, tx_ports)),
         ("monthly_commodity_trends", lambda: build_monthly_commodity_trends(conn)),
+        ("state_commodity_trade", lambda: build_state_commodity_trade(conn)),
+        ("commodity_mexstate_trade", lambda: build_commodity_mexstate_trade(conn)),
     ]
 
     print("Building datasets...")

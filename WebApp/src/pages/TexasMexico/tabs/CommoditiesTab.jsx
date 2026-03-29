@@ -428,6 +428,15 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
         </SectionBlock>
       )}
 
+      {/* ═══════ Section: What Moves ═══════ */}
+      <SectionBlock>
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          <div className="h-px flex-1 bg-border-light" />
+          <h3 className="text-base font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap">What Moves</h3>
+          <div className="h-px flex-1 bg-border-light" />
+        </div>
+      </SectionBlock>
+
       {/* Treemap of commodity groups with drilldown */}
       <SectionBlock>
         <ChartCard
@@ -475,6 +484,15 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
               formatValue={fmtValue}
             />
           </ChartCard>
+        </div>
+      </SectionBlock>
+
+      {/* ═══════ Section: Supply Chain Direction ═══════ */}
+      <SectionBlock>
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          <div className="h-px flex-1 bg-border-light" />
+          <h3 className="text-base font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap">Supply Chain Direction</h3>
+          <div className="h-px flex-1 bg-border-light" />
         </div>
       </SectionBlock>
 
@@ -528,6 +546,15 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
             annotations={ANNOTATIONS}
           />
         </ChartCard>
+      </SectionBlock>
+
+      {/* ═══════ Section: How Rankings Change ═══════ */}
+      <SectionBlock>
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          <div className="h-px flex-1 bg-border-light" />
+          <h3 className="text-base font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap">How Rankings Change</h3>
+          <div className="h-px flex-1 bg-border-light" />
+        </div>
       </SectionBlock>
 
       {/* Animated Bar Chart Race — Commodity Groups Over Time */}
@@ -621,6 +648,15 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
         </SectionBlock>
       )}
 
+      {/* ═══════ Section: Which Ports Specialize ═══════ */}
+      <SectionBlock>
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          <div className="h-px flex-1 bg-border-light" />
+          <h3 className="text-base font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap">Which Ports Specialize</h3>
+          <div className="h-px flex-1 bg-border-light" />
+        </div>
+      </SectionBlock>
+
       {/* Port Specialization — What each port carries */}
       {portSpecialization.data.length > 0 && (
         <SectionBlock>
@@ -645,6 +681,15 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
           </div>
         </SectionBlock>
       )}
+
+      {/* ═══════ Section: Trade Structure ═══════ */}
+      <SectionBlock>
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          <div className="h-px flex-1 bg-border-light" />
+          <h3 className="text-base font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap">Trade Structure</h3>
+          <div className="h-px flex-1 bg-border-light" />
+        </div>
+      </SectionBlock>
 
       {/* Trade Balance by Commodity Group */}
       {tradeBalanceByGroup.length > 0 && (
@@ -704,6 +749,15 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
           </div>
         </SectionBlock>
       )}
+
+      {/* ═══════ Section: How Value Differs from Weight ═══════ */}
+      <SectionBlock>
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          <div className="h-px flex-1 bg-border-light" />
+          <h3 className="text-base font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap">How Value Differs from Weight</h3>
+          <div className="h-px flex-1 bg-border-light" />
+        </div>
+      </SectionBlock>
 
       {/* Weight-vs-Value Bubble Chart */}
       {weightValueData.length > 0 && (

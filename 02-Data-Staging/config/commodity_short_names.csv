@@ -1,0 +1,100 @@
+HS_Code,Original_Commodity_Name,Commodity,Commodity_Group
+01,Live animals,Live Animals,Live Animals & Animal Products
+02,"Meat and edible meat offal",Meat & Offal,Live Animals & Animal Products
+03,"Fish and crustaceans, molluscs and other aquatic invertebrates",Fish & Seafood,Live Animals & Animal Products
+04,"Dairy produce; birds' eggs; natural honey; edible products of animal origin, not elsewhere specified","Dairy, Eggs & Honey",Live Animals & Animal Products
+05,"Products of animal origin, not elsewhere specified",Other Animal Products,Live Animals & Animal Products
+06,"Live trees and other plants; bulbs, roots and the like; cut flowers and ornamental foliage","Plants, Flowers & Foliage",Vegetable Products
+07,"Edible vegetables and certain roots and tubers",Vegetables,Vegetable Products
+08,"Edible fruit and nuts; peel of citrus fruit or melons",Fruits & Nuts,Vegetable Products
+09,"Coffee, tea, mate and spices","Coffee, Tea & Spices",Vegetable Products
+10,Cereals,Cereals,Vegetable Products
+11,"Products of the milling industry; malt; starches; inulin; wheat gluten","Malt, Starches & Milling",Vegetable Products
+12,"Oil seeds and oleaginous fruits; miscellaneous grains, seeds and fruit; industrial or medicinal plants; straw and fodder",Oil Seeds & Grains,Vegetable Products
+13,"Lac; gums, resins and other vegetable saps and extracts",Gums & Resins,Vegetable Products
+14,"Vegetable plaiting materials; vegetable products not elsewhere specified",Vegetable Materials,Vegetable Products
+15,"Animal or vegetable fats and oils and their cleavage products; prepared edible fats; animal or vegetable waxes",Fats & Edible Oils,Animal or Vegetable Fats & Oils
+16,"Preparations of meat, of fish or of crustaceans, molluscs or other aquatic invertebrates",Prepared Meat & Fish,"Foodstuffs, Beverages & Tobacco"
+17,Sugars and sugar confectionery,Sugars & Confectionery,"Foodstuffs, Beverages & Tobacco"
+18,Cocoa and cocoa preparations,Cocoa & Preparations,"Foodstuffs, Beverages & Tobacco"
+19,"Preparations of cereals, flour, starch or milk; pastrycooks' products","Cereals, Flour & Bakery","Foodstuffs, Beverages & Tobacco"
+20,"Preparations of vegetables, fruit, nuts or other parts of plants","Prepared Vegetables & Fruits","Foodstuffs, Beverages & Tobacco"
+21,Miscellaneous edible preparations,Misc. Edible Preparations,"Foodstuffs, Beverages & Tobacco"
+22,"Beverages, spirits and vinegar","Beverages, Spirits & Vinegar","Foodstuffs, Beverages & Tobacco"
+23,"Residues and waste from the food industries; prepared animal fodder",Food Waste & Animal Feed,"Foodstuffs, Beverages & Tobacco"
+24,Tobacco and manufactured tobacco substitutes,Tobacco,"Foodstuffs, Beverages & Tobacco"
+25,"Salt; sulphur; earths and stone; plastering materials, lime and cement","Salt, Stone & Cement",Mineral Products
+26,"Ores, slag and ash",Ores & Slag,Mineral Products
+27,"Mineral fuels, mineral oils and products of their distillation; bituminous substances; mineral waxes",Mineral Fuels & Oils,Mineral Products
+28,"Inorganic chemicals; organic or inorganic compounds of precious metals, of rare-earth metals, of radioactive elements or of isotopes",Inorganic Chemicals,Chemical Products
+29,Organic chemicals,Organic Chemicals,Chemical Products
+30,Pharmaceutical products,Pharmaceuticals,Chemical Products
+31,Fertilizers,Fertilizers,Chemical Products
+32,"Tanning or dyeing extracts; tannins and their derivatives; dyes, pigments and other colouring matter; paints and varnishes; putty and other mastics; inks","Dyes, Paints & Inks",Chemical Products
+33,"Essential oils and resinoids; perfumery, cosmetic or toilet preparations","Perfumery, Cosmetics & Oils",Chemical Products
+34,"Soap, organic surface-active agents, washing preparations, lubricating preparations, artificial waxes, prepared waxes, polishing or scouring preparations, candles and similar articles, modelling pastes, 'dental waxes' and dental preparations with a basis of plaster","Soap, Wax & Lubricants",Chemical Products
+35,"Albuminoidal substances; modified starches; glues; enzymes","Starches, Glues & Enzymes",Chemical Products
+36,"Explosives; pyrotechnic products; matches; pyrophoric alloys; certain combustible preparations",Explosives & Pyrotechnics,Chemical Products
+37,Photographic or cinematographic goods,Photographic Goods,Chemical Products
+38,Miscellaneous chemical products,Misc. Chemical Products,Chemical Products
+39,Plastics and articles thereof,Plastics & Articles,Plastics & Rubber
+40,Rubber and articles thereof,Rubber & Articles,Plastics & Rubber
+41,"Raw hides and skins (other than furskins) and leather",Hides & Leather,"Raw Hides, Skins & Leather"
+42,"Articles of leather; saddlery and harness; travel goods, handbags and similar containers; articles of animal gut (other than silkworm gut)","Leather Goods & Handbags","Raw Hides, Skins & Leather"
+43,Furskins and artificial fur; manufactures thereof,Furskins & Artificial Fur,"Raw Hides, Skins & Leather"
+44,Wood and articles of wood; wood charcoal,Wood & Charcoal,Wood & Wood Products
+45,Cork and articles of cork,Cork & Articles,Wood & Wood Products
+46,"Manufactures of straw, of esparto or of other plaiting materials; basketware and wickerwork",Straw & Wickerwork,Wood & Wood Products
+47,"Pulp of wood or of other fibrous cellulosic material; recovered (waste and scrap) paper or paperboard",Wood Pulp,"Pulp, Paper & Paperboard"
+48,"Paper and paperboard; articles of paper pulp, of paper or of paperboard",Paper & Paperboard,"Pulp, Paper & Paperboard"
+49,"Printed books, newspapers, pictures and other products of the printing industry; manuscripts, typescripts and plans","Books, Newspapers & Print","Pulp, Paper & Paperboard"
+50,Silk,Silk,Textiles & Apparel
+51,"Wool, fine or coarse animal hair; horsehair yarn and woven fabric",Wool & Animal Hair,Textiles & Apparel
+52,Cotton,Cotton,Textiles & Apparel
+53,"Other vegetable textile fibres; paper yarn and woven fabrics of paper yarn",Vegetable Fibers,Textiles & Apparel
+54,"Man-made filaments; strip and the like of man-made textile materials",Synthetic Filaments,Textiles & Apparel
+55,Man-made staple fibres,Synthetic Fibers,Textiles & Apparel
+56,"Wadding, felt and nonwovens; special yarns; twine, cordage, ropes and cables and articles thereof","Wadding, Felt & Rope",Textiles & Apparel
+57,Carpets and other textile floor coverings,Carpets,Textiles & Apparel
+58,"Special woven fabrics; tufted textile fabrics; lace; tapestries; trimmings; embroidery","Lace, Tapestries & Embroidery",Textiles & Apparel
+59,"Impregnated, coated, covered or laminated textile fabrics; textile articles of a kind suitable for industrial use",Coated & Industrial Textiles,Textiles & Apparel
+60,Knitted or crocheted fabrics,Knitted Fabrics,Textiles & Apparel
+61,"Articles of apparel and clothing accessories, knitted or crocheted",Knit Apparel,Textiles & Apparel
+62,"Articles of apparel and clothing accessories, not knitted or crocheted",Woven Apparel,Textiles & Apparel
+63,"Other made up textile articles; sets; worn clothing and worn textile articles; rags",Other Textile Articles,Textiles & Apparel
+64,"Footwear, gaiters and the like; parts of such articles",Footwear & Parts,"Footwear, Headgear & Umbrellas"
+65,Headgear and parts thereof,Headgear & Parts,"Footwear, Headgear & Umbrellas"
+66,"Umbrellas, sun umbrellas, walking-sticks, seat-sticks, whips, riding-crops and parts thereof",Umbrellas & Walking Sticks,"Footwear, Headgear & Umbrellas"
+67,"Prepared feathers and down and articles made of feathers or of down; artificial flowers; articles of human hair","Feathers, Down & Artificial Flowers","Footwear, Headgear & Umbrellas"
+68,"Articles of stone, plaster, cement, asbestos, mica or similar materials","Stone, Plaster & Cement Articles","Stone, Ceramic & Glass Products"
+69,Ceramic products,Ceramics,"Stone, Ceramic & Glass Products"
+70,Glass and glassware,Glass & Glassware,"Stone, Ceramic & Glass Products"
+71,"Natural or cultured pearls, precious or semi-precious stones, precious metals, metals clad with precious metal, and articles thereof; imitation jewellery; coin","Precious Stones, Metals & Jewelry",Precious Metals & Stones
+72,Iron and steel,Iron & Steel,Base Metals & Articles
+73,Articles of iron or steel,Iron & Steel Articles,Base Metals & Articles
+74,Copper and articles thereof,Copper & Articles,Base Metals & Articles
+75,Nickel and articles thereof,Nickel & Articles,Base Metals & Articles
+76,Aluminium and articles thereof,Aluminum & Articles,Base Metals & Articles
+77,Reserved for possible future use,Reserved,Base Metals & Articles
+78,Lead and articles thereof,Lead & Articles,Base Metals & Articles
+79,Zinc and articles thereof,Zinc & Articles,Base Metals & Articles
+80,Tin and articles thereof,Tin & Articles,Base Metals & Articles
+81,"Other base metals; cermets; articles thereof",Other Base Metals,Base Metals & Articles
+82,"Tools, implements, cutlery, spoons and forks, of base metal; parts thereof of base metal","Tools, Cutlery & Implements",Base Metals & Articles
+83,Miscellaneous articles of base metal,Misc. Base Metal Articles,Base Metals & Articles
+84,"Nuclear reactors, boilers, machinery and mechanical appliances; parts thereof","Machinery & Mechanical Appliances",Machinery & Electrical Equipment
+85,"Electrical machinery and equipment and parts thereof; sound recorders and reproducers, television image and sound recorders and reproducers, and parts and accessories of such articles",Electrical Machinery & Equipment,Machinery & Electrical Equipment
+86,"Railway or tramway locomotives, rolling-stock and parts thereof; railway or tramway track fixtures and fittings and parts thereof; mechanical (including electro-mechanical) traffic signalling equipment of all kinds",Railway & Tramway Equipment,Transportation Equipment
+87,"Vehicles other than railway or tramway rolling-stock, and parts and accessories thereof",Vehicles & Parts,Transportation Equipment
+88,"Aircraft, spacecraft, and parts thereof","Aircraft, Spacecraft & Parts",Transportation Equipment
+89,"Ships, boats and floating structures","Ships, Boats & Structures",Transportation Equipment
+90,"Optical, photographic, cinematographic, measuring, checking, precision, medical or surgical instruments and apparatus; parts and accessories thereof","Optical & Medical Instruments","Optical, Medical & Precision Instruments"
+91,Clocks and watches and parts thereof,Clocks & Watches & Parts,"Optical, Medical & Precision Instruments"
+92,Musical instruments; parts and accessories of such articles,Musical Instruments,"Optical, Medical & Precision Instruments"
+93,Arms and ammunition; parts and accessories thereof,Arms & Ammunition & Parts,Arms & Ammunition
+94,"Furniture; bedding, mattresses, mattress supports, cushions and similar stuffed furnishings; lamps and lighting fittings, not elsewhere specified; illuminated signs, illuminated name-plates and the like; prefabricated buildings","Furniture, Bedding & Lighting",Miscellaneous Manufactured Articles
+95,"Toys, games and sports requisites; parts and accessories thereof","Toys, Games & Sports",Miscellaneous Manufactured Articles
+96,Miscellaneous manufactured articles,Misc. Manufactured Articles,Miscellaneous Manufactured Articles
+97,"Works of art, collectors' pieces and antiques","Art, Collectibles & Antiques",Works of Art & Antiques
+98,"Special classification provisions, NESOI",Special Classifications (NESOI),Special Classification Provisions
+99,Special import reporting provisions,Special Import Reporting,Special Classification Provisions

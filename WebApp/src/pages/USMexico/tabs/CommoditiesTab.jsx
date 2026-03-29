@@ -37,6 +37,7 @@ export default function CommoditiesTab({
   const weightPartial = !weightAllNA && metric === 'weight' && hasSurfaceExports(filteredCommodities || [])
 
   const [drillGroup, setDrillGroup] = useState(null)
+  const [treemapView, setTreemapView] = useState('groups') // 'groups' | 'commodities'
   const [topCommodityN, setTopCommodityN] = useState(10)
   const [groupTrendTopN, setGroupTrendTopN] = useState(5)
   const [divergingTopN, setDivergingTopN] = useState(12)
@@ -58,9 +59,25 @@ export default function CommoditiesTab({
     }
   }, [allCommodityYears])
 
-  /* ── treemap data (commodity groups, or drilled HS codes) ────────── */
+  // Reset drill when switching to commodities view
+  useEffect(() => {
+    if (treemapView === 'commodities') setDrillGroup(null)
+  }, [treemapView])
+
+  /* ── treemap data (groups with drill, or flat commodities) ──────── */
   const treemapData = useMemo(() => {
     if (!filteredCommodities?.length) return []
+    if (treemapView === 'commodities') {
+      const byComm = new Map()
+      filteredCommodities.forEach((d) => {
+        const key = d.Commodity || d.HSCode
+        byComm.set(key, (byComm.get(key) || 0) + (d[valueField] || 0))
+      })
+      return Array.from(byComm, ([name, value]) => ({ name, value }))
+        .filter((d) => d.value > 0)
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 30)
+    }
     if (drillGroup) {
       const drilled = filteredCommodities.filter((d) => d.CommodityGroup === drillGroup)
       const byComm = new Map()
@@ -81,7 +98,7 @@ export default function CommoditiesTab({
     return Array.from(byGroup, ([name, value]) => ({ name, value }))
       .filter((d) => d.value > 0)
       .sort((a, b) => b.value - a.value)
-  }, [filteredCommodities, drillGroup, valueField])
+  }, [filteredCommodities, drillGroup, treemapView, valueField])
 
   /* ── top N commodities (bar) ────────────────────────────────────── */
   const topCommodities = useMemo(() => {
@@ -218,8 +235,24 @@ export default function CommoditiesTab({
       {/* Treemap */}
       <SectionBlock alt>
         <ChartCard
-          title={drillGroup ? `${drillGroup} — HS Detail` : 'Commodity Groups'}
-          subtitle={drillGroup ? 'Individual commodities within group' : `${metricLabel} by commodity group — click to drill down`}
+          title={drillGroup ? `${drillGroup} — HS Detail` : treemapView === 'commodities' ? 'Top 30 Commodities' : 'Commodity Groups'}
+          subtitle={drillGroup ? 'Individual commodities within group' : treemapView === 'commodities' ? `${metricLabel} by individual commodity (HS 2-digit)` : `${metricLabel} by commodity group — click to drill down`}
+          headerRight={
+            <div className="inline-flex rounded-lg border border-border-light overflow-hidden text-sm">
+              <button
+                onClick={() => setTreemapView('groups')}
+                className={`px-3 py-1.5 font-medium transition-colors ${treemapView === 'groups' ? 'bg-brand-blue text-white' : 'bg-white text-text-secondary hover:bg-surface-alt'}`}
+              >
+                Groups
+              </button>
+              <button
+                onClick={() => setTreemapView('commodities')}
+                className={`px-3 py-1.5 font-medium transition-colors ${treemapView === 'commodities' ? 'bg-brand-blue text-white' : 'bg-white text-text-secondary hover:bg-surface-alt'}`}
+              >
+                Commodities
+              </button>
+            </div>
+          }
         >
           {drillGroup && (
             <button onClick={() => setDrillGroup(null)} className="mb-2 text-sm text-brand-blue hover:underline">
@@ -231,7 +264,7 @@ export default function CommoditiesTab({
             nameKey="name"
             valueKey="value"
             formatValue={fmtValue}
-            onTileClick={drillGroup ? undefined : (d) => setDrillGroup(d.name)}
+            onCellClick={treemapView === 'groups' && !drillGroup ? (name) => setDrillGroup(name) : undefined}
           />
         </ChartCard>
       </SectionBlock>

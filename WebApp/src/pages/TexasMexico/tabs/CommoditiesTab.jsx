@@ -45,6 +45,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
   }
 
   const [treemapDrill, setTreemapDrill] = useState(null)
+  const [treemapView, setTreemapView] = useState('groups') // 'groups' | 'commodities'
   const [topCommodityN, setTopCommodityN] = useState(10)
   const [groupTrendTopN, setGroupTrendTopN] = useState(5)
   const [divergingTopN, setDivergingTopN] = useState(12)
@@ -63,9 +64,24 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
     }
   }, [allCommodityYears])
 
-  /* ── Treemap: top commodity groups or drilled-down HS codes ─────── */
+  // Reset drill when switching to commodities view
+  useEffect(() => {
+    if (treemapView === 'commodities') setTreemapDrill(null)
+  }, [treemapView])
+
+  /* ── Treemap: groups (with drill), or flat commodities ───────── */
   const commodityGroups = useMemo(() => {
     if (!filteredCommodities) return []
+    if (treemapView === 'commodities') {
+      const map = new Map()
+      filteredCommodities.forEach((d) => {
+        const label = d.Commodity || d.HSCode || 'Unknown'
+        map.set(label, (map.get(label) || 0) + (d[valueField] || 0))
+      })
+      return Array.from(map, ([label, value]) => ({ label, value }))
+        .sort((a, b) => b.value - a.value)
+        .slice(0, 30)
+    }
     if (treemapDrill) {
       const map = new Map()
       filteredCommodities.forEach((d) => {
@@ -83,7 +99,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
     })
     return Array.from(byGroup, ([label, value]) => ({ label, value }))
       .sort((a, b) => b.value - a.value)
-  }, [filteredCommodities, treemapDrill, valueField])
+  }, [filteredCommodities, treemapDrill, treemapView, valueField])
 
   /* ── Top N individual commodities (bar) ──────────────────────────── */
   const topCommodities = useMemo(() => {
@@ -346,8 +362,24 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       {/* Treemap of commodity groups with drilldown */}
       <SectionBlock>
         <ChartCard
-          title={treemapDrill ? `${treemapDrill} — HS 2-Digit Detail${subsetLabel}` : `Commodity Groups${subsetLabel}`}
-          subtitle={treemapDrill ? 'Individual commodities within group' : `${metricLabel} by commodity group — click to drill down`}
+          title={treemapDrill ? `${treemapDrill} — HS 2-Digit Detail${subsetLabel}` : treemapView === 'commodities' ? `Top 30 Commodities${subsetLabel}` : `Commodity Groups${subsetLabel}`}
+          subtitle={treemapDrill ? 'Individual commodities within group' : treemapView === 'commodities' ? `${metricLabel} by individual commodity (HS 2-digit)` : `${metricLabel} by commodity group — click to drill down`}
+          headerRight={
+            <div className="inline-flex rounded-lg border border-border-light overflow-hidden text-sm">
+              <button
+                onClick={() => setTreemapView('groups')}
+                className={`px-3 py-1.5 font-medium transition-colors ${treemapView === 'groups' ? 'bg-brand-blue text-white' : 'bg-white text-text-secondary hover:bg-surface-alt'}`}
+              >
+                Groups
+              </button>
+              <button
+                onClick={() => setTreemapView('commodities')}
+                className={`px-3 py-1.5 font-medium transition-colors ${treemapView === 'commodities' ? 'bg-brand-blue text-white' : 'bg-white text-text-secondary hover:bg-surface-alt'}`}
+              >
+                Commodities
+              </button>
+            </div>
+          }
           downloadData={{ summary: { data: commodityGroups, filename: 'tx-mx-commodity-groups', columns: DL.commodityGroupRank } }}
         >
           {treemapDrill && (
@@ -364,7 +396,7 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
             nameKey="label"
             valueKey="value"
             formatValue={fmtValue}
-            onCellClick={treemapDrill ? undefined : (name) => setTreemapDrill(name)}
+            onCellClick={treemapView === 'groups' && !treemapDrill ? (name) => setTreemapDrill(name) : undefined}
           />
         </ChartCard>
         <div className="max-w-4xl mx-auto mt-6">

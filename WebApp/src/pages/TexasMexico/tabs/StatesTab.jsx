@@ -402,8 +402,8 @@ export default function StatesTab({
         </div>
         <div className="max-w-4xl mx-auto mt-6 space-y-3">
           <InsightCallout
-            finding="Mexico's manufacturing base is expanding south from the traditional border zone into the Bajio corridor."
-            context="Queretaro's trade through Texas ports has grown 5.5x since 2007, and San Luis Potosi 4.5x — driven by new auto manufacturing plants (BMW, GM, and others)."
+            finding="Mexico's manufacturing base is expanding south from the traditional border zone into the Baj\u00edo corridor (Guanajuato, Quer\u00e9taro, Aguascalientes, San Luis Potos\u00ed)."
+            context="Quer\u00e9taro's trade through Texas ports has grown 5.5x since 2007, and San Luis Potos\u00ed 4.5x \u2014 driven by new auto manufacturing plants (BMW, GM, and others)."
             variant="highlight"
           />
           <InsightCallout

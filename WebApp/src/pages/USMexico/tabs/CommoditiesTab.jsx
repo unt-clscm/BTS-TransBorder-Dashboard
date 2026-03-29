@@ -282,7 +282,7 @@ export default function CommoditiesTab({
           <div className="max-w-7xl mx-auto">
             <ChartCard
               title="Cross-Border Manufacturing Pattern"
-              subtitle={`Imports (left) vs. exports (right) by commodity group — reveals maquiladora supply chains`}
+              subtitle={`Imports (left) vs. exports (right) by commodity group \u2014 reveals maquiladora (cross-border factory) supply chains`}
               headerRight={<TopNSelector value={divergingTopN} onChange={setDivergingTopN} />}
             >
               <DivergingBarChart

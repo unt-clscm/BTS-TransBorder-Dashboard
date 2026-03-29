@@ -591,6 +591,7 @@ export default function OverviewPage() {
             <div className="flex items-center gap-2.5 mb-5">
               <TrendingUp size={20} className="text-brand-blue" />
               <h3 className="text-xl font-bold text-text-primary">Key Insights</h3>
+              <span className="text-xs font-medium text-text-tertiary bg-surface-alt px-2 py-0.5 rounded-full">Based on full dataset</span>
             </div>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               {insights.map((ins, i) => {
@@ -614,7 +615,7 @@ export default function OverviewPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-2">
         <InsightCallout
           finding="Texas-Mexico trade alone exceeded $600 billion in 2025 — larger than the GDP of Sweden, Poland, or Thailand. Laredo processes roughly $900 million per day, more than the annual city budget of Houston."
-          context="Contextual comparisons help convey the scale of border trade in human terms."
+          context="Context — This is a fixed reference point for scale and does not change with filters."
           variant="highlight"
           icon={Globe}
         />

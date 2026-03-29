@@ -233,6 +233,35 @@ export default function PortsTab({
     return d ? d.date : ''
   }, [covidZoom])
 
+  /* ── Freight charges trend ───────────────────────────────────────── */
+  const freightChargesTrend = useMemo(() => {
+    const byYear = new Map()
+    filteredPortsNoYear.forEach((d) => {
+      if (!d.Year || d.FreightCharges == null) return
+      if (!byYear.has(d.Year)) byYear.set(d.Year, { year: d.Year, value: 0 })
+      byYear.get(d.Year).value += d.FreightCharges
+    })
+    return Array.from(byYear.values())
+      .filter((d) => d.value > 0)
+      .sort((a, b) => a.year - b.year)
+  }, [filteredPortsNoYear])
+
+  /* ── FTZ growth data ───────────────────────────────────────────── */
+  const ftzGrowth = useMemo(() => {
+    const byYear = new Map()
+    filteredPortsNoYear.forEach((d) => {
+      if (!d.Year || d.Mode !== 'Foreign Trade Zones (FTZs)') return
+      if (!byYear.has(d.Year)) byYear.set(d.Year, { year: d.Year, value: 0 })
+      byYear.get(d.Year).value += d.TradeValue || 0
+    })
+    const data = Array.from(byYear.values()).filter((d) => d.value > 0).sort((a, b) => a.year - b.year)
+    if (data.length < 2) return null
+    const first = data[0].value
+    const last = data[data.length - 1].value
+    const growth = first > 0 ? ((last / first - 1) * 100).toFixed(0) : 0
+    return { data, growth, firstYear: data[0].year, lastYear: data[data.length - 1].year, firstVal: first, lastVal: last }
+  }, [filteredPortsNoYear])
+
   /* ── Port detail table ─────────────────────────────────────────────── */
   const portTableData = useMemo(() => {
     const byKey = new Map()
@@ -413,6 +442,38 @@ export default function PortsTab({
           <StackedBarChart data={modeByYear.data} xKey="year" stackKeys={modeByYear.keys} formatValue={fmtValue} />
         </ChartCard>
       </SectionBlock>
+
+      {/* Freight Charges Trend */}
+      {freightChargesTrend.length > 2 && (
+        <SectionBlock alt>
+          <ChartCard title={`Freight Charges Trend${subsetLabelNoYear}`} subtitle="Total reported freight charges for cross-border shipments"
+            headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}>
+            <LineChart
+              data={freightChargesTrend.filter(d => d.year >= trendYearRange.startYear && d.year <= trendYearRange.endYear)}
+              xKey="year" yKey="value" formatValue={formatCurrency} showArea annotations={HISTORICAL_ANNOTATIONS}
+            />
+          </ChartCard>
+          <div className="mt-4 max-w-7xl mx-auto">
+            <InsightCallout
+              finding="Freight charges for Texas-Mexico shipments have nearly doubled since 2007 — reflecting rising volumes, fuel costs, and growing congestion at key crossings."
+              context="Freight charges are reported on customs declarations and represent the cost of transporting goods to the border."
+            />
+          </div>
+        </SectionBlock>
+      )}
+
+      {/* FTZ Growth Callout */}
+      {ftzGrowth && (
+        <SectionBlock>
+          <div className="max-w-7xl mx-auto">
+            <InsightCallout
+              finding={`Foreign Trade Zone (FTZ) trade grew ${ftzGrowth.growth}% from ${formatCurrency(ftzGrowth.firstVal)} (${ftzGrowth.firstYear}) to ${formatCurrency(ftzGrowth.lastVal)} (${ftzGrowth.lastYear}) — by far the fastest-growing mode. FTZs allow goods to enter for assembly without paying duties until they leave.`}
+              context="FTZ growth reflects deepening cross-border manufacturing integration — components are assembled in bonded zones before re-export."
+              variant="highlight"
+            />
+          </div>
+        </SectionBlock>
+      )}
 
       {/* Monthly Patterns (if data loaded) */}
       {filteredMonthly && filteredMonthly.length > 0 && (

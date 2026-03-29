@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useState } from 'react'
+import { useMemo, useEffect, useState, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import {
   TrendingUp, TrendingDown, DollarSign, ArrowRight, Database, Layers,
@@ -25,6 +25,7 @@ import ChoroplethPortMap from '@/components/maps/ChoroplethPortMap'
 import { DL, PAGE_TRANSBORDER_COLS } from '@/lib/downloadColumns'
 
 const HISTORICAL_ANNOTATIONS = [
+  { x: 1993.5, x2: 1994.5, label: 'NAFTA Begins', color: 'rgba(16,185,129,0.08)', labelColor: '#047857' },
   { x: 2008.5, x2: 2009.5, label: '2008 Financial Crisis', color: 'rgba(245,158,11,0.08)', labelColor: '#b45309' },
   { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
 ]
@@ -81,6 +82,10 @@ export default function OverviewPage() {
   const valueField = getMetricField(metric)
   const fmtValue = getMetricFormatter(metric)
   const metricLabel = getMetricLabel(metric)
+
+  /* ── global filters ────────────────────────────────────────────── */
+  const [tradeTypeFilter, setTradeTypeFilter] = useState('')   // Export/Import
+  const [modeFilterArr, setModeFilterArr] = useState([])       // multi-select mode
 
   /* ── country filter state (per-section) ───────────────────────── */
   const [countryFilter, setCountryFilter] = useState('')      // stat cards
@@ -224,12 +229,15 @@ export default function OverviewPage() {
     return { stateToPort, portToState }
   }, [odStateFlows, odCanadaProvFlows, mapYear])
 
-  /* ── filtered data based on country selection ──────────────────── */
+  /* ── filtered data based on country + mode + trade type selection ── */
   const filteredData = useMemo(() => {
     if (!usTransborder?.length) return []
-    if (!countryFilter) return usTransborder
-    return usTransborder.filter((d) => d.Country === countryFilter)
-  }, [usTransborder, countryFilter])
+    let data = usTransborder
+    if (countryFilter) data = data.filter((d) => d.Country === countryFilter)
+    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
+    if (modeFilterArr.length) data = data.filter((d) => modeFilterArr.includes(d.Mode))
+    return data
+  }, [usTransborder, countryFilter, tradeTypeFilter, modeFilterArr])
 
   /* ── Derived year bounds (always from full dataset) ──────────────── */
   const latestYear = useMemo(() => {
@@ -270,24 +278,44 @@ export default function OverviewPage() {
     return { totalLatest, exports, imports, tradeBalance, exportWeightNA, totalWeightNA }
   }, [filteredData, latestYear, valueField])
 
-  /* ── Per-chart filtered data ─────────────────────────────────────── */
+  /* ── Per-chart filtered data (apply global mode/tradeType + chart-level country) ── */
+  const applyGlobalFilters = useCallback((data) => {
+    let d = data
+    if (tradeTypeFilter) d = d.filter((r) => r.TradeType === tradeTypeFilter)
+    if (modeFilterArr.length) d = d.filter((r) => modeFilterArr.includes(r.Mode))
+    return d
+  }, [tradeTypeFilter, modeFilterArr])
+
   const trendFiltered = useMemo(() => {
     if (!usTransborder?.length) return []
-    if (!trendCountry) return usTransborder
-    return usTransborder.filter((d) => d.Country === trendCountry)
-  }, [usTransborder, trendCountry])
+    let data = usTransborder
+    if (trendCountry) data = data.filter((d) => d.Country === trendCountry)
+    return applyGlobalFilters(data)
+  }, [usTransborder, trendCountry, applyGlobalFilters])
 
   const modeFiltered = useMemo(() => {
     if (!usTransborder?.length) return []
-    if (!modeCountry) return usTransborder
-    return usTransborder.filter((d) => d.Country === modeCountry)
-  }, [usTransborder, modeCountry])
+    let data = usTransborder
+    if (modeCountry) data = data.filter((d) => d.Country === modeCountry)
+    return applyGlobalFilters(data)
+  }, [usTransborder, modeCountry, applyGlobalFilters])
 
   /* ── Available years for year-range selectors ─────────────────── */
   const availableYears = useMemo(() => {
     if (!usTransborder?.length) return []
     const yrs = [...new Set(usTransborder.map((d) => d.Year).filter(Number.isFinite))].sort((a, b) => a - b)
     return yrs
+  }, [usTransborder])
+
+  /* ── Mode + Trade Type options for filters ─────────────────────── */
+  const modeOptions = useMemo(() => {
+    if (!usTransborder?.length) return []
+    return [...new Set(usTransborder.map((d) => d.Mode).filter(Boolean))].sort()
+  }, [usTransborder])
+
+  const tradeTypeOptions = useMemo(() => {
+    if (!usTransborder?.length) return []
+    return [...new Set(usTransborder.map((d) => d.TradeType).filter(Boolean))].sort()
   }, [usTransborder])
 
   /* ── LineChart: Annual trade trends (Exports vs Imports) ─────────── */
@@ -386,8 +414,9 @@ export default function OverviewPage() {
               U.S. TransBorder Freight Data ({minYear || 1993}--{latestYear || 2025})
             </h2>
             <p className="text-white/70 mt-2 text-sm md:text-base leading-relaxed">
-              Surface, air, vessel, and pipeline freight flows between the U.S., Mexico,
-              and Canada — the only public data source with port-level detail on North American trade.
+              U.S. border trade has grown 5&times; since NAFTA began — and Texas handles two-thirds of the Mexico side.
+              This dashboard covers surface, air, vessel, and pipeline freight flows using the only public data source
+              with port-level detail on North American trade.
             </p>
           </div>
           {/* Map — large, full-width within hero */}
@@ -450,6 +479,40 @@ export default function OverviewPage() {
               >
                 {COUNTRY_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>{opt.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-3">
+              <label htmlFor="tradetype-filter" className="text-base font-semibold text-text-primary">
+                Trade Type
+              </label>
+              <select
+                id="tradetype-filter"
+                value={tradeTypeFilter}
+                onChange={(e) => setTradeTypeFilter(e.target.value)}
+                className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary
+                           shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
+              >
+                <option value="">All</option>
+                {tradeTypeOptions.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
+                ))}
+              </select>
+            </div>
+            <div className="flex items-center gap-3">
+              <label htmlFor="mode-filter" className="text-base font-semibold text-text-primary">
+                Mode
+              </label>
+              <select
+                id="mode-filter"
+                value={modeFilterArr.length === 1 ? modeFilterArr[0] : ''}
+                onChange={(e) => setModeFilterArr(e.target.value ? [e.target.value] : [])}
+                className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary
+                           shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
+              >
+                <option value="">All Modes</option>
+                {modeOptions.map((opt) => (
+                  <option key={opt} value={opt}>{opt}</option>
                 ))}
               </select>
             </div>
@@ -516,6 +579,16 @@ export default function OverviewPage() {
         )}
       </div>
 
+
+      {/* ── Contextual Comparison ────────────────────────────────── */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-2">
+        <InsightCallout
+          finding="Texas-Mexico trade alone exceeded $600 billion in 2025 — larger than the GDP of Sweden, Poland, or Thailand. Laredo processes roughly $900 million per day, more than the annual city budget of Houston."
+          context="Contextual comparisons help convey the scale of border trade in human terms."
+          variant="highlight"
+          icon={Globe}
+        />
+      </div>
 
       {/* ── Annual Trade Trends ────────────────────────────────────── */}
       <SectionBlock>

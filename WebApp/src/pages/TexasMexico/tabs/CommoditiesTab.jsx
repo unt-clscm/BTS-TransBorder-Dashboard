@@ -10,11 +10,12 @@ import TreemapChart from '@/components/charts/TreemapChart'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
+import ScatterPlot from '@/components/charts/ScatterPlot'
 import DataTable from '@/components/ui/DataTable'
 import DivergingBarChart from '@/components/charts/DivergingBarChart'
 import BarChartRace from '@/components/charts/BarChartRace'
 import InsightCallout from '@/components/ui/InsightCallout'
-import { Factory, Play, Pause, SkipBack, SkipForward, ArrowRight } from 'lucide-react'
+import { Factory, Play, Pause, SkipBack, SkipForward, ArrowRight, TrendingDown, Truck } from 'lucide-react'
 import { formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel, getDataSubsetLabel, hasSurfaceExports, isAllSurfaceExports } from '@/lib/chartColors'
 import WeightCaveatBanner from '@/components/ui/WeightCaveatBanner'
 import YearRangeFilter from '@/components/filters/YearRangeFilter'
@@ -232,6 +233,90 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
     }
     return () => clearTimeout(popTimerRef.current)
   }, [raceYear])
+
+  /* ── Trade balance by commodity group (deficit/surplus) ───────────── */
+  const tradeBalanceByGroup = useMemo(() => {
+    if (!filteredCommodities) return []
+    const byYearGroup = new Map()
+    filteredCommodities.forEach((d) => {
+      if (!d.CommodityGroup || !d.Year) return
+      if (d.Year < trendYearRange.startYear || d.Year > trendYearRange.endYear) return
+      const key = `${d.Year}|${d.CommodityGroup}`
+      if (!byYearGroup.has(key)) byYearGroup.set(key, { year: d.Year, CommodityGroup: d.CommodityGroup, exports: 0, imports: 0 })
+      const row = byYearGroup.get(key)
+      if (d.TradeType === 'Export') row.exports += d.TradeValue || 0
+      if (d.TradeType === 'Import') row.imports += d.TradeValue || 0
+    })
+    // Get top 5 groups by total trade to keep chart readable
+    const groupTotals = new Map()
+    byYearGroup.forEach((r) => {
+      groupTotals.set(r.CommodityGroup, (groupTotals.get(r.CommodityGroup) || 0) + r.exports + r.imports)
+    })
+    const topGroups = new Set([...groupTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n))
+    return Array.from(byYearGroup.values())
+      .filter((r) => topGroups.has(r.CommodityGroup))
+      .map((r) => ({ year: r.year, value: r.exports - r.imports, series: r.CommodityGroup }))
+      .sort((a, b) => a.year - b.year || a.series.localeCompare(b.series))
+  }, [filteredCommodities, trendYearRange])
+
+  /* ── Rail vs Truck share by commodity group ─────────────────────── */
+  const modeByCommodity = useMemo(() => {
+    if (!filteredCommodities) return { data: [], keys: [] }
+    const byGroup = new Map()
+    filteredCommodities.forEach((d) => {
+      if (!d.CommodityGroup || !d.Mode) return
+      if (!byGroup.has(d.CommodityGroup)) byGroup.set(d.CommodityGroup, new Map())
+      const modes = byGroup.get(d.CommodityGroup)
+      modes.set(d.Mode, (modes.get(d.Mode) || 0) + (d.TradeValue || 0))
+    })
+    // Sort by total trade, take top 10
+    const sortedGroups = [...byGroup.entries()]
+      .map(([group, modes]) => {
+        let total = 0
+        modes.forEach((v) => { total += v })
+        return { group, modes, total }
+      })
+      .sort((a, b) => b.total - a.total)
+      .slice(0, 10)
+    // Determine keys (modes used)
+    const modeSet = new Set()
+    sortedGroups.forEach((g) => g.modes.forEach((_, m) => modeSet.add(m)))
+    const keys = [...modeSet].sort()
+    const data = sortedGroups.map((g) => {
+      const row = { group: g.group }
+      keys.forEach((k) => { row[k] = g.modes.get(k) || 0 })
+      return row
+    })
+    return { data, keys }
+  }, [filteredCommodities])
+
+  /* ── Weight-vs-Value bubble chart (imports only, where weight is reliable) ── */
+  const weightValueData = useMemo(() => {
+    if (!filteredCommodities) return []
+    const byGroup = new Map()
+    filteredCommodities.forEach((d) => {
+      if (!d.CommodityGroup) return
+      // Only use imports — export weight is unreported for most surface modes
+      if (d.TradeType !== 'Import') return
+      // Only include rows with valid weight
+      if (d.WeightLb == null || d.WeightLb <= 0) return
+      if (d.TradeValue == null || d.TradeValue <= 0) return
+      if (!byGroup.has(d.CommodityGroup)) byGroup.set(d.CommodityGroup, { value: 0, weight: 0 })
+      const row = byGroup.get(d.CommodityGroup)
+      row.value += d.TradeValue
+      row.weight += d.WeightLb
+    })
+    return Array.from(byGroup.entries())
+      .filter(([, r]) => r.weight > 0 && r.value > 0)
+      .map(([label, r]) => ({
+        label,
+        x: r.weight,
+        y: r.value,
+        valuePerLb: r.value / r.weight,
+        size: r.value,
+      }))
+      .sort((a, b) => b.size - a.size)
+  }, [filteredCommodities])
 
   /* ── Commodity detail table ──────────────────────────────────────── */
   const tableData = useMemo(() => {
@@ -555,6 +640,98 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
               <InsightCallout
                 finding="Texas's 14 border ports are not interchangeable. Laredo and Ysleta dominate manufacturing trade. Hidalgo/Pharr, Progreso, and Roma are the agricultural ports. Presidio is primarily a cattle crossing."
                 context="Infrastructure investments, inspection capacity, and trade disruption risks differ by port based on what they carry."
+              />
+            </div>
+          </div>
+        </SectionBlock>
+      )}
+
+      {/* Trade Balance by Commodity Group */}
+      {tradeBalanceByGroup.length > 0 && (
+        <SectionBlock>
+          <div className="max-w-7xl mx-auto">
+            <ChartCard
+              title={`Trade Balance by Commodity Group${subsetLabel}`}
+              subtitle="Exports minus imports per group — positive = surplus (Texas exports more), negative = deficit (Mexico ships more)"
+              headerRight={
+                <YearRangeFilter years={allCommodityYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />
+              }
+            >
+              <LineChart
+                data={tradeBalanceByGroup}
+                xKey="year"
+                yKey="value"
+                seriesKey="series"
+                formatValue={formatCurrency}
+                annotations={ANNOTATIONS}
+                allowNegativeY
+              />
+            </ChartCard>
+            <div className="mt-4">
+              <InsightCallout
+                finding="Transportation Equipment drives the trade deficit — Mexico sends far more finished vehicles north than Texas sends parts south. Meanwhile, Mineral Products (energy) is Texas's strongest surplus category."
+                context="Breaking the deficit by commodity reveals it is concentrated in manufacturing, not spread evenly."
+                icon={TrendingDown}
+                variant="warning"
+              />
+            </div>
+          </div>
+        </SectionBlock>
+      )}
+
+      {/* Rail vs Truck Mode Share by Commodity */}
+      {modeByCommodity.data.length > 0 && (
+        <SectionBlock alt>
+          <div className="max-w-7xl mx-auto">
+            <ChartCard
+              title={`Mode of Transport by Commodity Group${subsetLabel}`}
+              subtitle="How each commodity group moves across the border — truck, rail, pipeline, or other"
+            >
+              <StackedBarChart
+                data={modeByCommodity.data}
+                xKey="group"
+                stackKeys={modeByCommodity.keys}
+                formatValue={formatCurrency}
+              />
+            </ChartCard>
+            <div className="mt-4">
+              <InsightCallout
+                finding="While truck dominates overall (~83%), the mode split varies dramatically by commodity. Mineral Products moves mostly by pipeline, while Vegetable Products once split between truck and rail has shifted almost entirely to truck."
+                context="Rail is consolidating around bulk commodities while losing manufactured goods to truck — a hidden shift beneath the stable overall mode split."
+                icon={Truck}
+              />
+            </div>
+          </div>
+        </SectionBlock>
+      )}
+
+      {/* Weight-vs-Value Bubble Chart */}
+      {weightValueData.length > 0 && (
+        <SectionBlock>
+          <div className="max-w-7xl mx-auto">
+            <ChartCard
+              title={`Weight vs. Value: Two Economies at the Border${subsetLabel}`}
+              subtitle="Each bubble is a commodity group (imports only, where weight is reliably reported). Bubble size = total value."
+            >
+              <ScatterPlot
+                data={weightValueData}
+                xKey="x"
+                yKey="y"
+                labelKey="label"
+                sizeKey="size"
+                formatX={(v) => `${(v / 1e9).toFixed(0)}B lb`}
+                formatY={formatCurrency}
+                xLabel="Total Weight (lb)"
+                yLabel="Total Trade Value ($)"
+                labelThreshold={6}
+                scaleType="symlog"
+              />
+            </ChartCard>
+            <div className="mt-4">
+              <InsightCallout
+                finding="Two very different economies cross the border. Precious Metals & Stones are worth ~$1M per pound. Mineral Products are worth ~$0.14 per pound. A single truck carrying semiconductor equipment from Ysleta can be worth more than an entire train of gravel from Brownsville."
+                context="Uses import data only — BTS does not report weight for most export modes. Commodity groups with missing weight data are excluded."
+                variant="highlight"
               />
             </div>
           </div>

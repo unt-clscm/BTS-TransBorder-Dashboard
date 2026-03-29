@@ -330,7 +330,8 @@ export default function USMexicoPage() {
           U.S.&ndash;Mexico TransBorder Freight
         </h2>
         <p className="text-white/70 mt-2 text-base">
-          Surface trade between the United States and Mexico through border ports of entry
+          The U.S. and Mexico trade over $840 billion annually — more than most countries' entire GDP.
+          Surface trade flows through border ports of entry across Texas, California, Arizona, and New Mexico
           (2007&ndash;{latestYear || '...'}).
         </p>
       </div>

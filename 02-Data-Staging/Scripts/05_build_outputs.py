@@ -1,7 +1,7 @@
 """
 05_build_outputs.py -- Generate chart-driven dashboard JSON + CSV files from SQLite DB.
 
-Produces 10 datasets in two formats (JSON + CSV) in 03-Processed-Data/.
+Produces 14 datasets in two formats (JSON + CSV) in 03-Processed-Data/.
 Each dataset draws from exactly ONE DOT table -- no joins between tables.
 Datasets are designed to serve specific Phase 3 dashboard charts.
 
@@ -512,6 +512,30 @@ def build_monthly_trends(conn):
     return run_query(conn, sql)
 
 
+def build_monthly_commodity_trends(conn):
+    """Dataset 14: Monthly commodity trends by group. Source: DOT2, Mexico only, 2007+.
+
+    Charts: Seasonal commodity patterns (vegetables peak in winter, energy stable).
+    Aggregated by Year/Month/CommodityGroup/Mode/TradeType to keep size manageable.
+    """
+    sql = f"""
+        SELECT
+            "Year",
+            "Month",
+            "CommodityGroup",
+            "Mode",
+            COALESCE("TradeType", 'Unknown') AS "TradeType",
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight"
+        FROM dot2_state_commodity
+        WHERE "Country" = 'Mexico' AND "Year" >= {MODERN_START_YEAR} AND "Month" IS NOT NULL
+        GROUP BY "Year", "Month", "CommodityGroup", "Mode", COALESCE("TradeType", 'Unknown')
+        ORDER BY "Year", "Month", "CommodityGroup", "Mode", "TradeType"
+    """
+    return run_query(conn, sql)
+
+
 def main():
     if not DB_PATH.exists():
         print(f"ERROR: Database not found: {DB_PATH}")
@@ -547,6 +571,7 @@ def main():
         ("od_state_flows", lambda: build_od_state_flows(conn)),
         ("od_canada_prov_flows", lambda: build_od_canada_prov_flows(conn)),
         ("texas_od_state_flows", lambda: build_texas_od_state_flows(conn, tx_ports)),
+        ("monthly_commodity_trends", lambda: build_monthly_commodity_trends(conn)),
     ]
 
     print("Building datasets...")

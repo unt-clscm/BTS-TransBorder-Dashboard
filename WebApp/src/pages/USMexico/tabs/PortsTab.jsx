@@ -10,7 +10,6 @@ import { usePortCoordinates, buildMapPorts } from '@/hooks/usePortMapData'
 import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import LineChart from '@/components/charts/LineChart'
-import DonutChart from '@/components/charts/DonutChart'
 import BarChart from '@/components/charts/BarChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
@@ -280,7 +279,7 @@ export default function PortsTab({
             subtitle={`Distribution of ${metricLabel.toLowerCase()} across transportation modes`}
             downloadData={{ summary: { data: modeDonutData, filename: 'us-mexico-trade-by-mode', columns: DL.modeRank } }}
           >
-            <DonutChart data={modeDonutData} nameKey="label" valueKey="value" formatValue={fmtValue} />
+            <BarChart data={modeDonutData} xKey="label" yKey="value" horizontal formatValue={fmtValue} colorAccessor={(d) => CHART_COLORS[modeDonutData.indexOf(d) % CHART_COLORS.length]} />
           </ChartCard>
           <ChartCard
             title="Mode Composition by Year"

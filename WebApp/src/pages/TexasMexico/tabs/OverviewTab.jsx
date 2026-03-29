@@ -6,9 +6,8 @@ import { useMemo } from 'react'
 import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import LineChart from '@/components/charts/LineChart'
-import DonutChart from '@/components/charts/DonutChart'
 import BarChart from '@/components/charts/BarChart'
-import { formatCurrency } from '@/lib/chartColors'
+import { CHART_COLORS, formatCurrency } from '@/lib/chartColors'
 import { DL } from '@/lib/downloadColumns'
 
 const HISTORICAL_ANNOTATIONS = [
@@ -84,11 +83,13 @@ export default function OverviewTab({ filteredPorts, filteredPortsNoYear, latest
 
           <ChartCard title="Trade by Mode" subtitle="All selected years combined"
             downloadData={{ summary: { data: tradeByMode, filename: 'tx-mx-trade-by-mode', columns: DL.modeRank } }}>
-            <DonutChart
+            <BarChart
               data={tradeByMode}
-              nameKey="label"
-              valueKey="value"
+              xKey="label"
+              yKey="value"
+              horizontal
               formatValue={formatCurrency}
+              colorAccessor={(d) => CHART_COLORS[tradeByMode.indexOf(d) % CHART_COLORS.length]}
             />
           </ChartCard>
         </div>

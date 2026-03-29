@@ -9,11 +9,10 @@ import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import BarChart from '@/components/charts/BarChart'
 import LineChart from '@/components/charts/LineChart'
-import DonutChart from '@/components/charts/DonutChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import PortMap from '@/components/maps/PortMap'
-import { formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel, getDataSubsetLabel, isSurfaceExport, hasSurfaceExports, isAllSurfaceExports } from '@/lib/chartColors'
+import { CHART_COLORS, formatCurrency, formatNumber, formatWeight, getMetricField, getMetricFormatter, getMetricLabel, getDataSubsetLabel, isSurfaceExport, hasSurfaceExports, isAllSurfaceExports } from '@/lib/chartColors'
 import WeightCaveatBanner from '@/components/ui/WeightCaveatBanner'
 import YearRangeFilter from '@/components/filters/YearRangeFilter'
 import TopNSelector from '@/components/filters/TopNSelector'
@@ -382,7 +381,7 @@ export default function PortsTab({
           </ChartCard>
           <ChartCard title={`Trade by Mode${subsetLabel}`} subtitle="All selected years combined"
             downloadData={{ summary: { data: tradeByMode, filename: 'tx-mx-trade-by-mode', columns: DL.modeRank } }}>
-            <DonutChart data={tradeByMode} nameKey="label" valueKey="value" formatValue={fmtValue} />
+            <BarChart data={tradeByMode} xKey="label" yKey="value" horizontal formatValue={fmtValue} colorAccessor={(d) => CHART_COLORS[tradeByMode.indexOf(d) % CHART_COLORS.length]} />
           </ChartCard>
         </div>
       </SectionBlock>

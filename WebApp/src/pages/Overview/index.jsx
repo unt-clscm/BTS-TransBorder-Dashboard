@@ -6,7 +6,7 @@ import {
   Globe, Map as MapIcon, Scale, ArrowUpDown, Lightbulb,
 } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
-import { formatCurrency, formatWeight, getMetricField, getMetricFormatter, getMetricLabel, hasSurfaceExports, isAllSurfaceExports } from '@/lib/chartColors'
+import { CHART_COLORS, formatCurrency, formatWeight, getMetricField, getMetricFormatter, getMetricLabel, hasSurfaceExports, isAllSurfaceExports } from '@/lib/chartColors'
 import { generateInsights } from '@/lib/insightEngine'
 import MetricToggle from '@/components/filters/MetricToggle'
 import YearRangeFilter from '@/components/filters/YearRangeFilter'
@@ -19,7 +19,7 @@ import SectionBlock from '@/components/ui/SectionBlock'
 import ChartCard from '@/components/ui/ChartCard'
 import StatCard from '@/components/ui/StatCard'
 import LineChart from '@/components/charts/LineChart'
-import DonutChart from '@/components/charts/DonutChart'
+import BarChart from '@/components/charts/BarChart'
 import StackedBarChart from '@/components/charts/StackedBarChart'
 import ChoroplethPortMap from '@/components/maps/ChoroplethPortMap'
 import { DL, PAGE_TRANSBORDER_COLS } from '@/lib/downloadColumns'
@@ -643,11 +643,13 @@ export default function OverviewPage() {
               summary: { data: modeData, filename: 'trade-by-mode', columns: DL.modeRank },
             }}
           >
-            <DonutChart
+            <BarChart
               data={modeData}
-              nameKey="label"
-              valueKey="value"
+              xKey="label"
+              yKey="value"
+              horizontal
               formatValue={fmtValue}
+              colorAccessor={(d) => CHART_COLORS[modeData.indexOf(d) % CHART_COLORS.length]}
             />
           </ChartCard>
 

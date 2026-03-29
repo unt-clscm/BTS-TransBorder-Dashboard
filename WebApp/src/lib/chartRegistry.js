@@ -95,9 +95,9 @@ export const CHART_REGISTRY = {
     'trade-by-mode': {
       title: 'Trade by Mode',
       dataset: 'usTransborder',
-      chartType: 'DonutChart',
+      chartType: 'BarChart',
       build: (rows) => ({ data: buildModeDonut(rows, getLatestYear(rows)) }),
-      props: { nameKey: 'label', valueKey: 'value', formatValue: formatCurrency },
+      props: { xKey: 'label', yKey: 'value', horizontal: true, formatValue: formatCurrency },
     },
     'country-share': {
       title: 'Canada vs Mexico Trade Share',

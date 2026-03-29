@@ -36,7 +36,7 @@ const TAB_CONFIG = [
 
 export default function USMexicoPage() {
   const {
-    usTransborder, usMexicoPorts, commodityDetail,
+    usTransborder, usMexicoPorts, commodityDetail, stateCommodityTrade,
     usStateTrade, mexicanStateTrade, odStateFlows,
     loading, datasetErrors, loadDataset,
   } = useTransborderStore()
@@ -70,6 +70,7 @@ export default function USMexicoPage() {
     if (activeTab === 'states') {
       loadDataset('usStateTrade')
       loadDataset('mexicanStateTrade')
+      loadDataset('stateCommodityTrade')
     }
     if (activeTab === 'flows') loadDataset('odStateFlows')
   }, [activeTab, loadDataset])
@@ -435,6 +436,7 @@ export default function USMexicoPage() {
           <StatesTab
             usStateTrade={usStateTrade}
             mexicanStateTrade={mexicanStateTrade}
+            stateCommodityTrade={stateCommodityTrade}
             loadDataset={loadDataset}
             latestYear={latestYear}
             yearFilter={yearFilter}

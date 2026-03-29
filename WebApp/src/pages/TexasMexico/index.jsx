@@ -37,8 +37,8 @@ const TAB_CONFIG = [
 
 export default function TexasMexicoPage() {
   const {
-    texasMexicoPorts, texasMexicoCommodities, monthlyTrends,
-    texasMexicanStateTrade, texasOdStateFlows,
+    texasMexicoPorts, texasMexicoCommodities, monthlyTrends, monthlyCommodityTrends,
+    texasMexicanStateTrade, texasOdStateFlows, commodityMexstateTrade,
     loading, datasetErrors, loadDataset,
   } = useTransborderStore()
 
@@ -83,11 +83,15 @@ export default function TexasMexicoPage() {
   useEffect(() => { loadDataset('texasMexicoPorts') }, [loadDataset])
 
   useEffect(() => {
-    if (activeTab === 'commodities') loadDataset('texasMexicoCommodities')
+    if (activeTab === 'commodities') {
+      loadDataset('texasMexicoCommodities')
+      loadDataset('monthlyCommodityTrends')
+    }
     if (activeTab === 'ports') loadDataset('monthlyTrends')
     if (activeTab === 'states') {
       loadDataset('texasMexicanStateTrade')
       loadDataset('texasOdStateFlows')
+      loadDataset('commodityMexstateTrade')
     }
     if (activeTab === 'flows') loadDataset('texasOdStateFlows')
   }, [activeTab, loadDataset])
@@ -423,6 +427,7 @@ export default function TexasMexicoPage() {
         <div role="tabpanel" id="txmx-freight-tab-panel-commodities" aria-labelledby="txmx-freight-tab-commodities">
           <CommoditiesTab
             filteredCommodities={filteredCommodities}
+            monthlyCommodityTrends={monthlyCommodityTrends}
             loadDataset={loadDataset}
             latestYear={latestYear}
             datasetError={datasetErrors.texasMexicoCommodities}
@@ -453,6 +458,7 @@ export default function TexasMexicoPage() {
           <StatesTab
             texasMexicanStateTrade={texasMexicanStateTrade}
             texasOdStateFlows={texasOdStateFlows}
+            commodityMexstateTrade={commodityMexstateTrade}
             loadDataset={loadDataset}
             latestYear={latestYear}
             yearFilter={yearFilter}

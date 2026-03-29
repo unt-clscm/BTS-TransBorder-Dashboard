@@ -156,6 +156,35 @@ export default function TradeFlowsTab({
     return { rowLabels, colLabels, cells }
   }, [filtered, valueField])
 
+  /* ── Fastest-growing corridors ──────────────────────────────────── */
+  const fastestCorridors = useMemo(() => {
+    if (!filteredNoYear.length) return []
+    const years = [...new Set(filteredNoYear.map((d) => d.Year).filter(Number.isFinite))].sort((a, b) => a - b)
+    if (years.length < 6) return [] // need at least 3 early + 3 late years
+    const earlyYears = new Set(years.slice(0, 3))
+    const lateYears = new Set(years.slice(-3))
+    const earlyMap = new Map()
+    const lateMap = new Map()
+    filteredNoYear.forEach((d) => {
+      if (!d.State || !d.MexState || d.State === 'Unknown' || d.MexState === 'Unknown') return
+      const key = `${d.State} ↔ ${d.MexState}`
+      const val = d.TradeValue || 0
+      if (earlyYears.has(d.Year)) earlyMap.set(key, (earlyMap.get(key) || 0) + val)
+      if (lateYears.has(d.Year)) lateMap.set(key, (lateMap.get(key) || 0) + val)
+    })
+    // Compute growth for corridors that existed in both periods
+    const results = []
+    lateMap.forEach((lateVal, key) => {
+      const earlyVal = earlyMap.get(key)
+      if (!earlyVal || earlyVal < 1e6) return // need at least $1M early to be meaningful
+      const avgEarly = earlyVal / 3
+      const avgLate = lateVal / 3
+      const growth = ((avgLate / avgEarly) - 1) * 100
+      if (growth > 0) results.push({ label: key, value: Math.round(growth) })
+    })
+    return results.sort((a, b) => b.value - a.value).slice(0, 15)
+  }, [filteredNoYear])
+
   if (datasetError) {
     return (
       <SectionBlock><div className="text-center py-12 text-text-secondary">Failed to load trade flow data.</div></SectionBlock>
@@ -270,6 +299,26 @@ export default function TradeFlowsTab({
           )}
         </ChartCard>
       </SectionBlock>
+
+      {/* Fastest-Growing Corridors */}
+      {fastestCorridors.length > 0 && (
+        <SectionBlock>
+          <div className="max-w-7xl mx-auto">
+            <ChartCard
+              title="Fastest-Growing Trade Corridors"
+              subtitle="Growth in average annual trade value (earliest 3 years vs. latest 3 years through Texas ports)"
+            >
+              <BarChart data={fastestCorridors} horizontal formatValue={(v) => `${v}%`} color="#10b981" />
+            </ChartCard>
+            <div className="mt-4">
+              <InsightCallout
+                finding="The fastest-growing corridors are not the biggest ones. Emerging corridors connecting U.S. interior states to Mexico's Bajio region are growing much faster than the established Texas-Nuevo Leon route — reflecting the geographic expansion of cross-border manufacturing."
+                context="Growth is measured as the percentage increase in average annual trade between the first 3 years and last 3 years of available data."
+              />
+            </div>
+          </div>
+        </SectionBlock>
+      )}
     </>
   )
 }

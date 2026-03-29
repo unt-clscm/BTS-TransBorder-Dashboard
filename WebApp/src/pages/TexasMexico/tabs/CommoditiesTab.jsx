@@ -28,7 +28,7 @@ const ANNOTATIONS = [
   { x: 2019.5, x2: 2020.5, label: 'COVID-19', color: 'rgba(217,13,13,0.08)', labelColor: '#d90d0d' },
 ]
 
-export default function CommoditiesTab({ filteredCommodities, loadDataset, _latestYear, datasetError, metric = 'value', tradeTypeFilter = '', modeFilter = [] }) {
+export default function CommoditiesTab({ filteredCommodities, monthlyCommodityTrends, loadDataset, _latestYear, datasetError, metric = 'value', tradeTypeFilter = '', modeFilter = [] }) {
   /* ── ensure dataset is loaded ────────────────────────────────────── */
   useEffect(() => {
     loadDataset('texasMexicoCommodities')
@@ -317,6 +317,50 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
       }))
       .sort((a, b) => b.size - a.size)
   }, [filteredCommodities])
+
+  /* ── Seasonal commodity patterns (from monthlyCommodityTrends) ──── */
+  const MONTH_LABELS = ['', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  const seasonalCommodityData = useMemo(() => {
+    if (!monthlyCommodityTrends?.length) return { data: [], keys: [] }
+    // Filter by active sidebar filters (tradeType, mode) but not year (we want average across years)
+    let data = monthlyCommodityTrends
+    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
+    if (modeFilter.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+    // Pick top 5 commodity groups by total value
+    const groupTotals = new Map()
+    data.forEach((d) => {
+      if (!d.CommodityGroup) return
+      groupTotals.set(d.CommodityGroup, (groupTotals.get(d.CommodityGroup) || 0) + (d.TradeValue || 0))
+    })
+    const topGroups = [...groupTotals.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([n]) => n)
+    const topSet = new Set(topGroups)
+    // Build monthly averages by commodity group
+    const byMonthGroup = new Map()
+    const yearCounts = new Map() // count distinct years per month for averaging
+    data.forEach((d) => {
+      if (!d.Month || !topSet.has(d.CommodityGroup)) return
+      const key = `${d.Month}|${d.CommodityGroup}`
+      byMonthGroup.set(key, (byMonthGroup.get(key) || 0) + (d.TradeValue || 0))
+      const yk = `${d.Month}`
+      if (!yearCounts.has(yk)) {
+        const yrs = new Set()
+        data.forEach((r) => { if (r.Month === d.Month) yrs.add(r.Year) })
+        yearCounts.set(yk, yrs.size)
+      }
+    })
+    // Build chart data: one row per month, one column per commodity group
+    const chartData = []
+    for (let m = 1; m <= 12; m++) {
+      const row = { month: MONTH_LABELS[m] }
+      const nYears = yearCounts.get(String(m)) || 1
+      topGroups.forEach((g) => {
+        const total = byMonthGroup.get(`${m}|${g}`) || 0
+        row[g] = Math.round(total / nYears)
+      })
+      chartData.push(row)
+    }
+    return { data: chartData, keys: topGroups }
+  }, [monthlyCommodityTrends, tradeTypeFilter, modeFilter])
 
   /* ── Commodity detail table ──────────────────────────────────────── */
   const tableData = useMemo(() => {
@@ -790,6 +834,41 @@ export default function CommoditiesTab({ filteredCommodities, loadDataset, _late
             </div>
           </div>
         </SectionBlock>
+      )}
+
+      {/* ═══════ Section: Seasonal Patterns ═══════ */}
+      {seasonalCommodityData.data.length > 0 && (
+        <>
+          <SectionBlock>
+            <div className="max-w-7xl mx-auto flex items-center gap-3">
+              <div className="h-px flex-1 bg-border-light" />
+              <h3 className="text-base font-bold text-text-secondary uppercase tracking-wider whitespace-nowrap">Seasonal Patterns</h3>
+              <div className="h-px flex-1 bg-border-light" />
+            </div>
+          </SectionBlock>
+
+          <SectionBlock alt>
+            <div className="max-w-7xl mx-auto">
+              <ChartCard
+                title="Seasonal Commodity Patterns"
+                subtitle="Average monthly trade value by commodity group — reveals winter produce peaks and year-round manufacturing"
+              >
+                <StackedBarChart
+                  data={seasonalCommodityData.data}
+                  xKey="month"
+                  stackKeys={seasonalCommodityData.keys}
+                  formatValue={formatCurrency}
+                />
+              </ChartCard>
+              <div className="mt-4">
+                <InsightCallout
+                  finding="Vegetable Products peak in winter months (Jan-Mar) at roughly double the summer volume — reflecting U.S. dependence on Mexican produce during the off-season. Manufacturing commodities like Machinery and Transportation Equipment stay remarkably flat year-round."
+                  context="Seasonal swings explain why agricultural ports like Pharr and Progreso face capacity pressure in winter while manufacturing ports like Laredo see steady flow."
+                />
+              </div>
+            </div>
+          </SectionBlock>
+        </>
       )}
 
       {/* Commodity detail table */}

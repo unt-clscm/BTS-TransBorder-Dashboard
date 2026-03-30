@@ -180,7 +180,7 @@ function LollipopChart({
         })
     })
 
-  }, [data, width, containerHeight, isFullscreen, xKey, yKey, color, colorAccessor, maxBars, animate, dotRadius, formatValue])
+  }, [data, width, containerHeight, isFullscreen, xKey, yKey, color, maxBars, animate, dotRadius, formatValue]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const displayCount = Math.min(data.length, maxBars)
   const minH = Math.max(220, displayCount * 52 + 24)

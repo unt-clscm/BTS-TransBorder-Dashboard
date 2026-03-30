@@ -86,7 +86,7 @@ export default function PortsTab({
       byMode.set(mode, (byMode.get(mode) || 0) + (d[valueField] || 0))
     })
     const top = [...byMode.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
-    return { total, top }
+    return { total, top, byMode }
   }, [filteredPorts, latestYear, valueField, showTexas])
 
   /* ── chart-level state ─────────────────────────────────────────────── */
@@ -154,6 +154,18 @@ export default function PortsTab({
       .filter((d) => d.value > 0)
       .sort((a, b) => b.value - a.value)
   }, [filteredSummary, latestYear, valueField])
+
+  /* ── Texas mode comparison ────────────────────────────────────────── */
+  const txModeCompareData = useMemo(() => {
+    if (!showTexas || !txModeBreakdown?.byMode || !modeDonutData.length) return []
+    return modeDonutData
+      .map((d) => {
+        const txVal = txModeBreakdown.byMode.get(d.label) || 0
+        const pct = d.value > 0 ? ((txVal / d.value) * 100).toFixed(0) : 0
+        return { label: d.label, value: txVal, pct }
+      })
+      .filter((d) => d.value > 0)
+  }, [showTexas, txModeBreakdown, modeDonutData])
 
   /* ── top N ports (horizontal bar) ──────────────────────────────────── */
   const topPortsData = useMemo(() => {
@@ -353,13 +365,14 @@ export default function PortsTab({
             <StackedBarChart data={modeByYearData.data} xKey="year" stackKeys={modeByYearData.stackKeys} formatY={getAxisFormatter(tradeMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} />
           </ChartCard>
         </div>
-        {showTexas && txModeBreakdown && txModeBreakdown.total > 0 && (
-          <div className="mt-4 max-w-7xl mx-auto">
-            <InsightCallout
-              finding={`Texas handles ${fmtValue(txModeBreakdown.total)} of U.S.-Mexico trade by ${metricLabel.toLowerCase()} (${(txOverlay.texasShare * 100).toFixed(0)}% of the national total). ${txModeBreakdown.top.length > 0 ? `Top mode: ${txModeBreakdown.top[0][0]} (${fmtValue(txModeBreakdown.top[0][1])}).` : ''}`}
-              icon={Star}
-              variant="texas"
-            />
+        {showTexas && txModeCompareData.length > 0 && (
+          <div className="mt-6">
+            <ChartCard
+              title={`Texas Contribution by Mode (${latestYear || '---'})`}
+              subtitle="Texas's share of each transportation mode — how much flows through Texas"
+            >
+              <BarChart data={txModeCompareData} xKey="label" yKey="value" horizontal color={TEXAS_COLOR} labelAccessor={(d) => `${fmtValue(d.value)} (${d.pct}%)`} />
+            </ChartCard>
           </div>
         )}
       </SectionBlock>

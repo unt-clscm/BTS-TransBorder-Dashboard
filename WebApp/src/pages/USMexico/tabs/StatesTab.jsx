@@ -298,27 +298,7 @@ export default function StatesTab({
     { key: 'Imports', label: 'Imports', render: (v) => fmtValue(v) },
   ]
 
-  const isLoading = !usStateTrade || !mexicanStateTrade
-
-  if (isLoading) {
-    return (
-      <SectionBlock>
-        <div className="flex items-center justify-center py-12">
-          <div className="w-8 h-8 border-3 border-brand-blue border-t-transparent rounded-full animate-spin" />
-          <span className="ml-3 text-text-secondary">Loading state trade data...</span>
-        </div>
-      </SectionBlock>
-    )
-  }
-
-  const usBarMax = Math.max(...usBarData.map((d) => d.value), 0)
-  const mxBarMax = Math.max(...mxBarData.map((d) => d.value), 0)
-  const usTrendMax = Math.max(...usStateTrends.map((d) => d.value), 0)
-  const mxTrendMax = Math.max(...mxStateTrends.map((d) => d.value), 0)
-  const axisPrefix = metric === 'weight' ? '' : '$'
-  const axisSuffix = metric === 'weight' ? ' lb' : ''
-
-  /* ── State-by-commodity specialization (top 5 states, top 5 groups) ── */
+  /* ── State-by-commodity specialization ── must be above early return for hook order */
   const stateSpecialization = useMemo(() => {
     if (!stateCommodityTrade?.length) return { data: [], keys: [] }
     let data = stateCommodityTrade.filter((d) => d.Country === 'Mexico')
@@ -361,6 +341,26 @@ export default function StatesTab({
     if (chartData.some((d) => d['Other'] > 0)) keys.push('Other')
     return { data: chartData, keys }
   }, [stateCommodityTrade, yearFilter, tradeTypeFilter, modeFilter])
+
+  const isLoading = !usStateTrade || !mexicanStateTrade
+
+  if (isLoading) {
+    return (
+      <SectionBlock>
+        <div className="flex items-center justify-center py-12">
+          <div className="w-8 h-8 border-3 border-brand-blue border-t-transparent rounded-full animate-spin" />
+          <span className="ml-3 text-text-secondary">Loading state trade data...</span>
+        </div>
+      </SectionBlock>
+    )
+  }
+
+  const usBarMax = Math.max(...usBarData.map((d) => d.value), 0)
+  const mxBarMax = Math.max(...mxBarData.map((d) => d.value), 0)
+  const usTrendMax = Math.max(...usStateTrends.map((d) => d.value), 0)
+  const mxTrendMax = Math.max(...mxStateTrends.map((d) => d.value), 0)
+  const axisPrefix = metric === 'weight' ? '' : '$'
+  const axisSuffix = metric === 'weight' ? ' lb' : ''
 
   return (
     <>

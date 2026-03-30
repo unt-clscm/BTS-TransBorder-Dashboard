@@ -242,7 +242,7 @@ function TradeByStateInner({ data }) {
     >
       {/* Stat Cards */}
       <SectionBlock>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 grid-rows-[auto] items-start">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 grid-rows-[auto] items-start">
           <StatCard
             label={`Total Trade (${latestYear || '—'})`}
             value={formatCurrency(totalTrade)}

@@ -369,7 +369,7 @@ export default function PortsTab({
 
       {/* Trade Trends + Mode Donut (2-col) */}
       <SectionBlock alt>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <ChartCard title={`TX-MX Trade Trends${subsetLabelNoYear}`} subtitle={`Annual ${metricLabel.toLowerCase()} by direction`}
             headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}
             downloadData={{ summary: { data: tradeTrend, filename: 'tx-mx-trade-trends', columns: DL.tradeTrendSeries } }}>

@@ -550,7 +550,7 @@ export default function OverviewPage() {
           </div>
 
           {stats && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               <StatCard
                 label={`Total Trade (${latestYear})`}
                 value={stats.totalWeightNA ? 'N/A' : fmtValue(stats.totalLatest)}
@@ -593,7 +593,7 @@ export default function OverviewPage() {
               <h3 className="text-xl font-bold text-text-primary">Key Insights</h3>
               <span className="text-xs font-medium text-text-tertiary bg-surface-alt px-2 py-0.5 rounded-full">Based on full dataset</span>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
               {insights.map((ins, i) => {
                 const IconComp = ICON_MAP[ins.icon] || Lightbulb
                 return (
@@ -665,7 +665,7 @@ export default function OverviewPage() {
           <Layers size={20} className="text-brand-blue" />
           <h3 className="text-xl font-bold text-text-primary">Trade Composition</h3>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <ChartCard
             title={`${modeCountry || 'All'} Trade by Mode (${latestYear || ''})`}
             subtitle={`Share of total ${metricLabel.toLowerCase()} by transportation mode`}

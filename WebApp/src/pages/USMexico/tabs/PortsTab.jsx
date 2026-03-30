@@ -336,7 +336,7 @@ export default function PortsTab({
 
       {/* Trade by Mode */}
       <SectionBlock alt>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           <ChartCard
             title={`Trade by Mode (${latestYear || '---'})`}
             subtitle={`Distribution of ${metricLabel.toLowerCase()} across transportation modes`}
@@ -447,7 +447,7 @@ export default function PortsTab({
                 <Globe size={20} className="text-brand-blue" />
                 <h3 className="text-xl font-bold text-text-primary">Logistics Structure</h3>
               </div>
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <ChartCard title="Containerization Status" subtitle="Share of U.S.-Mexico trade by containerization — most surface freight moves non-containerized">
                   <DonutChart data={contDonutData} nameKey="label" valueKey="value" formatValue={formatCurrency} />
                 </ChartCard>

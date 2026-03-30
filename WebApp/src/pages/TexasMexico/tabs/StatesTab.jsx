@@ -400,7 +400,7 @@ export default function StatesTab({
 
       {/* Top 15 bar + Detail table side by side */}
       <SectionBlock>
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 max-w-7xl mx-auto">
           <ChartCard title={`Top ${stateTopN} Mexican States${subsetLabel}`} subtitle={`Ranked by ${metricLabel.toLowerCase()} through Texas ports`} headerRight={<TopNSelector value={stateTopN} onChange={setStateTopN} />}>
             <BarChart data={barData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(barMax, metric === 'weight' ? '' : '$')} color={CHART_COLORS[3]} />
           </ChartCard>

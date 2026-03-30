@@ -12,9 +12,10 @@
  *
  * Props:
  *   data         — OD rows filtered by tradeType/mode but NOT by year
- *                   [{ Year, State, MexState, PortCode, Port, TradeValue }]
+ *                   [{ Year, State, MexState, PortCode, Port, TradeValue, WeightLb }]
  *   yearFilter   — external year filter array from parent (used when not animating)
- *   formatValue  — currency formatter
+ *   valueField   — which field to aggregate ('TradeValue' or 'WeightLb')
+ *   formatValue  — value formatter (currency or weight)
  *   center, zoom — map positioning
  *   height       — CSS height
  */
@@ -348,6 +349,7 @@ function ChoroplethLayer({
 export default function TradeFlowChoropleth({
   data = [],
   yearFilter = [],
+  valueField = 'TradeValue',
   formatValue = formatCurrencyDefault,
   center = [30, -100],
   zoom = 4,
@@ -449,16 +451,16 @@ export default function TradeFlowChoropleth({
   /* ── aggregate: US state totals ────────────────────────────────── */
   const usStateData = useMemo(() => {
     const m = new Map()
-    filtered.forEach((d) => { if (d.State) m.set(d.State, (m.get(d.State) || 0) + (d.TradeValue || 0)) })
+    filtered.forEach((d) => { if (d.State) m.set(d.State, (m.get(d.State) || 0) + (d[valueField] || 0)) })
     return Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
-  }, [filtered])
+  }, [filtered, valueField])
 
   /* ── aggregate: MX state totals ────────────────────────────────── */
   const mxStateData = useMemo(() => {
     const m = new Map()
-    filtered.forEach((d) => { if (d.MexState) m.set(d.MexState, (m.get(d.MexState) || 0) + (d.TradeValue || 0)) })
+    filtered.forEach((d) => { if (d.MexState) m.set(d.MexState, (m.get(d.MexState) || 0) + (d[valueField] || 0)) })
     return Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value)
-  }, [filtered])
+  }, [filtered, valueField])
 
   /* ── port bubble data ──────────────────────────────────────────── */
   const portData = useMemo(() => {
@@ -473,14 +475,14 @@ export default function TradeFlowChoropleth({
     const mxToUs = new Map()
     filtered.forEach((d) => {
       if (!d.State || !d.MexState) return
-      const v = d.TradeValue || 0
+      const v = d[valueField] || 0
       if (!usToMx.has(d.State)) usToMx.set(d.State, new Map())
       const um = usToMx.get(d.State); um.set(d.MexState, (um.get(d.MexState) || 0) + v)
       if (!mxToUs.has(d.MexState)) mxToUs.set(d.MexState, new Map())
       const mu = mxToUs.get(d.MexState); mu.set(d.State, (mu.get(d.State) || 0) + v)
     })
     return { usToMx, mxToUs }
-  }, [filtered])
+  }, [filtered, valueField])
 
   /* ── port flows ────────────────────────────────────────────────── */
   const portFlows = useMemo(() => {
@@ -489,12 +491,12 @@ export default function TradeFlowChoropleth({
     filtered.forEach((d) => {
       if (!d.PortCode) return
       const code = d.PortCode.replace(/\D/g, '')
-      const v = d.TradeValue || 0
+      const v = d[valueField] || 0
       if (d.State) { if (!portToUs.has(code)) portToUs.set(code, new Map()); const m = portToUs.get(code); m.set(d.State, (m.get(d.State) || 0) + v) }
       if (d.MexState) { if (!portToMx.has(code)) portToMx.set(code, new Map()); const m = portToMx.get(code); m.set(d.MexState, (m.get(d.MexState) || 0) + v) }
     })
     return { portToUs, portToMx }
-  }, [filtered])
+  }, [filtered, valueField])
 
   /* ── state-to-port-to-state flows (for "via ports" mode) ───────── */
   const statePortFlows = useMemo(() => {
@@ -505,7 +507,7 @@ export default function TradeFlowChoropleth({
     filtered.forEach((d) => {
       if (!d.State || !d.MexState || !d.PortCode) return
       const code = d.PortCode.replace(/\D/g, '')
-      const v = d.TradeValue || 0
+      const v = d[valueField] || 0
 
       if (!usVia.has(d.State)) usVia.set(d.State, new Map())
       const up = usVia.get(d.State)
@@ -522,7 +524,7 @@ export default function TradeFlowChoropleth({
       mpEntry.usPartners.set(d.State, (mpEntry.usPartners.get(d.State) || 0) + v)
     })
     return { usVia, mxVia }
-  }, [filtered])
+  }, [filtered, valueField])
 
   /* ── selection-based highlighting ──────────────────────────────── */
   const { highlightedUS, highlightedMX, highlightedPorts, dynamicUSValues, dynamicMXValues } = useMemo(() => {

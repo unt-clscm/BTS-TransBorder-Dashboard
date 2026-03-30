@@ -170,7 +170,7 @@ export default function TradeFlowsTab({
     filteredNoYear.forEach((d) => {
       if (!d.State || !d.MexState || d.State === 'Unknown' || d.MexState === 'Unknown') return
       const key = `${d.State} ↔ ${d.MexState}`
-      const val = d.TradeValue || 0
+      const val = d[valueField] || 0
       if (earlyYears.has(d.Year)) earlyMap.set(key, (earlyMap.get(key) || 0) + val)
       if (lateYears.has(d.Year)) lateMap.set(key, (lateMap.get(key) || 0) + val)
     })
@@ -178,14 +178,14 @@ export default function TradeFlowsTab({
     const results = []
     lateMap.forEach((lateVal, key) => {
       const earlyVal = earlyMap.get(key)
-      if (!earlyVal || earlyVal < 1e6) return // need at least $1M early to be meaningful
+      if (!earlyVal || earlyVal < 1e6) return // need meaningful baseline
       const avgEarly = earlyVal / 3
       const avgLate = lateVal / 3
       const growth = ((avgLate / avgEarly) - 1) * 100
       if (growth > 0) results.push({ label: key, value: Math.round(growth) })
     })
     return results.sort((a, b) => b.value - a.value).slice(0, 15)
-  }, [filteredNoYear])
+  }, [filteredNoYear, valueField])
 
   if (datasetError) {
     return (
@@ -255,6 +255,8 @@ export default function TradeFlowsTab({
             <TradeFlowChoropleth
               data={filteredNoYear}
               yearFilter={mapYear ? [mapYear] : []}
+              valueField={valueField}
+              formatValue={fmtValue}
               center={[28, -100]}
               zoom={5}
               height="580px"

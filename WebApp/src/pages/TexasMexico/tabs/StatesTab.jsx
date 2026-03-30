@@ -233,7 +233,7 @@ export default function StatesTab({
       const st = d.MexState || 'Unknown'
       const key = `${d.Year}|${st}`
       if (!byYearState.has(key)) byYearState.set(key, { year: d.Year, state: st, value: 0 })
-      byYearState.get(key).value += d.TradeValue || 0
+      byYearState.get(key).value += d[valueField] || 0
     })
     const years = [...new Set(filteredNoYear.map((d) => d.Year))].sort((a, b) => a - b)
     if (years.length < 4) return []
@@ -257,7 +257,7 @@ export default function StatesTab({
       .filter((d) => d.value > 0 && d.value < 10000)
       .sort((a, b) => b.value - a.value)
       .slice(0, growthTopN)
-  }, [filteredNoYear, growthTopN])
+  }, [filteredNoYear, growthTopN, valueField])
 
   const tableColumns = [
     { key: 'State', label: 'Mexican State' },

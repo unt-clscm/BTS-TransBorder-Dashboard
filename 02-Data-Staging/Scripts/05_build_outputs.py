@@ -82,15 +82,20 @@ def load_texas_border_ports():
     return port_set, region_map
 
 
-def load_port_state_map():
-    """Load port-code → US state mapping from Schedule D port codes.
+BORDER_STATES = {"TX": "Texas", "CA": "California", "AZ": "Arizona", "NM": "New Mexico"}
 
-    Returns dict like {"2304": "TX", "2501": "CA", ...}.
+
+def load_port_state_map():
+    """Load port-code → border state name mapping from Schedule D port codes.
+
+    Only maps ports in the four US-Mexico border states (TX, CA, AZ, NM)
+    to their full state names. Non-border-state ports get empty string.
     """
     path = CONFIG_DIR / "schedule_d_port_codes.json"
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    return {k: v.get("state", "") for k, v in data.items() if not k.startswith("_")}
+    return {k: BORDER_STATES.get(v.get("state", ""), "")
+            for k, v in data.items() if not k.startswith("_")}
 
 
 def run_query(conn, sql):

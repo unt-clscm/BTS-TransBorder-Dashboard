@@ -343,27 +343,24 @@ export default function USMexicoPage() {
           <div className="flex flex-col gap-1 min-w-0 w-full">
             <span className="text-base font-medium text-text-secondary uppercase tracking-wider">State (Port)</span>
             <div className="flex flex-wrap gap-1.5">
-              {[{ abbr: 'TX', name: 'Texas' }, { abbr: 'CA', name: 'California' }, { abbr: 'AZ', name: 'Arizona' }, { abbr: 'NM', name: 'New Mexico' }].map(({ abbr, name }) => (
+              {['Texas', 'California', 'Arizona', 'New Mexico'].map((bs) => (
                 <button
-                  key={abbr}
+                  key={bs}
                   type="button"
                   onClick={() => setPortStateFilter((prev) =>
-                    prev.includes(abbr) ? prev.filter((s) => s !== abbr) : [...prev, abbr]
+                    prev.includes(bs) ? prev.filter((s) => s !== bs) : [...prev, bs]
                   )}
                   className={`px-2.5 py-1 rounded-full text-sm font-medium border transition-colors ${
-                    portStateFilter.includes(abbr)
+                    portStateFilter.includes(bs)
                       ? 'bg-brand-blue text-white border-brand-blue'
                       : 'bg-white text-text-secondary border-border-light hover:border-brand-blue/40'
                   }`}
                 >
-                  {name}
+                  {bs}
                 </button>
               ))}
             </div>
           </div>
-          {portStateOptions.length > 0 && (
-            <FilterMultiSelect label="State (Port)" value={portStateFilter} options={portStateOptions} onChange={setPortStateFilter} searchable />
-          )}
           <FilterMultiSelect label={stateFilterLabel} value={stateFilter} options={stateOptions} onChange={setStateFilter} searchable />
           <FilterMultiSelect label="Port" value={portFilter} options={portOptions} onChange={setPortFilter} searchable />
         </>

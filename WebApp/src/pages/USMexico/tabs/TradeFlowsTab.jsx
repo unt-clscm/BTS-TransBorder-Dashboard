@@ -216,6 +216,7 @@ export default function TradeFlowsTab({
             <TradeFlowChoropleth
               data={filteredNoYear}
               yearFilter={yearFilter}
+              valueField={valueField}
               formatValue={fmtValue}
               center={[30, -100]}
               zoom={4}

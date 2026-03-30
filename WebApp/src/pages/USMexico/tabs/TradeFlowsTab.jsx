@@ -17,6 +17,8 @@ import SankeyDiagram from '@/components/charts/SankeyDiagram'
 import HeatmapTable from '@/components/charts/HeatmapTable'
 import TradeFlowChoropleth from '@/components/maps/TradeFlowChoropleth'
 import InsightCallout from '@/components/ui/InsightCallout'
+import { TEXAS_COLOR } from '@/hooks/useTexasOverlay'
+import { Star } from 'lucide-react'
 
 export default function TradeFlowsTab({
   odStateFlows,
@@ -29,6 +31,7 @@ export default function TradeFlowsTab({
   mexStateFilter,
   datasetError,
   metric = 'value',
+  showTexas = true,
 }) {
   useEffect(() => { loadDataset('odStateFlows') }, [loadDataset])
 
@@ -244,9 +247,29 @@ export default function TradeFlowsTab({
           subtitle={`Largest bilateral ${metricLabel.toLowerCase()} flows between U.S. and Mexican states`}
           headerRight={<TopNSelector value={topPairsN} onChange={setTopPairsN} />}
         >
-          <BarChart data={topPairsData} horizontal formatValue={fmtValue} maxBars={topPairsN} />
+          <BarChart data={topPairsData} horizontal formatValue={fmtValue} maxBars={topPairsN} colorAccessor={showTexas ? (d) => d.label?.startsWith('Texas ') ? TEXAS_COLOR : '#0056a9' : undefined} />
         </ChartCard>
       </SectionBlock>
+
+      {/* Texas context for trading partners */}
+      {showTexas && topPairsData.length > 0 && (() => {
+        const txPairs = topPairsData.filter((d) => d.label?.startsWith('Texas '))
+        if (!txPairs.length) return null
+        const txTotal = txPairs.reduce((s, d) => s + d.value, 0)
+        const allTotal = topPairsData.reduce((s, d) => s + d.value, 0)
+        const pct = allTotal > 0 ? ((txTotal / allTotal) * 100).toFixed(0) : 0
+        return (
+          <SectionBlock>
+            <div className="max-w-7xl mx-auto">
+              <InsightCallout
+                finding={`${txPairs.length} of the top ${topPairsData.length} bilateral trading pairs involve Texas (shown in burnt orange), representing ${pct}% of trade across these top corridors.`}
+                icon={Star}
+                variant="texas"
+              />
+            </div>
+          </SectionBlock>
+        )
+      })()}
 
       {/* Section 3: Trade Routes (Sankey Diagram) */}
       <SectionBlock alt>
@@ -259,6 +282,7 @@ export default function TradeFlowsTab({
             links={sankeyData.links}
             formatValue={fmtValue}
             height={550}
+            highlightNodes={showTexas ? new Set(['us-Texas']) : null}
           />
         </ChartCard>
       </SectionBlock>
@@ -270,7 +294,7 @@ export default function TradeFlowsTab({
           subtitle={`U.S. states (rows) vs. Mexican states (columns) — darker = higher ${metricLabel.toLowerCase()}`}
         >
           {heatmapData ? (
-            <HeatmapTable data={heatmapData} formatValue={fmtValue} />
+            <HeatmapTable data={heatmapData} formatValue={fmtValue} highlightRow={showTexas ? 'Texas' : null} />
           ) : (
             <div className="text-center py-8 text-text-secondary">No data to display.</div>
           )}

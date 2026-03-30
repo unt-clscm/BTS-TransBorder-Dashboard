@@ -16,7 +16,8 @@ import DataTable from '@/components/ui/DataTable'
 import InsightCallout from '@/components/ui/InsightCallout'
 import YearRangeFilter from '@/components/filters/YearRangeFilter'
 import TopNSelector from '@/components/filters/TopNSelector'
-import { Factory, ArrowRight } from 'lucide-react'
+import { Factory, ArrowRight, Star } from 'lucide-react'
+import { TEXAS_COLOR } from '@/hooks/useTexasOverlay'
 import { ANNOTATIONS_MODERN as HISTORICAL_ANNOTATIONS } from '@/lib/annotations'
 
 export default function CommoditiesTab({
@@ -25,6 +26,11 @@ export default function CommoditiesTab({
   latestYear,
   datasetError,
   metric = 'value',
+  showTexas = true,
+  stateCommodityTrade,
+  yearFilter,
+  tradeTypeFilter,
+  modeFilter,
 }) {
   const valueField = getMetricField(metric)
   const fmtValue = getMetricFormatter(metric)
@@ -39,6 +45,36 @@ export default function CommoditiesTab({
   const [divergingTopN, setDivergingTopN] = useState(12)
 
   useEffect(() => { loadDataset('commodityDetail') }, [loadDataset])
+
+  /* ── Texas commodity group shares (from stateCommodityTrade) ──────── */
+  const txCommodityGroupData = useMemo(() => {
+    if (!showTexas || !stateCommodityTrade?.length) return null
+    let data = stateCommodityTrade.filter((d) => d.Country === 'Mexico')
+    if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
+    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
+    if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+
+    const txByGroup = new Map()
+    const natByGroup = new Map()
+    data.forEach((d) => {
+      const grp = d.CommodityGroup || 'Other'
+      natByGroup.set(grp, (natByGroup.get(grp) || 0) + (d.TradeValue || 0))
+      if (d.State === 'Texas') txByGroup.set(grp, (txByGroup.get(grp) || 0) + (d.TradeValue || 0))
+    })
+
+    const txTotal = [...txByGroup.values()].reduce((s, v) => s + v, 0)
+    const natTotal = [...natByGroup.values()].reduce((s, v) => s + v, 0)
+    const topGroups = [...natByGroup.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5)
+      .map(([grp, nat]) => ({
+        group: grp,
+        national: nat,
+        texas: txByGroup.get(grp) || 0,
+        share: nat > 0 ? ((txByGroup.get(grp) || 0) / nat * 100).toFixed(0) : 0,
+      }))
+    return { txTotal, natTotal, share: natTotal > 0 ? txTotal / natTotal : 0, topGroups }
+  }, [showTexas, stateCommodityTrade, yearFilter, tradeTypeFilter, modeFilter])
 
   /* ── all years for trend range filter ─────────────────────────────── */
   const allCommodityYears = useMemo(() => {
@@ -265,6 +301,20 @@ export default function CommoditiesTab({
         </ChartCard>
       </SectionBlock>
 
+      {/* Texas commodity group context */}
+      {showTexas && txCommodityGroupData && txCommodityGroupData.topGroups.length > 0 && (
+        <SectionBlock>
+          <div className="max-w-7xl mx-auto">
+            <InsightCallout
+              finding={`Texas handles ${(txCommodityGroupData.share * 100).toFixed(0)}% of all U.S.-Mexico commodity trade. Top groups through Texas: ${txCommodityGroupData.topGroups.slice(0, 3).map((g) => `${g.group} (${g.share}%)`).join(', ')}.`}
+              context="Based on commodity group totals. Individual commodity breakdown is available on the Texas-Mexico page."
+              icon={Star}
+              variant="texas"
+            />
+          </div>
+        </SectionBlock>
+      )}
+
       {/* Top N Commodities */}
       <SectionBlock>
         <ChartCard
@@ -307,6 +357,15 @@ export default function CommoditiesTab({
                 icon={ArrowRight}
               />
             </div>
+            {showTexas && txCommodityGroupData && (
+              <div className="mt-4">
+                <InsightCallout
+                  finding={`Texas is the primary gateway for the maquiladora supply chain — it handles the bulk of cross-border manufacturing flows, particularly in Machinery & Electrical Equipment and Transportation Equipment.`}
+                  icon={Star}
+                  variant="texas"
+                />
+              </div>
+            )}
           </div>
         </SectionBlock>
       )}

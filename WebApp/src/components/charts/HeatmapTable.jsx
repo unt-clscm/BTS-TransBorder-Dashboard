@@ -36,6 +36,8 @@ function HeatmapTableInner({
   data = { rowLabels: [], colLabels: [], cells: [] },
   formatValue = fmtCompact,
   airportIndex,
+  highlightRow = null,  // Row label to highlight
+  highlightColor = '#bf5700',
 }) {
   const { rowLabels, colLabels, cells } = data
   const [hovered, setHovered] = useState(null) // { ri, ci } or null
@@ -150,6 +152,7 @@ function HeatmapTableInner({
         <tbody>
           {rowLabels.map((row, ri) => {
             const isRowHL = hovered?.ri === ri
+            const isTXRow = highlightRow && row === highlightRow
             return (
               <tr key={row}>
                 {/* Row header: sticky left */}
@@ -159,9 +162,9 @@ function HeatmapTableInner({
                     position: 'sticky',
                     left: 0,
                     zIndex: 10,
-                    backgroundColor: isRowHL ? HL_HEADER : STICKY_BG,
-                    color: isRowHL ? '#8B6914' : 'var(--color-text-primary)',
-                    fontWeight: isRowHL ? 700 : undefined,
+                    backgroundColor: isRowHL ? HL_HEADER : isTXRow ? `${highlightColor}15` : STICKY_BG,
+                    color: isRowHL ? '#8B6914' : isTXRow ? highlightColor : 'var(--color-text-primary)',
+                    fontWeight: isRowHL || isTXRow ? 700 : undefined,
                     transition: 'background-color 0.15s, color 0.15s',
                     boxShadow: isRowHL
                       ? `inset 0 2px 0 ${HL_BORDER}, inset 0 -2px 0 ${HL_BORDER}, inset -2px 0 0 ${HL_BORDER}`

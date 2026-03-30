@@ -18,7 +18,8 @@ import InsightCallout from '@/components/ui/InsightCallout'
 import PortMap from '@/components/maps/PortMap'
 import YearRangeFilter from '@/components/filters/YearRangeFilter'
 import TopNSelector from '@/components/filters/TopNSelector'
-import { TrendingDown, Globe } from 'lucide-react'
+import { TrendingDown, Globe, Star } from 'lucide-react'
+import { useTexasOverlay, useTexasPorts, TEXAS_COLOR, formatTexasShare } from '@/hooks/useTexasOverlay'
 import { DL, PAGE_PORT_COLS, PAGE_TRANSBORDER_COLS } from '@/lib/downloadColumns'
 import { ANNOTATIONS_MODERN as HISTORICAL_ANNOTATIONS } from '@/lib/annotations'
 
@@ -30,6 +31,7 @@ export default function PortsTab({
   containerizationTrade,
   latestYear,
   metric = 'value',
+  showTexas = true,
 }) {
   const { portCoords, portCoordsError } = usePortCoordinates()
 
@@ -39,6 +41,53 @@ export default function PortsTab({
   const metricLabel = getMetricLabel(metric)
   const weightAllNA = metric === 'weight' && isAllSurfaceExports(filteredPorts)
   const weightPartial = !weightAllNA && metric === 'weight' && hasSurfaceExports(filteredPorts)
+
+  /* ── Texas overlay data ─────────────────────────────────────────────── */
+  const txOverlay = useTexasOverlay(filteredPorts, valueField, showTexas)
+  const txPorts = useTexasPorts(filteredPorts, showTexas)
+
+  // Texas trade trend data (for overlay line on the trade trends chart)
+  const txTradeTrendData = useMemo(() => {
+    if (!showTexas) return []
+    const byYearType = new Map()
+    filteredPortsNoYear.forEach((d) => {
+      if (d.State !== 'Texas') return
+      const key = `${d.Year}|${d.TradeType}`
+      if (!byYearType.has(key)) byYearType.set(key, { year: d.Year, value: 0, TradeType: `Texas ${d.TradeType || 'Total'}` })
+      byYearType.get(key).value += (d[valueField] || 0)
+    })
+    return Array.from(byYearType.values()).sort((a, b) => a.year - b.year)
+  }, [filteredPortsNoYear, valueField, showTexas])
+
+  // Texas trade balance (for overlay line)
+  const txTradeBalanceData = useMemo(() => {
+    if (!showTexas) return []
+    const byYear = new Map()
+    filteredPortsNoYear.forEach((d) => {
+      if (d.State !== 'Texas' || !d.Year) return
+      if (!byYear.has(d.Year)) byYear.set(d.Year, { year: d.Year, Exports: 0, Imports: 0 })
+      const row = byYear.get(d.Year)
+      if (d.TradeType === 'Export') row.Exports += d.TradeValue || 0
+      else if (d.TradeType === 'Import') row.Imports += d.TradeValue || 0
+    })
+    return Array.from(byYear.values())
+      .map((d) => ({ year: d.year, value: d.Exports - d.Imports, BalanceSeries: 'Texas' }))
+      .sort((a, b) => a.year - b.year)
+  }, [filteredPortsNoYear, showTexas])
+
+  // Texas mode breakdown (for callout text)
+  const txModeBreakdown = useMemo(() => {
+    if (!showTexas || !latestYear) return null
+    const txLatest = filteredPorts.filter((d) => d.State === 'Texas' && d.Year === latestYear)
+    const total = txLatest.reduce((s, d) => s + (d[valueField] || 0), 0)
+    const byMode = new Map()
+    txLatest.forEach((d) => {
+      const mode = d.Mode || 'Unknown'
+      byMode.set(mode, (byMode.get(mode) || 0) + (d[valueField] || 0))
+    })
+    const top = [...byMode.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
+    return { total, top }
+  }, [filteredPorts, latestYear, valueField, showTexas])
 
   /* ── chart-level state ─────────────────────────────────────────────── */
   const allYears = useMemo(() => {
@@ -58,10 +107,17 @@ export default function PortsTab({
   }, [allYears])
 
   /* ── map markers ──────────────────────────────────────────────────── */
-  const mapPorts = useMemo(
-    () => buildMapPorts(filteredPorts, portCoords),
-    [filteredPorts, portCoords],
-  )
+  const mapPorts = useMemo(() => {
+    if (!showTexas) return buildMapPorts(filteredPorts, portCoords)
+    const txRows = filteredPorts.filter((d) => d.State === 'Texas')
+    const otherRows = filteredPorts.filter((d) => d.State !== 'Texas')
+    return [...buildMapPorts(otherRows, portCoords, 'Other'), ...buildMapPorts(txRows, portCoords, 'Texas')]
+  }, [filteredPorts, portCoords, showTexas])
+
+  const portMapGroupColors = showTexas ? {
+    Texas: { fill: TEXAS_COLOR, stroke: '#8a3d00' },
+    Other: { fill: '#0056a9', stroke: '#003d75' },
+  } : null
 
   /* ── trade trends by Year+TradeType (line chart) ──────────────────── */
   const tradeTrendData = useMemo(() => {
@@ -222,7 +278,7 @@ export default function PortsTab({
               Port coordinates failed to load ({portCoordsError}). Map markers may be missing.
             </div>
           )}
-          <PortMap ports={mapPorts} formatValue={fmtValue} center={[29.5, -104.0]} zoom={5} height="480px" />
+          <PortMap ports={mapPorts} formatValue={fmtValue} center={[29.5, -104.0]} zoom={5} height="480px" groupColors={portMapGroupColors} />
         </ChartCard>
       </SectionBlock>
 
@@ -251,14 +307,14 @@ export default function PortsTab({
             detail: { data: filteredSummary, filename: 'us-mexico-trade-detail', columns: PAGE_TRANSBORDER_COLS },
           }}
         >
-          <LineChart data={tradeTrendData} xKey="year" yKey="value" seriesKey="TradeType" formatY={getAxisFormatter(tradeMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
+          <LineChart data={showTexas ? [...tradeTrendData, ...txTradeTrendData.filter(d => d.year >= trendYearRange.startYear && d.year <= trendYearRange.endYear)] : tradeTrendData} xKey="year" yKey="value" seriesKey="TradeType" formatY={getAxisFormatter(tradeMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
         </ChartCard>
       </SectionBlock>
 
       {/* Trade Balance — always in dollars */}
       <SectionBlock alt>
         <ChartCard title="U.S.–Mexico Trade Balance" subtitle="Exports minus imports — negative values indicate a trade deficit with Mexico">
-          <LineChart data={tradeBalanceData} xKey="year" yKey="value" formatValue={formatCurrency} showArea annotations={HISTORICAL_ANNOTATIONS} />
+          <LineChart data={showTexas ? [...tradeBalanceData.map(d => ({ ...d, BalanceSeries: 'U.S. Total' })), ...txTradeBalanceData] : tradeBalanceData} xKey="year" yKey="value" seriesKey={showTexas ? 'BalanceSeries' : undefined} formatValue={formatCurrency} showArea={!showTexas} annotations={HISTORICAL_ANNOTATIONS} />
         </ChartCard>
         <div className="mt-4 max-w-7xl mx-auto">
           <InsightCallout
@@ -288,6 +344,15 @@ export default function PortsTab({
             <StackedBarChart data={modeByYearData.data} xKey="year" stackKeys={modeByYearData.stackKeys} formatY={getAxisFormatter(tradeMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} />
           </ChartCard>
         </div>
+        {showTexas && txModeBreakdown && txModeBreakdown.total > 0 && (
+          <div className="mt-4 max-w-7xl mx-auto">
+            <InsightCallout
+              finding={`Texas handles ${fmtValue(txModeBreakdown.total)} of U.S.-Mexico trade by ${metricLabel.toLowerCase()} (${(txOverlay.texasShare * 100).toFixed(0)}% of the national total). ${txModeBreakdown.top.length > 0 ? `Top mode: ${txModeBreakdown.top[0][0]} (${fmtValue(txModeBreakdown.top[0][1])}).` : ''}`}
+              icon={Star}
+              variant="texas"
+            />
+          </div>
+        )}
       </SectionBlock>
 
       {/* Top N Ports */}
@@ -298,8 +363,23 @@ export default function PortsTab({
           headerRight={<TopNSelector value={portTopN} onChange={setPortTopN} />}
           downloadData={{ summary: { data: topPortsData, filename: 'us-mexico-top-ports', columns: DL.portRank } }}
         >
-          <BarChart data={topPortsData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(portMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} color={CHART_COLORS[0]} />
+          <BarChart data={topPortsData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(portMax, metric === 'weight' ? '' : '$')} formatValue={fmtValue} color={CHART_COLORS[0]} colorAccessor={showTexas ? (d) => txPorts.has(d.label) ? TEXAS_COLOR : CHART_COLORS[0] : undefined} />
         </ChartCard>
+        {showTexas && topPortsData.length > 0 && (() => {
+          const txCount = topPortsData.filter((d) => txPorts.has(d.label)).length
+          const txValue = topPortsData.filter((d) => txPorts.has(d.label)).reduce((s, d) => s + d.value, 0)
+          const total = topPortsData.reduce((s, d) => s + d.value, 0)
+          const pct = total > 0 ? ((txValue / total) * 100).toFixed(0) : 0
+          return txCount > 0 ? (
+            <div className="mt-4 max-w-7xl mx-auto">
+              <InsightCallout
+                finding={`${txCount} of the top ${topPortsData.length} ports are in Texas (shown in burnt orange), accounting for ${pct}% of the total across these ports.`}
+                icon={Star}
+                variant="texas"
+              />
+            </div>
+          ) : null
+        })()}
       </SectionBlock>
 
       {/* Top N Port Trends */}
@@ -384,6 +464,21 @@ export default function PortsTab({
                   variant="highlight"
                 />
               </div>
+              {showTexas && (() => {
+                const txCont = containerizationTrade.filter((d) => txPorts.has(d.Port))
+                const txTotal = txCont.reduce((s, d) => s + (d.TradeValue || 0), 0)
+                const natTotal = containerizationTrade.reduce((s, d) => s + (d.TradeValue || 0), 0)
+                const pct = natTotal > 0 ? ((txTotal / natTotal) * 100).toFixed(0) : 0
+                return txTotal > 0 ? (
+                  <div className="mt-4">
+                    <InsightCallout
+                      finding={`Texas ports handle ${pct}% of all containerized and non-containerized U.S.-Mexico freight tracked in the logistics data.`}
+                      icon={Star}
+                      variant="texas"
+                    />
+                  </div>
+                ) : null
+              })()}
             </div>
           </SectionBlock>
         )
@@ -399,7 +494,7 @@ export default function PortsTab({
             detail: { data: filteredPorts, filename: 'us-mexico-ports-raw', columns: PAGE_PORT_COLS },
           }}
         >
-          <DataTable columns={portTableColumns} data={portTableData} />
+          <DataTable columns={portTableColumns} data={portTableData} rowClassAccessor={showTexas ? (row) => row.State === 'Texas' ? 'bg-[#bf5700]/[0.06] font-medium' : '' : undefined} />
         </ChartCard>
       </SectionBlock>
     </>

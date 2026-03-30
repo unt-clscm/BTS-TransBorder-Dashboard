@@ -7,7 +7,7 @@
  */
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { MapPin, ShoppingCart, Map as MapIcon, ArrowRightLeft, DollarSign, ArrowUpRight, ArrowDownLeft, Award, TrendingUp } from 'lucide-react'
+import { MapPin, ShoppingCart, Map as MapIcon, ArrowRightLeft, DollarSign, ArrowUpRight, ArrowDownLeft, Award, TrendingUp, Star } from 'lucide-react'
 import { useTransborderStore } from '@/stores/transborderStore'
 import { formatCurrency, buildFilterOptions, applyStandardFilters, buildCrossFilterOptions } from '@/lib/transborderHelpers'
 import { getMetricField, getMetricFormatter, getMetricLabel, hasSurfaceExports, isAllSurfaceExports } from '@/lib/chartColors'
@@ -47,6 +47,7 @@ export default function USMexicoPage() {
   const rawTab = searchParams.get('tab')
   const activeTab = VALID_TABS.has(rawTab) ? rawTab : 'ports'
   const metric = searchParams.get('metric') === 'weight' ? 'weight' : 'value'
+  const showTexas = searchParams.get('texas') !== '0' // default ON
 
   const updateParams = useCallback((updates) => {
     setSearchParams((prev) => {
@@ -60,6 +61,7 @@ export default function USMexicoPage() {
   }, [setSearchParams])
 
   const handleTabChange = useCallback((key) => updateParams({ tab: key }), [updateParams])
+  const toggleTexas = useCallback(() => updateParams({ texas: showTexas ? '0' : null }), [updateParams, showTexas])
   const tabBarRef = useRef(null)
 
   /* ── lazy dataset loading ──────────────────────────────────────────── */
@@ -67,7 +69,10 @@ export default function USMexicoPage() {
 
   useEffect(() => {
     if (activeTab === 'ports') loadDataset('containerizationTrade')
-    if (activeTab === 'commodities') loadDataset('commodityDetail')
+    if (activeTab === 'commodities') {
+      loadDataset('commodityDetail')
+      if (showTexas) loadDataset('stateCommodityTrade')
+    }
     if (activeTab === 'states') {
       loadDataset('usStateTrade')
       loadDataset('mexicanStateTrade')
@@ -75,7 +80,7 @@ export default function USMexicoPage() {
       loadDataset('odStateFlows')  // For Port filter on States tab
     }
     if (activeTab === 'flows') loadDataset('odStateFlows')
-  }, [activeTab, loadDataset])
+  }, [activeTab, loadDataset, showTexas])
 
   /* ── local filter state ────────────────────────────────────────────── */
   const [yearFilter, setYearFilter] = useState([])
@@ -298,6 +303,21 @@ export default function USMexicoPage() {
   const filterControls = (
     <>
       <MetricToggle value={metric} onChange={setMetric} />
+      <div className="flex flex-col gap-1 min-w-0 w-full">
+        <span className="text-base font-medium text-text-secondary uppercase tracking-wider">Texas Lens</span>
+        <button
+          type="button"
+          onClick={toggleTexas}
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
+            showTexas
+              ? 'bg-[#bf5700] text-white border-[#bf5700]'
+              : 'bg-white text-text-secondary border-border-light hover:border-[#bf5700]/40'
+          }`}
+        >
+          <Star size={14} className={showTexas ? 'fill-white' : ''} />
+          {showTexas ? 'On' : 'Off'}
+        </button>
+      </div>
       <FilterMultiSelect label="Year" value={yearFilter} options={yearOptions} onChange={setYearFilter} />
       {tradeTypeOptions.length > 1 ? (
         <FilterSelect label="Trade Type" value={tradeTypeFilter} options={tradeTypeOptions} onChange={setTradeTypeFilter} disabledValues={metric === 'weight' ? ['Export'] : []} />
@@ -445,6 +465,7 @@ export default function USMexicoPage() {
             containerizationTrade={containerizationTrade}
             latestYear={latestYear}
             metric={metric}
+            showTexas={showTexas}
           />
         </div>
       )}
@@ -456,6 +477,11 @@ export default function USMexicoPage() {
             latestYear={latestYear}
             datasetError={datasetErrors.commodityDetail}
             metric={metric}
+            showTexas={showTexas}
+            stateCommodityTrade={stateCommodityTrade}
+            yearFilter={yearFilter}
+            tradeTypeFilter={tradeTypeFilter}
+            modeFilter={modeFilter}
           />
         </div>
       )}
@@ -472,6 +498,7 @@ export default function USMexicoPage() {
             mexStateFilter={mexStateFilter}
             datasetError={datasetErrors.odStateFlows}
             metric={metric}
+            showTexas={showTexas}
           />
         </div>
       )}
@@ -490,6 +517,7 @@ export default function USMexicoPage() {
             mexStateFilter={mexStateFilter}
             datasetErrors={datasetErrors}
             metric={metric}
+            showTexas={showTexas}
           />
         </div>
       )}

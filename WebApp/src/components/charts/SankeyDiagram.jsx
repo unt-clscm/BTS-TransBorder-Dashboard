@@ -25,6 +25,8 @@ export default function SankeyDiagram({
   formatValue = formatCompact,
   height: chartHeight = 500,
   columnHeaders,
+  highlightNodes = null,  // Set of node ids to highlight with a distinct border
+  highlightColor = '#bf5700',
 }) {
   const containerRef = useRef(null)
   const svgRef = useRef(null)
@@ -122,9 +124,9 @@ export default function SankeyDiagram({
       .attr('y', (d) => d.y0)
       .attr('width', (d) => d.x1 - d.x0)
       .attr('height', (d) => Math.max(1, d.y1 - d.y0))
-      .attr('fill', (d) => GROUP_COLORS[d.group] || '#999')
-      .attr('stroke', '#fff')
-      .attr('stroke-width', 1)
+      .attr('fill', (d) => highlightNodes?.has(d.id) ? highlightColor : GROUP_COLORS[d.group] || '#999')
+      .attr('stroke', (d) => highlightNodes?.has(d.id) ? highlightColor : '#fff')
+      .attr('stroke-width', (d) => highlightNodes?.has(d.id) ? 3 : 1)
       .attr('rx', 2)
       .style('cursor', 'pointer')
       .on('mouseover', (event, d) => {

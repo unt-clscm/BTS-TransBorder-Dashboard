@@ -82,6 +82,8 @@ export default function ChoroplethMap({
   zoom = 4,
   height = '500px',
   title = 'States',
+  highlightFeature = null,   // Name of a feature to highlight with a bold border
+  highlightColor = '#bf5700', // Border color for the highlighted feature
 }) {
   const mapInstanceRef = useRef(null)
   const [tooltip, setTooltip] = useState(null)
@@ -115,14 +117,15 @@ export default function ChoroplethMap({
   const style = useCallback((feature) => {
     const name = feature.properties?.[nameProperty]
     const value = valueMap.get(name)
+    const isHighlighted = highlightFeature && name === highlightFeature
     return {
       fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
-      weight: 1,
-      opacity: 0.8,
-      color: '#666',
+      weight: isHighlighted ? 3.5 : 1,
+      opacity: isHighlighted ? 1 : 0.8,
+      color: isHighlighted ? highlightColor : '#666',
       fillOpacity: 0.75,
     }
-  }, [nameProperty, valueMap, colorScale, emptyColor])
+  }, [nameProperty, valueMap, colorScale, emptyColor, highlightFeature, highlightColor])
 
   // Interaction handlers for each feature
   const onEachFeature = useCallback((feature, layer) => {

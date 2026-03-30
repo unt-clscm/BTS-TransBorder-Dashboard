@@ -48,7 +48,7 @@ const HEADER_HEIGHT = 45   // thead row height (px)
 const ROW_HEIGHT = 41      // tbody row height (px)
 const FOOTER_HEIGHT = 49   // pagination bar height (px)
 
-export default function DataTable({ columns, data, pageSize: fixedPageSize, fullWidth }) {
+export default function DataTable({ columns, data, pageSize: fixedPageSize, fullWidth, rowClassAccessor }) {
   const [sortKey, setSortKey] = useState(null)
   const [sortDir, setSortDir] = useState('asc')
   const [page, setPage] = useState(0)
@@ -258,7 +258,7 @@ export default function DataTable({ columns, data, pageSize: fixedPageSize, full
                 key={i}
                 className={`border-b border-border-light/60 transition-colors duration-100
                   ${i % 2 === 0 ? 'bg-white' : 'bg-surface-alt/40'}
-                  hover:bg-brand-blue/[0.03]`}
+                  hover:bg-brand-blue/[0.03] ${rowClassAccessor ? rowClassAccessor(row) : ''}`}
               >
                 {columns.map((col) => (
                   <td

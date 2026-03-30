@@ -16,6 +16,11 @@ const VARIANTS = {
     iconBg: 'bg-brand-orange/10',
     iconColor: 'text-brand-orange',
   },
+  texas: {
+    border: 'border-[#bf5700]',
+    iconBg: 'bg-[#bf5700]/10',
+    iconColor: 'text-[#bf5700]',
+  },
 }
 
 export default function InsightCallout({

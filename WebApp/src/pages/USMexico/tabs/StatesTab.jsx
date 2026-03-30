@@ -18,6 +18,8 @@ import StackedBarChart from '@/components/charts/StackedBarChart'
 import DataTable from '@/components/ui/DataTable'
 import InsightCallout from '@/components/ui/InsightCallout'
 import { ANNOTATIONS_MODERN as HISTORICAL_ANNOTATIONS } from '@/lib/annotations'
+import { TEXAS_COLOR } from '@/hooks/useTexasOverlay'
+import { Star } from 'lucide-react'
 const BASE = import.meta.env.BASE_URL
 
 export default function StatesTab({
@@ -33,6 +35,7 @@ export default function StatesTab({
   mexStateFilter,
   datasetErrors,
   metric = 'value',
+  showTexas = true,
 }) {
   useEffect(() => {
     loadDataset('usStateTrade')
@@ -398,6 +401,7 @@ export default function StatesTab({
               zoom={4}
               height="400px"
               title="U.S. States"
+              highlightFeature={showTexas ? 'Texas' : null}
             />
           </ChartCard>
           <ChartCard title="Mexican States" subtitle={`${metricLabel} with the U.S. by Mexican state`}>
@@ -429,13 +433,33 @@ export default function StatesTab({
       <SectionBlock>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard title={`Top ${usTopN} U.S. States`} subtitle={`Ranked by ${metricLabel.toLowerCase()} with Mexico`} headerRight={<TopNSelector value={usTopN} onChange={setUsTopN} />}>
-            <BarChart data={usBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(usBarMax, axisPrefix, axisSuffix)} color={CHART_COLORS[0]} />
+            <BarChart data={usBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(usBarMax, axisPrefix, axisSuffix)} color={CHART_COLORS[0]} colorAccessor={showTexas ? (d) => d.label === 'Texas' ? TEXAS_COLOR : CHART_COLORS[0] : undefined} />
           </ChartCard>
           <ChartCard title={`Top ${mxTopN} Mexican States`} subtitle={`Ranked by ${metricLabel.toLowerCase()} with the U.S.`} headerRight={<TopNSelector value={mxTopN} onChange={setMxTopN} />}>
             <BarChart data={mxBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(mxBarMax, axisPrefix, axisSuffix)} color={CHART_COLORS[3]} />
           </ChartCard>
         </div>
       </SectionBlock>
+
+      {/* Texas context callout for state rankings */}
+      {showTexas && usBarData.length > 0 && (() => {
+        const txRow = usBarData.find((d) => d.label === 'Texas')
+        if (!txRow) return null
+        const total = usBarData.reduce((s, d) => s + d.value, 0)
+        const pct = total > 0 ? ((txRow.value / total) * 100).toFixed(0) : 0
+        const rank = usBarData.findIndex((d) => d.label === 'Texas') + 1
+        return (
+          <SectionBlock>
+            <div className="max-w-7xl mx-auto">
+              <InsightCallout
+                finding={`Texas ranks #${rank} among U.S. states for trade with Mexico, handling ${fmtValue(txRow.value)} — ${pct}% of the total across the top ${usBarData.length} states (highlighted in burnt orange).`}
+                icon={Star}
+                variant="texas"
+              />
+            </div>
+          </SectionBlock>
+        )
+      })()}
 
       {/* US State Trends + MX State Trends */}
       <SectionBlock alt>
@@ -496,7 +520,7 @@ export default function StatesTab({
       <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard title="U.S. State Detail" subtitle="State-level trade summary">
-            <DataTable columns={usTableColumns} data={usTableData} />
+            <DataTable columns={usTableColumns} data={usTableData} rowClassAccessor={showTexas ? (row) => row.State === 'Texas' ? 'bg-[#bf5700]/[0.06] font-medium' : '' : undefined} />
           </ChartCard>
           <ChartCard title="Mexican State Detail" subtitle="State-level trade summary">
             <DataTable columns={mxTableColumns} data={mxTableData} />

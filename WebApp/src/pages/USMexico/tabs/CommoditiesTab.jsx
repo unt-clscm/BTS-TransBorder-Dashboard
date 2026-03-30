@@ -168,6 +168,35 @@ export default function CommoditiesTab({
     return Array.from(byYearGroup.values()).sort((a, b) => a.year - b.year || a.CommodityGroup.localeCompare(b.CommodityGroup))
   }, [filteredCommodities, valueField, groupTrendTopN, trendYearRange])
 
+  /* ── Texas commodity group trends (overlay for line chart) ─────── */
+  const txGroupTrends = useMemo(() => {
+    if (!showTexas || !stateCommodityTrade?.length || !groupTrends.length) return []
+    // Get the same top N groups that the national trends show
+    const nationalGroups = new Set(groupTrends.map((d) => d.CommodityGroup))
+    let data = stateCommodityTrade.filter((d) => d.Country === 'Mexico' && d.State === 'Texas')
+    if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
+    if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
+
+    const byYearGroup = new Map()
+    data.forEach((d) => {
+      const grp = d.CommodityGroup || 'Other'
+      if (!nationalGroups.has(grp)) return
+      if (d.Year < trendYearRange.startYear || d.Year > trendYearRange.endYear) return
+      const key = `${d.Year}|${grp}`
+      if (!byYearGroup.has(key)) byYearGroup.set(key, { year: d.Year, value: 0, CommodityGroup: `TX: ${grp}` })
+      byYearGroup.get(key).value += (d.TradeValue || 0)
+    })
+    return Array.from(byYearGroup.values()).sort((a, b) => a.year - b.year)
+  }, [showTexas, stateCommodityTrade, groupTrends, tradeTypeFilter, modeFilter, trendYearRange])
+
+  // Color overrides for Texas group lines
+  const groupTrendColorOverrides = useMemo(() => {
+    if (!showTexas || !txGroupTrends.length) return undefined
+    const overrides = {}
+    txGroupTrends.forEach((d) => { overrides[d.CommodityGroup] = TEXAS_COLOR })
+    return overrides
+  }, [showTexas, txGroupTrends])
+
   /* ── detail table ─────────────────────────────────────────────────── */
   const tableData = useMemo(() => {
     if (!filteredCommodities?.length) return []
@@ -324,6 +353,16 @@ export default function CommoditiesTab({
         >
           <BarChart data={topCommodities} xKey="label" yKey="value" horizontal formatValue={fmtValue} color={CHART_COLORS[1]} />
         </ChartCard>
+        {showTexas && txCommodityGroupData && (
+          <div className="mt-4 max-w-7xl mx-auto">
+            <InsightCallout
+              finding="Individual commodity rankings above are national totals. For Texas-specific commodity detail by port, see the Texas-Mexico page."
+              context={`At the group level, Texas handles ${(txCommodityGroupData.share * 100).toFixed(0)}% of all U.S.-Mexico commodity trade.`}
+              icon={Star}
+              variant="texas"
+            />
+          </div>
+        )}
       </SectionBlock>
 
       {/* Cross-Border Manufacturing Pattern */}
@@ -382,7 +421,7 @@ export default function CommoditiesTab({
             </>
           }
         >
-          <LineChart data={groupTrends} xKey="year" yKey="value" seriesKey="CommodityGroup" formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} />
+          <LineChart data={showTexas ? [...groupTrends, ...txGroupTrends] : groupTrends} xKey="year" yKey="value" seriesKey="CommodityGroup" formatValue={fmtValue} annotations={HISTORICAL_ANNOTATIONS} colorOverrides={groupTrendColorOverrides} />
         </ChartCard>
       </SectionBlock>
 

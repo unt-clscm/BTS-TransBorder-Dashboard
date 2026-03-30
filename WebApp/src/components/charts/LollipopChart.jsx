@@ -25,6 +25,7 @@ function LollipopChart({
   xKey = 'label',
   yKey = 'value',
   color = CHART_COLORS[0],
+  colorAccessor,
   formatValue = formatCompact,
   maxBars = 10,
   animate = true,
@@ -81,7 +82,7 @@ function LollipopChart({
       .attr('y1', (d) => y(d[xKey]) + y.bandwidth() / 2)
       .attr('y2', (d) => y(d[xKey]) + y.bandwidth() / 2)
       .attr('x1', 0).attr('x2', 0)
-      .attr('stroke', color)
+      .attr('stroke', (d) => colorAccessor ? colorAccessor(d) : color)
       .attr('stroke-width', 3)
       .attr('stroke-linecap', 'round')
       .transition()
@@ -96,7 +97,7 @@ function LollipopChart({
       .attr('cy', (d) => y(d[xKey]) + y.bandwidth() / 2)
       .attr('cx', 0)
       .attr('r', 0)
-      .attr('fill', color)
+      .attr('fill', (d) => colorAccessor ? colorAccessor(d) : color)
       .attr('stroke', 'white')
       .attr('stroke-width', 2)
       .transition()
@@ -179,7 +180,7 @@ function LollipopChart({
         })
     })
 
-  }, [data, width, containerHeight, isFullscreen, xKey, yKey, color, maxBars, animate, dotRadius, formatValue])
+  }, [data, width, containerHeight, isFullscreen, xKey, yKey, color, colorAccessor, maxBars, animate, dotRadius, formatValue])
 
   const displayCount = Math.min(data.length, maxBars)
   const minH = Math.max(220, displayCount * 52 + 24)

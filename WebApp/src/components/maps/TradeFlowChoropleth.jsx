@@ -243,6 +243,7 @@ function ChoroplethLayer({
   selection, highlightedStates, dynamicValues,
   formatValue, metricLabel, selectionType,
   setSelection, setTooltip, mapInstanceRef,
+  highlightFeature = null, highlightColor = '#bf5700',
 }) {
   const { geojson, loading } = useGeoJSON(geojsonUrl)
   const geoJsonRef = useRef(null)
@@ -276,12 +277,13 @@ function ChoroplethLayer({
           weight: 2.5, opacity: 1, color: '#333', fillOpacity: 0.85,
         }
       }
+      const isHL = highlightFeature && name === highlightFeature
       return {
         fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
-        weight: 1, opacity: 0.7, color: '#888', fillOpacity: 0.6,
+        weight: isHL ? 3.5 : 1, opacity: isHL ? 1 : 0.7, color: isHL ? highlightColor : '#888', fillOpacity: 0.6,
       }
     },
-    [nameProperty, valueMap, colorScale, emptyColor, highlightedStates],
+    [nameProperty, valueMap, colorScale, emptyColor, highlightedStates, highlightFeature, highlightColor],
   )
 
   const onEachFeature = useCallback(
@@ -354,6 +356,7 @@ export default function TradeFlowChoropleth({
   center = [30, -100],
   zoom = 4,
   height = '580px',
+  highlightFeature = null,
 }) {
   const mapInstanceRef = useRef(null)
   const [tooltip, setTooltip] = useState(null)
@@ -789,6 +792,7 @@ export default function TradeFlowChoropleth({
               setSelection={setSelection}
               setTooltip={setTooltip}
               mapInstanceRef={mapInstanceRef}
+              highlightFeature={highlightFeature}
             />
 
             {/* Mexican states choropleth */}

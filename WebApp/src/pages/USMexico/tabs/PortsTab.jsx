@@ -108,9 +108,13 @@ export default function PortsTab({
 
   /* ── map markers ──────────────────────────────────────────────────── */
   const mapPorts = useMemo(() => {
-    if (!showTexas) return buildMapPorts(filteredPorts, portCoords)
-    const txRows = filteredPorts.filter((d) => d.State === 'Texas')
-    const otherRows = filteredPorts.filter((d) => d.State !== 'Texas')
+    if (!showTexas || !portCoords) return buildMapPorts(filteredPorts, portCoords)
+    const isTexasPort = (d) => {
+      const code = d.PortCode?.replace(/\D/g, '')
+      return portCoords[code]?.state === 'Texas'
+    }
+    const txRows = filteredPorts.filter(isTexasPort)
+    const otherRows = filteredPorts.filter((d) => !isTexasPort(d))
     return [...buildMapPorts(otherRows, portCoords, 'Other'), ...buildMapPorts(txRows, portCoords, 'Texas')]
   }, [filteredPorts, portCoords, showTexas])
 
@@ -118,6 +122,11 @@ export default function PortsTab({
     Texas: { fill: TEXAS_COLOR, stroke: '#8a3d00' },
     Other: { fill: '#0056a9', stroke: '#003d75' },
   } : null
+
+  const portMapLegendGroups = showTexas ? [
+    { label: 'Texas Port', color: TEXAS_COLOR },
+    { label: 'Other U.S. Port', color: '#0056a9' },
+  ] : null
 
   /* ── trade trends by Year+TradeType (line chart) ──────────────────── */
   const tradeTrendData = useMemo(() => {
@@ -278,7 +287,7 @@ export default function PortsTab({
               Port coordinates failed to load ({portCoordsError}). Map markers may be missing.
             </div>
           )}
-          <PortMap ports={mapPorts} formatValue={fmtValue} center={[29.5, -104.0]} zoom={5} height="480px" groupColors={portMapGroupColors} />
+          <PortMap ports={mapPorts} formatValue={fmtValue} center={[29.5, -104.0]} zoom={5} height="480px" groupColors={portMapGroupColors} legendGroups={portMapLegendGroups} />
         </ChartCard>
       </SectionBlock>
 

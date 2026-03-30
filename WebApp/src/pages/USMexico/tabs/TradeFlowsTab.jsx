@@ -221,6 +221,7 @@ export default function TradeFlowsTab({
               center={[30, -100]}
               zoom={4}
               height="580px"
+              highlightFeature={showTexas ? 'Texas' : null}
             />
           </ChartCard>
         </div>

@@ -90,6 +90,7 @@ function LineChart({
   showArea = false,
   animate = true,
   annotations = [],
+  colorOverrides,  // { seriesName: '#color' } — override ordinal colors for specific series
 }) {
   const containerRef = useRef(null)
   const svgRef = useRef(null)
@@ -185,7 +186,10 @@ function LineChart({
       .nice()
       .range([innerH, 0])
 
-    const colorScale = d3.scaleOrdinal().range(CHART_COLORS)
+    const baseColorScale = d3.scaleOrdinal().range(CHART_COLORS)
+    const colorScale = colorOverrides
+      ? (name) => colorOverrides[name] || baseColorScale(name)
+      : baseColorScale
 
     // Mutable reference to the current (possibly zoomed) x scale. Updated by
     // the zoom handler; read by the tooltip mousemove handler.
@@ -707,7 +711,7 @@ function LineChart({
     }
 
     return () => { document.getElementById(tipId)?.remove() }
-  }, [data, width, containerHeight, isFullscreen, xKey, yKey, seriesKey, formatX, showArea, animate, annotations, formatValue, setZoomRange])
+  }, [data, width, containerHeight, isFullscreen, xKey, yKey, seriesKey, formatX, showArea, animate, annotations, formatValue, setZoomRange, colorOverrides])
 
   // Ensure container expands for legend rows
   const seriesCount = seriesKey ? new Set(data.map(d => d[seriesKey])).size : 0

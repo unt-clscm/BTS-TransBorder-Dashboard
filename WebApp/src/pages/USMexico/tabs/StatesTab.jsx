@@ -465,7 +465,7 @@ export default function StatesTab({
       <SectionBlock alt>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <ChartCard title={`Top ${usTrendTopN} U.S. State Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} with Mexico`} headerRight={<><TopNSelector value={usTrendTopN} onChange={setUsTrendTopN} /><YearRangeFilter years={allUSYears} value={usTrendYearRange} onChange={setUsTrendYearRange} /></>}>
-            <LineChart data={usStateTrends} xKey="year" yKey="value" seriesKey="State" formatY={getAxisFormatter(usTrendMax, axisPrefix, axisSuffix)} annotations={HISTORICAL_ANNOTATIONS} />
+            <LineChart data={usStateTrends} xKey="year" yKey="value" seriesKey="State" formatY={getAxisFormatter(usTrendMax, axisPrefix, axisSuffix)} annotations={HISTORICAL_ANNOTATIONS} colorOverrides={showTexas ? { Texas: TEXAS_COLOR } : undefined} />
           </ChartCard>
           <ChartCard title={`Top ${mxTrendTopN} Mexican State Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} with the U.S.`} headerRight={<><TopNSelector value={mxTrendTopN} onChange={setMxTrendTopN} /><YearRangeFilter years={allMXYears} value={mxTrendYearRange} onChange={setMxTrendYearRange} /></>}>
             <LineChart data={mxStateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(mxTrendMax, axisPrefix, axisSuffix)} annotations={HISTORICAL_ANNOTATIONS} />
@@ -479,7 +479,7 @@ export default function StatesTab({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {usStateGrowth.length > 0 && (
               <ChartCard title="Fastest-Growing U.S. States" subtitle="Growth in avg annual trade value (earliest 3 yrs vs. latest 3 yrs)" headerRight={<TopNSelector value={growthTopN} onChange={setGrowthTopN} />}>
-                <LollipopChart data={usStateGrowth} xKey="label" yKey="value" formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" />
+                <LollipopChart data={usStateGrowth} xKey="label" yKey="value" formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" colorAccessor={showTexas ? (d) => d.label === 'Texas' ? TEXAS_COLOR : '#10b981' : undefined} />
               </ChartCard>
             )}
             {mxStateGrowth.length > 0 && (
@@ -511,6 +511,21 @@ export default function StatesTab({
                 finding="Texas trades broadly across all commodity groups — it is the gateway for everything. Michigan is narrowly focused on Transportation Equipment (auto parts and vehicles). California mixes electronics with agriculture."
                 context="This explains why a disruption at a Texas port has wider economic impact than a disruption elsewhere — Texas carries all industries, not just one."
               />
+              {showTexas && (() => {
+                const txRow = stateSpecialization.data.find((d) => d.state === 'Texas')
+                if (!txRow) return null
+                const txTotal = stateSpecialization.keys.reduce((s, k) => s + (txRow[k] || 0), 0)
+                const topKey = stateSpecialization.keys.reduce((best, k) => (txRow[k] || 0) > (txRow[best] || 0) ? k : best, stateSpecialization.keys[0])
+                return (
+                  <div className="mt-3">
+                    <InsightCallout
+                      finding={`Texas's commodity mix totals ${fmtValue(txTotal)}, with "${topKey}" as the largest group. Unlike other states, no single group dominates Texas — it is the most diversified trade gateway.`}
+                      icon={Star}
+                      variant="texas"
+                    />
+                  </div>
+                )
+              })()}
             </div>
           </div>
         </SectionBlock>

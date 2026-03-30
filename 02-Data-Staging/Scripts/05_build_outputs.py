@@ -82,6 +82,17 @@ def load_texas_border_ports():
     return port_set, region_map
 
 
+def load_port_state_map():
+    """Load port-code → US state mapping from Schedule D port codes.
+
+    Returns dict like {"2304": "TX", "2501": "CA", ...}.
+    """
+    path = CONFIG_DIR / "schedule_d_port_codes.json"
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return {k: v.get("state", "") for k, v in data.items() if not k.startswith("_")}
+
+
 def run_query(conn, sql):
     """Execute SQL and return list of dicts."""
     cur = conn.cursor()
@@ -169,12 +180,13 @@ def build_us_transborder(conn):
     return run_query(conn, sql)
 
 
-def build_us_mexico_ports(conn):
+def build_us_mexico_ports(conn, port_state_map):
     """Dataset 2: US-Mexico port-level trade with Mode. Source: DOT1, Mexico only, 2007+.
 
     Charts: US-Mexico BarChart (top ports), DataTable.
             US-Mexico Ports: PortMap, BarChart, LineChart, DataTable.
     Mode kept for port-by-mode filtering on the Ports page.
+    PortState derived from Schedule D port codes (physical state of the port).
     """
     sql = f"""
         SELECT
@@ -195,7 +207,10 @@ def build_us_mexico_ports(conn):
         GROUP BY "Year", "PortCode", "Port", "StateCode", "State", "Mode", COALESCE("TradeType", 'Unknown')
         ORDER BY "Year", "PortCode", "Mode", "TradeType"
     """
-    return run_query(conn, sql)
+    records = run_query(conn, sql)
+    for r in records:
+        r["PortState"] = port_state_map.get(r["PortCode"], "")
+    return records
 
 
 def build_us_canada_ports(conn):
@@ -706,13 +721,14 @@ def main():
     # Load config
     port_coords = load_port_coordinates()
     tx_ports, port_region = load_texas_border_ports()
+    port_state_map = load_port_state_map()
 
     conn = sqlite3.connect(str(DB_PATH))
     conn.execute("PRAGMA cache_size=-200000")
 
     datasets = [
         ("us_transborder", lambda: build_us_transborder(conn)),
-        ("us_mexico_ports", lambda: build_us_mexico_ports(conn)),
+        ("us_mexico_ports", lambda: build_us_mexico_ports(conn, port_state_map)),
         ("us_canada_ports", lambda: build_us_canada_ports(conn)),
         ("texas_mexico_ports", lambda: build_texas_mexico_ports(conn, port_coords, tx_ports, port_region)),
         ("texas_mexico_port_states", lambda: build_texas_mexico_port_states(conn, port_coords, tx_ports, port_region)),

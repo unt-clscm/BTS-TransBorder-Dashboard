@@ -32,7 +32,7 @@ const DATASET_FILES = {
 const FETCH_TIMEOUT_MS = 30_000
 
 const NUMERIC_FIELDS = ['TradeValue', 'Weight', 'WeightLb', 'FreightCharges', 'Year', 'Month', 'Lat', 'Lon']
-const STRING_FIELDS = ['Port', 'State', 'Mode', 'CommodityGroup', 'Commodity', 'Country', 'TradeType', 'Region', 'HSCode', 'PortCode', 'StateCode', 'MexState', 'CanProv']
+const STRING_FIELDS = ['Port', 'State', 'PortState', 'Mode', 'CommodityGroup', 'Commodity', 'Country', 'TradeType', 'Region', 'HSCode', 'PortCode', 'StateCode', 'MexState', 'CanProv']
 
 function normalizeRow(d) {
   const out = { ...d }

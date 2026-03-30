@@ -87,6 +87,7 @@ export default function USMexicoPage() {
   const [tradeTypeFilter, setTradeTypeFilter] = useState('')
   const [modeFilter, setModeFilter] = useState([])
   const [stateFilter, setStateFilter] = useState([])
+  const [portStateFilter, setPortStateFilter] = useState([])
   const [portFilter, setPortFilter] = useState([])
   const [commodityGroupFilter, setCommodityGroupFilter] = useState([])
   const [commodityFilter, setCommodityFilter] = useState([])
@@ -140,16 +141,17 @@ export default function USMexicoPage() {
     // Ports tab or fallback
     return buildCrossFilterOptions(portsData, {
       Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter,
-      State: stateFilter, Port: portFilter,
-    }, ['Year', 'TradeType', 'Mode', 'State', 'Port'])
+      PortState: portStateFilter, State: stateFilter, Port: portFilter,
+    }, ['Year', 'TradeType', 'Mode', 'PortState', 'State', 'Port'])
   }, [activeTab, portsData, mxCommodityData, mexicanStateTrade, odStateFlows,
-      yearFilter, tradeTypeFilter, modeFilter, stateFilter, portFilter,
+      yearFilter, tradeTypeFilter, modeFilter, portStateFilter, stateFilter, portFilter,
       commodityGroupFilter, commodityFilter, mexStateFilter])
 
   const yearOptions = useMemo(() => (crossOptions.Year || []).map(String), [crossOptions])
   const tradeTypeOptions = crossOptions.TradeType || []
   const modeOptions = crossOptions.Mode || []
   const stateOptions = crossOptions.State || []
+  const portStateOptions = crossOptions.PortState || []
   const portOptions = crossOptions.Port || []
   const commodityGroupOptions = crossOptions.CommodityGroup || []
   const commodityOptions = crossOptions.Commodity || []
@@ -158,7 +160,7 @@ export default function USMexicoPage() {
   /* ── auto-prune stale multi-select values when options narrow ────── */
   useEffect(() => {
     const prune = (opts, setter, asStr) => {
-      if (!opts) return
+      if (!opts) { setter(prev => prev.length ? [] : prev); return }
       const valid = new Set(asStr ? opts.map(String) : opts)
       setter(prev => {
         if (!prev.length) return prev
@@ -169,6 +171,7 @@ export default function USMexicoPage() {
     prune(crossOptions.Year, setYearFilter, true)
     prune(crossOptions.Mode, setModeFilter)
     prune(crossOptions.State, setStateFilter)
+    prune(crossOptions.PortState, setPortStateFilter)
     prune(crossOptions.Port, setPortFilter)
     prune(crossOptions.CommodityGroup, setCommodityGroupFilter)
     prune(crossOptions.Commodity, setCommodityFilter)
@@ -184,12 +187,12 @@ export default function USMexicoPage() {
 
   /* ── apply filters ─────────────────────────────────────────────────── */
   const filteredPorts = useMemo(
-    () => applyStandardFilters(portsData, { Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter, State: stateFilter, Port: portFilter }),
-    [portsData, yearFilter, tradeTypeFilter, modeFilter, stateFilter, portFilter],
+    () => applyStandardFilters(portsData, { Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter, PortState: portStateFilter, State: stateFilter, Port: portFilter }),
+    [portsData, yearFilter, tradeTypeFilter, modeFilter, portStateFilter, stateFilter, portFilter],
   )
   const filteredPortsNoYear = useMemo(
-    () => applyStandardFilters(portsData, { TradeType: tradeTypeFilter, Mode: modeFilter, State: stateFilter, Port: portFilter }),
-    [portsData, tradeTypeFilter, modeFilter, stateFilter, portFilter],
+    () => applyStandardFilters(portsData, { TradeType: tradeTypeFilter, Mode: modeFilter, PortState: portStateFilter, State: stateFilter, Port: portFilter }),
+    [portsData, tradeTypeFilter, modeFilter, portStateFilter, stateFilter, portFilter],
   )
   const filteredSummary = useMemo(
     () => applyStandardFilters(usMexicoData, { Year: yearFilter, TradeType: tradeTypeFilter, Mode: modeFilter }),
@@ -263,25 +266,30 @@ export default function USMexicoPage() {
     return years.map((y) => byYear.get(y) || 0)
   }, [filteredSummary, latestYear, valueField])
 
+  /* ── dynamic state filter label ─────────────────────────────────── */
+  const stateFilterLabel = tradeTypeFilter === 'Export' ? 'State (Origin)'
+    : tradeTypeFilter === 'Import' ? 'State (Destination)' : 'State (Origin/Dest)'
+
   /* ── active filter tags ────────────────────────────────────────────── */
-  const activeCount = yearFilter.length + (tradeTypeFilter ? 1 : 0) + modeFilter.length + stateFilter.length
+  const activeCount = yearFilter.length + (tradeTypeFilter ? 1 : 0) + modeFilter.length + portStateFilter.length + stateFilter.length
     + portFilter.length + commodityGroupFilter.length + commodityFilter.length + mexStateFilter.length
   const activeTags = useMemo(() => {
     const tags = []
     yearFilter.forEach((v) => tags.push({ group: 'Year', label: v, onRemove: () => setYearFilter((p) => p.filter((x) => x !== v)) }))
     if (tradeTypeFilter) tags.push({ group: 'Trade Type', label: tradeTypeFilter, onRemove: () => setTradeTypeFilter('') })
     modeFilter.forEach((v) => tags.push({ group: 'Mode', label: v, onRemove: () => setModeFilter((p) => p.filter((x) => x !== v)) }))
-    stateFilter.forEach((v) => tags.push({ group: 'State', label: v, onRemove: () => setStateFilter((p) => p.filter((x) => x !== v)) }))
+    portStateFilter.forEach((v) => tags.push({ group: 'State (Port)', label: v, onRemove: () => setPortStateFilter((p) => p.filter((x) => x !== v)) }))
+    stateFilter.forEach((v) => tags.push({ group: stateFilterLabel, label: v, onRemove: () => setStateFilter((p) => p.filter((x) => x !== v)) }))
     portFilter.forEach((v) => tags.push({ group: 'Port', label: v, onRemove: () => setPortFilter((p) => p.filter((x) => x !== v)) }))
     commodityGroupFilter.forEach((v) => tags.push({ group: 'Commodity Group', label: v, onRemove: () => setCommodityGroupFilter((p) => p.filter((x) => x !== v)) }))
     commodityFilter.forEach((v) => tags.push({ group: 'Commodity', label: v, onRemove: () => setCommodityFilter((p) => p.filter((x) => x !== v)) }))
     mexStateFilter.forEach((v) => tags.push({ group: 'MX State', label: v, onRemove: () => setMexStateFilter((p) => p.filter((x) => x !== v)) }))
     return tags
-  }, [yearFilter, tradeTypeFilter, modeFilter, stateFilter, portFilter, commodityGroupFilter, commodityFilter, mexStateFilter])
+  }, [yearFilter, tradeTypeFilter, modeFilter, portStateFilter, stateFilter, stateFilterLabel, portFilter, commodityGroupFilter, commodityFilter, mexStateFilter])
 
   const resetFilters = useCallback(() => {
     setMetric('value'); setYearFilter([]); setTradeTypeFilter(''); setModeFilter([])
-    setStateFilter([]); setPortFilter([]); setCommodityGroupFilter([]); setCommodityFilter([]); setMexStateFilter([])
+    setPortStateFilter([]); setStateFilter([]); setPortFilter([]); setCommodityGroupFilter([]); setCommodityFilter([]); setMexStateFilter([])
   }, [])
 
   /* ── render: loading/error ─────────────────────────────────────────── */
@@ -333,27 +341,30 @@ export default function USMexicoPage() {
       {activeTab === 'ports' && (
         <>
           <div className="flex flex-col gap-1 min-w-0 w-full">
-            <span className="text-base font-medium text-text-secondary uppercase tracking-wider">Border State</span>
+            <span className="text-base font-medium text-text-secondary uppercase tracking-wider">State (Port)</span>
             <div className="flex flex-wrap gap-1.5">
-              {['Texas', 'California', 'Arizona', 'New Mexico'].map((bs) => (
+              {[{ abbr: 'TX', name: 'Texas' }, { abbr: 'CA', name: 'California' }, { abbr: 'AZ', name: 'Arizona' }, { abbr: 'NM', name: 'New Mexico' }].map(({ abbr, name }) => (
                 <button
-                  key={bs}
+                  key={abbr}
                   type="button"
-                  onClick={() => setStateFilter((prev) =>
-                    prev.includes(bs) ? prev.filter((s) => s !== bs) : [...prev, bs]
+                  onClick={() => setPortStateFilter((prev) =>
+                    prev.includes(abbr) ? prev.filter((s) => s !== abbr) : [...prev, abbr]
                   )}
                   className={`px-2.5 py-1 rounded-full text-sm font-medium border transition-colors ${
-                    stateFilter.includes(bs)
+                    portStateFilter.includes(abbr)
                       ? 'bg-brand-blue text-white border-brand-blue'
                       : 'bg-white text-text-secondary border-border-light hover:border-brand-blue/40'
                   }`}
                 >
-                  {bs}
+                  {name}
                 </button>
               ))}
             </div>
           </div>
-          <FilterMultiSelect label="State" value={stateFilter} options={stateOptions} onChange={setStateFilter} searchable />
+          {portStateOptions.length > 0 && (
+            <FilterMultiSelect label="State (Port)" value={portStateFilter} options={portStateOptions} onChange={setPortStateFilter} searchable />
+          )}
+          <FilterMultiSelect label={stateFilterLabel} value={stateFilter} options={stateOptions} onChange={setStateFilter} searchable />
           <FilterMultiSelect label="Port" value={portFilter} options={portOptions} onChange={setPortFilter} searchable />
         </>
       )}
@@ -372,7 +383,7 @@ export default function USMexicoPage() {
       )}
       {(activeTab === 'states' || activeTab === 'flows') && (
         <>
-          <FilterMultiSelect label="State" value={stateFilter} options={stateOptions} onChange={setStateFilter} searchable />
+          <FilterMultiSelect label={stateFilterLabel} value={stateFilter} options={stateOptions} onChange={setStateFilter} searchable />
           {portOptions.length > 0 && (
             <FilterMultiSelect label="Port" value={portFilter} options={portOptions} onChange={setPortFilter} searchable />
           )}

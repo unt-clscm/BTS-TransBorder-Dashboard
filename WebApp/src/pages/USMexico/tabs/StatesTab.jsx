@@ -463,7 +463,7 @@ export default function StatesTab({
 
       {/* US State Trends + MX State Trends */}
       <SectionBlock alt>
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6">
           <ChartCard title={`Top ${usTrendTopN} U.S. State Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} with Mexico`} headerRight={<><TopNSelector value={usTrendTopN} onChange={setUsTrendTopN} /><YearRangeFilter years={allUSYears} value={usTrendYearRange} onChange={setUsTrendYearRange} /></>}>
             <LineChart data={usStateTrends} xKey="year" yKey="value" seriesKey="State" formatY={getAxisFormatter(usTrendMax, axisPrefix, axisSuffix)} annotations={HISTORICAL_ANNOTATIONS} colorOverrides={showTexas ? { Texas: TEXAS_COLOR } : undefined} />
           </ChartCard>
@@ -476,7 +476,7 @@ export default function StatesTab({
       {/* Growth Rates */}
       {(usStateGrowth.length > 0 || mxStateGrowth.length > 0) && (
         <SectionBlock>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 2xl:grid-cols-2 gap-6">
             {usStateGrowth.length > 0 && (
               <ChartCard title="Fastest-Growing U.S. States" subtitle="Growth in avg annual trade value (earliest 3 yrs vs. latest 3 yrs)" headerRight={<TopNSelector value={growthTopN} onChange={setGrowthTopN} />}>
                 <LollipopChart data={usStateGrowth} xKey="label" yKey="value" formatValue={(v) => `${v.toFixed(0)}%`} color="#10b981" colorAccessor={showTexas ? (d) => d.label === 'Texas' ? TEXAS_COLOR : '#10b981' : undefined} />

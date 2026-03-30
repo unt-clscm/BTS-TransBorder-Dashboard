@@ -6,25 +6,24 @@ Each dataset draws from exactly ONE DOT table -- no joins between tables.
 Datasets are designed to serve specific Phase 3 dashboard charts.
 
 Year-range strategy:
-  - us_transborder: ALL years (1993-2025) -- Overview page shows the full 33-year story
-    at a high aggregation level (Year/Country/Mode/TradeType). Legacy data is reliable
-    for trade value totals.
-  - All other datasets: 2007+ ONLY -- Detail pages (ports, commodities, states, monthly)
-    start at the Jan 2007 consolidation boundary. This avoids exposing legacy-era field
-    gaps (NULL weight/freight for exports, no DOT3 surface data, mode discontinuity at
-    Nov 2003) in drill-down charts. See 01-Raw-Data/data_dictionary/data_caveats.md.
+  All datasets now use the full year range (1993-2025) so that trend lines, Texas
+  overlays, and national summaries are consistent. The Jan 2007 schema consolidation
+  is a structural boundary but NOT a data-availability boundary — DOT1 and DOT2 have
+  reliable state/port/commodity data going back to 1993. DOT3 surface data starts at
+  2003 (naturally limited by the source). Weight and FreightCharges are NULL for most
+  pre-2007 exports; the frontend already handles NULL gracefully (displays "N/A").
 
 Datasets:
-  1. us_transborder           DOT2  Annual  Year/Country/Mode/TradeType summary (Overview, Trade by Mode) -- 1993-2025
-  2. us_mexico_ports          DOT1  Annual  US-Mexico port-level with Mode (port map, rankings, trends) -- 2007+
-  3. texas_mexico_ports       DOT1  Annual  TX border ports with region/coordinates (TX port tabs) -- 2007+
-  4. texas_mexico_commodities DOT3  Annual  TX border port-commodity detail (TX Commodities tab) -- 2007+
-  5. us_state_trade           DOT1  Annual  State-level trade (Trade by State, Overview Top 10 States) -- 2007+
-  6. commodity_detail         DOT2  Annual  Commodity by country/mode (Commodities page + US-Mexico commodity charts) -- 2007+
-  7. monthly_trends           DOT1  Monthly Country/mode time series (TX Monthly tab) -- 2007+
-  8. us_canada_ports          DOT1  Annual  US-Canada port-level with Mode (Overview map, future Canada page) -- 2007+
-  9. mexican_state_trade      DOT1  Annual  Mexican state trade (US-Mexico States tab choropleth) -- 2007+
- 10. texas_mexican_state_trade DOT1  Annual  Mexican states via TX ports (TX-Mexico States tab choropleth) -- 2007+
+  1. us_transborder           DOT2  Annual  Year/Country/Mode/TradeType summary (Overview, Trade by Mode) -- 1993+
+  2. us_mexico_ports          DOT1  Annual  US-Mexico port-level with Mode (port map, rankings, trends) -- 1993+
+  3. texas_mexico_ports       DOT1  Annual  TX border ports with region/coordinates (TX port tabs) -- 1993+
+  4. texas_mexico_commodities DOT3  Annual  TX border port-commodity detail (TX Commodities tab) -- 2003+ (DOT3 starts 2003)
+  5. us_state_trade           DOT1  Annual  State-level trade (Trade by State, Overview Top 10 States) -- 1993+
+  6. commodity_detail         DOT2  Annual  Commodity by country/mode (Commodities page + US-Mexico commodity charts) -- 1993+
+  7. monthly_trends           DOT1  Monthly Country/mode time series (TX Monthly tab) -- 1993+
+  8. us_canada_ports          DOT1  Annual  US-Canada port-level with Mode (Overview map, future Canada page) -- 1993+
+  9. mexican_state_trade      DOT1  Annual  Mexican state trade (US-Mexico States tab choropleth) -- 1993+
+ 10. texas_mexican_state_trade DOT1  Annual  Mexican states via TX ports (TX-Mexico States tab choropleth) -- 1993+
 
 Design note: The previous us_mexico_commodities dataset (DOT2, Mexico-only with State
 dimension) was eliminated. No US-Mexico chart needs commodities broken down by state.
@@ -49,9 +48,10 @@ JSON_DIR = OUTPUT_DIR / "json"
 CSV_DIR = OUTPUT_DIR / "csv"
 CONFIG_DIR = STAGING_DIR / "config"
 
-# Year boundary: detail datasets start at the Jan 2007 consolidation.
-# Overview (us_transborder) uses all years for the full 33-year story.
-MODERN_START_YEAR = 2007
+# Year boundary: all datasets now use the full year range (1993+) so that
+# trend lines and Texas overlays match the national summary. The Jan 2007
+# schema consolidation is noted in comments but does not limit extraction.
+MODERN_START_YEAR = 1993
 
 # Conversion factor: 1 kg = 2.20462 lb
 KG_TO_LB = 2.20462

@@ -104,6 +104,7 @@ export default function FullscreenChart({
             )}
             <button
               onClick={handleExportPng}
+              aria-label="Export as PNG"
               className="inline-flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-base font-medium
                          text-text-secondary bg-surface-alt hover:bg-gray-200
                          border border-border-light transition-all duration-150"
@@ -114,6 +115,7 @@ export default function FullscreenChart({
             </button>
             <button
               onClick={onClose}
+              aria-label="Close fullscreen (Esc)"
               className="inline-flex items-center gap-2 px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-base font-medium
                          text-white bg-brand-blue hover:bg-brand-blue-dark
                          transition-all duration-150"
@@ -137,6 +139,7 @@ export default function FullscreenChart({
       {/* ── Filter sidebar (right) ── */}
       {filterCtx && (
         <aside
+          aria-label="Filters"
           className={`hidden md:flex flex-col flex-shrink-0 bg-[#edf1f7] border-l border-border-light
             ${sidebarWidth} transition-all duration-300 ease-in-out overflow-hidden`}
         >
@@ -159,6 +162,8 @@ export default function FullscreenChart({
             )}
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              aria-label={sidebarCollapsed ? 'Expand filters' : 'Collapse filters'}
+              aria-expanded={!sidebarCollapsed}
               className="p-1 rounded-md text-text-secondary hover:text-brand-blue
                          hover:bg-surface-alt transition-all duration-150"
               title={sidebarCollapsed ? 'Expand filters' : 'Collapse filters'}

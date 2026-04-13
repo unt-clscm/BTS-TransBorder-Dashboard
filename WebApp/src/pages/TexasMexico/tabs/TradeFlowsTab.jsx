@@ -238,8 +238,9 @@ export default function TradeFlowsTab({
             subtitle="Click a state or port to see flow arcs — use the timeline to animate through years"
             headerRight={
               <div className="flex items-center gap-2 text-sm">
-                <label className="text-text-secondary font-medium">Year</label>
+                <label htmlFor="tradeflows-map-year" className="text-text-secondary font-medium">Year</label>
                 <select
+                  id="tradeflows-map-year"
                   value={mapYear}
                   onChange={(e) => setMapYear(e.target.value)}
                   className="appearance-none px-2 py-1 pr-6 rounded border border-border bg-white text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-blue/30 cursor-pointer"

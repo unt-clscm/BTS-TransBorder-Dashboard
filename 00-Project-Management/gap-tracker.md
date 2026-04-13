@@ -4,7 +4,7 @@ Living document tracking known issues, missing pieces, and open questions across
 
 ---
 
-## Status Summary (as of 2026-03-24)
+## Status Summary (as of 2026-04-13)
 
 | Phase | Planning | Implementation |
 |---|---|---|
@@ -211,8 +211,8 @@ All Phase 4 deliverables implemented. Testing suite covers schema validation, vi
 
 ### Open Questions
 
-- [ ] Accessibility requirements: Are there specific WCAG/Section 508 compliance requirements from TxDOT?
-- [ ] Browser support: What browsers/versions must be supported?
+- [x] ~~Accessibility requirements~~ — Resolved 2026-04-13. Targeting **WCAG 2.1 Level AA**. Implemented: `eslint-plugin-jsx-a11y` added to the lint pipeline to catch issues automatically; all pre-existing jsx-a11y violations fixed (FilterMultiSelect listbox/option roles, DownloadButton menu role, EmbedModal dialog/backdrop pattern, DataTable pagination labels, label–control associations on map year selectors, FilterSidebar `aria-label`). Maps already had `role="region"` + `aria-label`. Foundations already in place: skip-to-main link, semantic HTML, keyboard nav, color contrast (8.5–10.8:1), focus management, reduced motion support.
+- [x] ~~Browser support~~ — Resolved 2026-04-13. Supporting **all major modern browsers**: Chrome, Edge, Firefox (including ESR), Safari, and iOS Safari — last 2 versions of each. Explicit `browserslist` config added to `package.json`. No IE11. Responsive testing extended to 375px (iPhone SE) in addition to 390px, 768px, and 1440px viewports.
 
 ---
 
@@ -262,6 +262,7 @@ All Phase 4 deliverables implemented. Testing suite covers schema validation, vi
 
 | Date | Update |
 |---|---|
+| 2026-04-13 | **WCAG 2.1 AA and browser support resolved.** `eslint-plugin-jsx-a11y` added to lint pipeline; all jsx-a11y violations fixed. Browser support declared via `browserslist`: Chrome, Edge, Firefox (incl. ESR), Safari, iOS Safari — last 2 versions each. Responsive testing extended to 375px (iPhone SE). Both Phase 4 open questions closed. |
 | 2026-03-24 | **Phase 4 complete.** Testing suite built (schema, visual, functional, responsive, cross-browser). Dashboard deployed to GitHub Pages. Pipeline and webapp review fixes applied. Maps added to all pages. Canadian port data (89 ports) and `us_canada_ports` dataset (223K rows) added. Trade by Mode/Commodity standalone pages consolidated. Per-chart country filter dropdowns added to Overview. Root `README.md` created for project onboarding. |
 | 2026-03-23 | **Phase 3 complete.** WebApp built: 8 pages + 5 TexasMexico tabs + embed system. Forked from Airport Dashboard, all aviation code replaced. Treemap drilldown, lazy-loading store, port map, insight engine. Build: 492 KB JS, 48 KB CSS. |
 | 2026-03-23 | **BTS confirmation from Sean Jahanmir on legacy file semantics.** (1) A/B suffix = alternative geographic pivots from same raw ledger, not additive — validates D5B/D6B exclusion. (2) R-files = full replacements, X-files = supplemental deltas — validates R-file preference logic. (3) NAFTA-era carry-over context documented. Updated `legacy-to-modern-mapping.md` with authoritative quotes. |

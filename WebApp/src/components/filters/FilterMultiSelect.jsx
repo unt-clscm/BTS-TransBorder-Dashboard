@@ -35,6 +35,7 @@ export default function FilterMultiSelect({
 }) {
   const id = useId()
   const listboxId = `${id}-listbox`
+  const labelId = `${id}-label`
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [focusIdx, setFocusIdx] = useState(-1)
@@ -224,11 +225,14 @@ export default function FilterMultiSelect({
     const idx = visibleOptions.indexOf(val)
     const isFocused = idx === focusIdx
     return (
+      // eslint-disable-next-line jsx-a11y/click-events-have-key-events -- keyboard handled by parent listbox per WAI-ARIA managed-focus pattern
       <div
         key={val}
+        id={idx >= 0 ? `${listboxId}-opt-${idx}` : undefined}
         ref={(el) => { if (idx >= 0) optionRefs.current[idx] = el }}
         role="option"
         aria-selected={checked}
+        tabIndex={-1}
         onClick={() => toggle(val)}
         onMouseEnter={() => setFocusIdx(idx)}
         className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left cursor-pointer transition-colors ${checked ? 'bg-brand-blue/10 font-medium text-brand-blue' : ''} ${isFocused ? 'bg-brand-blue/10 outline outline-2 outline-brand-blue/30' : 'hover:bg-brand-blue/5'}`}
@@ -252,12 +256,12 @@ export default function FilterMultiSelect({
           .filter((sg) => sg.visible.length > 0)
         if (visibleSubs.length === 0) return null
         return (
-          <div key={group.label}>
+          <div key={group.label} role="group" aria-label={group.label}>
             <div className="px-3 py-1.5 text-[11px] font-bold text-text-primary uppercase tracking-wider bg-gray-100 border-t border-border/40 sticky top-0 z-10">
               {group.label}
             </div>
             {visibleSubs.map((sg) => (
-              <div key={sg.label}>
+              <div key={sg.label} role="group" aria-label={sg.label}>
                 <div className="px-3 pl-5 py-1 text-[10px] font-semibold text-text-secondary uppercase tracking-wider bg-gray-50 border-t border-border/20 sticky top-7 z-[9]">
                   {sg.label}
                 </div>
@@ -271,7 +275,7 @@ export default function FilterMultiSelect({
       const visibleOpts = group.options.filter((opt) => matchesSearch(getLbl(opt)))
       if (visibleOpts.length === 0) return null
       return (
-        <div key={group.label}>
+        <div key={group.label} role="group" aria-label={group.label}>
           <div className="px-3 py-1.5 text-[11px] font-semibold text-text-secondary uppercase tracking-wider bg-white border-t border-border/40 sticky top-0 z-10">
             {group.label}
           </div>
@@ -292,7 +296,9 @@ export default function FilterMultiSelect({
       id={listboxId}
       role="listbox"
       aria-multiselectable="true"
-      aria-label={label}
+      aria-labelledby={labelId}
+      aria-activedescendant={focusIdx >= 0 ? `${listboxId}-opt-${focusIdx}` : undefined}
+      tabIndex={0}
       onKeyDown={handleKeyDown}
       className="fixed z-[9999] bg-white border border-border rounded-lg shadow-lg flex flex-col overflow-hidden"
       style={{
@@ -305,10 +311,13 @@ export default function FilterMultiSelect({
       }}
     >
       {/* All option */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events -- keyboard handled by parent listbox per WAI-ARIA managed-focus pattern */}
       <div
+        id={`${listboxId}-opt-0`}
         ref={(el) => { optionRefs.current[0] = el }}
         role="option"
         aria-selected={allSelected}
+        tabIndex={-1}
         onClick={selectAll}
         onMouseEnter={() => setFocusIdx(0)}
         className={`flex-shrink-0 w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left cursor-pointer transition-colors ${allSelected ? 'bg-brand-blue/10 font-medium text-brand-blue' : ''} ${focusIdx === 0 ? 'bg-brand-blue/10 outline outline-2 outline-brand-blue/30' : 'hover:bg-brand-blue/5'}`}
@@ -332,6 +341,7 @@ export default function FilterMultiSelect({
             <input
               ref={searchRef}
               type="text"
+              aria-label="Search options"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search..."
@@ -352,16 +362,16 @@ export default function FilterMultiSelect({
 
   return (
     <div className="flex flex-col gap-1 min-w-0 w-full" ref={ref}>
-      <label htmlFor={id} className="text-base font-medium text-text-secondary uppercase tracking-wider">
+      <label id={labelId} className="text-base font-medium text-text-secondary uppercase tracking-wider">
         {label}
       </label>
       <div className="relative">
         <button
-          id={id}
           ref={triggerRef}
           type="button"
           onClick={() => setOpen((o) => !o)}
           onKeyDown={handleKeyDown}
+          aria-labelledby={labelId}
           aria-expanded={open}
           aria-haspopup="listbox"
           aria-controls={open ? listboxId : undefined}

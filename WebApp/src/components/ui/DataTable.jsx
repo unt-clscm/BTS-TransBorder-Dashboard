@@ -285,18 +285,20 @@ export default function DataTable({ columns, data, pageSize: fixedPageSize, full
             <button
               onClick={() => setPage((p) => Math.max(0, p - 1))}
               disabled={page === 0}
+              aria-label="Previous page"
               className="px-2.5 py-1 text-base font-medium rounded-md border border-border
                          disabled:opacity-40 disabled:cursor-not-allowed
                          hover:bg-surface-alt transition-colors"
             >
               Prev
             </button>
-            <span className="px-2 text-base text-text-secondary">
+            <span className="px-2 text-base text-text-secondary" aria-live="polite" aria-atomic="true">
               {page + 1} / {totalPages}
             </span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
               disabled={page >= totalPages - 1}
+              aria-label="Next page"
               className="px-2.5 py-1 text-base font-medium rounded-md border border-border
                          disabled:opacity-40 disabled:cursor-not-allowed
                          hover:bg-surface-alt transition-colors"

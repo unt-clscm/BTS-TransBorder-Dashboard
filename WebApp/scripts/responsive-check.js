@@ -29,6 +29,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const BASE_URL = process.argv[2] || 'http://localhost:5173'
 
 const VIEWPORTS = [
+  { name: 'mobile-sm', width: 375, height: 667 },  // iPhone SE / small Android
   { name: 'mobile', width: 390, height: 844 },
   { name: 'tablet', width: 768, height: 1024 },
   { name: 'desktop', width: 1440, height: 900 },

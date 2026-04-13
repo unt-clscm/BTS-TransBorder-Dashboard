@@ -419,9 +419,10 @@ export default function OverviewPage() {
           <div className="pb-4 md:pb-5">
             {/* Year selector for map */}
             <div className="flex items-center gap-2 mb-2">
-              <label className="text-white/70 text-sm font-medium">Year</label>
+              <label htmlFor="overview-map-year" className="text-white/70 text-sm font-medium">Year</label>
               <div className="relative">
                 <select
+                  id="overview-map-year"
                   value={mapYear}
                   onChange={(e) => setMapYear(e.target.value)}
                   className="appearance-none px-2 py-1 pr-7 rounded border border-white/20 bg-white/10 text-white text-sm

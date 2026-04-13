@@ -37,7 +37,10 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
   const [collapsed, setCollapsed] = useState(false)
   const [showScrollTop, setShowScrollTop] = useState(false)
   const [dlOpen, setDlOpen] = useState(false)
+  const [focusDlIdx, setFocusDlIdx] = useState(-1)
   const dlRef = useRef(null)
+  const dlTriggerRef = useRef(null)
+  const dlMenuItemRefs = useRef([])
   const lastScrollTopRef = useRef(false)
 
   useEffect(() => {
@@ -62,6 +65,56 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
     return () => document.removeEventListener('pointerdown', handler)
   }, [dlOpen])
 
+  // Focus menu item when focusDlIdx changes
+  useEffect(() => {
+    if (dlOpen && focusDlIdx >= 0 && dlMenuItemRefs.current[focusDlIdx]) {
+      dlMenuItemRefs.current[focusDlIdx].focus()
+    }
+  }, [dlOpen, focusDlIdx])
+
+  // Reset focusDlIdx when download dropdown closes
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!dlOpen) setFocusDlIdx(-1)
+  }, [dlOpen])
+
+  // Keyboard handler for trigger button: open with ArrowDown/Space, close with Escape
+  const handleDlTriggerKeyDown = (e) => {
+    if ((e.key === 'ArrowDown' || e.key === ' ') && !dlOpen) {
+      e.preventDefault()
+      setDlOpen(true)
+      setFocusDlIdx(0)
+    } else if (e.key === 'Escape' && dlOpen) {
+      e.preventDefault()
+      setDlOpen(false)
+    }
+  }
+
+  // Keyboard handler for the menu: arrow navigation and Escape
+  const handleDlMenuKeyDown = (e) => {
+    const items = dlMenuItemRefs.current.filter(Boolean)
+    switch (e.key) {
+      case 'ArrowDown':
+        e.preventDefault()
+        setFocusDlIdx((prev) => Math.min(prev + 1, items.length - 1))
+        break
+      case 'ArrowUp':
+        e.preventDefault()
+        setFocusDlIdx((prev) => Math.max(prev - 1, 0))
+        break
+      case 'Escape':
+        e.preventDefault()
+        setDlOpen(false)
+        dlTriggerRef.current?.focus()
+        break
+      case 'Tab':
+        setDlOpen(false)
+        break
+      default:
+        break
+    }
+  }
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -70,6 +123,7 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
 
   return (
       <aside
+        aria-label="Filters"
         className={`sticky top-0 self-start h-screen flex-shrink-0 flex flex-col z-40
           bg-[#edf1f7] border-l border-border-light shadow-sm
           transition-all duration-300 ease-in-out
@@ -95,6 +149,8 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
+            aria-label={collapsed ? 'Expand filters' : 'Collapse filters'}
+            aria-expanded={!collapsed}
             className="p-1 rounded-md text-text-secondary hover:text-brand-blue
                        hover:bg-surface-alt transition-all duration-150"
             title={collapsed ? 'Expand filters' : 'Collapse filters'}
@@ -144,7 +200,12 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
               {pageDownload && (
                 <div className="border-t border-border-light pt-4 mt-2 relative" ref={dlRef}>
                   <button
+                    ref={dlTriggerRef}
                     onClick={() => setDlOpen((o) => !o)}
+                    onKeyDown={handleDlTriggerKeyDown}
+                    aria-expanded={dlOpen}
+                    aria-haspopup="menu"
+                    aria-controls={dlOpen ? 'sidebar-dl-menu' : undefined}
                     className="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-base font-medium
                                text-brand-blue border border-brand-blue/30 rounded-lg
                                hover:bg-brand-blue/5 transition-all duration-150"
@@ -153,19 +214,31 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
                     Download Page Data
                   </button>
                   {dlOpen && (
-                    <div className="mt-1 bg-white rounded-lg shadow-lg border border-border-light py-1 z-50">
+                    <div
+                      id="sidebar-dl-menu"
+                      role="menu"
+                      tabIndex={-1}
+                      aria-label="Download options"
+                      aria-orientation="vertical"
+                      onKeyDown={handleDlMenuKeyDown}
+                      className="mt-1 bg-white rounded-lg shadow-lg border border-border-light py-1 z-50"
+                    >
                       {pageDownload.market?.data?.length > 0 && (
                         <button
-                          onClick={() => { downloadCsv(pageDownload.market.data, pageDownload.market.filename, pageDownload.market.columns); setDlOpen(false) }}
-                          className="w-full text-left px-3 py-2 text-base text-text-primary hover:bg-surface-alt transition-colors"
+                          ref={(el) => { dlMenuItemRefs.current[0] = el }}
+                          role="menuitem"
+                          onClick={() => { downloadCsv(pageDownload.market.data, pageDownload.market.filename, pageDownload.market.columns); setDlOpen(false); dlTriggerRef.current?.focus() }}
+                          className="w-full text-left px-3 py-2 text-base text-text-primary hover:bg-surface-alt focus:bg-surface-alt focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-inset transition-colors outline-none"
                         >
                           Market Data (CSV)
                         </button>
                       )}
                       {pageDownload.segment?.data?.length > 0 && (
                         <button
-                          onClick={() => { downloadCsv(pageDownload.segment.data, pageDownload.segment.filename, pageDownload.segment.columns); setDlOpen(false) }}
-                          className="w-full text-left px-3 py-2 text-base text-text-primary hover:bg-surface-alt transition-colors"
+                          ref={(el) => { dlMenuItemRefs.current[pageDownload.market?.data?.length > 0 ? 1 : 0] = el }}
+                          role="menuitem"
+                          onClick={() => { downloadCsv(pageDownload.segment.data, pageDownload.segment.filename, pageDownload.segment.columns); setDlOpen(false); dlTriggerRef.current?.focus() }}
+                          className="w-full text-left px-3 py-2 text-base text-text-primary hover:bg-surface-alt focus:bg-surface-alt focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-inset transition-colors outline-none"
                         >
                           Segment Data (CSV)
                         </button>
@@ -193,6 +266,7 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
             <div className="flex justify-center py-2">
               <button
                 onClick={scrollToTop}
+                aria-label="Back to top"
                 className="p-1.5 rounded-md text-text-secondary hover:text-brand-blue
                            hover:bg-surface-alt transition-all duration-150"
                 title="Back to top"

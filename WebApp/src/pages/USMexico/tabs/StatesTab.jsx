@@ -416,7 +416,7 @@ export default function StatesTab({
               zoom={5}
               height="400px"
               title="Mexican States"
-              highlightFeature={showTexas ? 'Nuevo León' : null}
+              highlightFeature={showTexas ? 'Nuevo Leon' : null}
             />
           </ChartCard>
         </div>
@@ -437,7 +437,7 @@ export default function StatesTab({
             <BarChart data={usBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(usBarMax, axisPrefix, axisSuffix)} color={CHART_COLORS[0]} colorAccessor={showTexas ? (d) => d.label === 'Texas' ? TEXAS_COLOR : CHART_COLORS[0] : undefined} />
           </ChartCard>
           <ChartCard title={`Top ${mxTopN} Mexican States`} subtitle={`Ranked by ${metricLabel.toLowerCase()} with the U.S.`} headerRight={<TopNSelector value={mxTopN} onChange={setMxTopN} />}>
-            <BarChart data={mxBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(mxBarMax, axisPrefix, axisSuffix)} color={CHART_COLORS[3]} colorAccessor={showTexas ? (d) => ['Nuevo León', 'Chihuahua', 'Tamaulipas'].includes(d.label) ? TEXAS_COLOR : CHART_COLORS[3] : undefined} />
+            <BarChart data={mxBarData} xKey="label" yKey="value" horizontal formatY={getAxisFormatter(mxBarMax, axisPrefix, axisSuffix)} color={CHART_COLORS[3]} colorAccessor={showTexas ? (d) => ['Nuevo Leon', 'Chihuahua', 'Tamaulipas'].includes(d.label) ? TEXAS_COLOR : CHART_COLORS[3] : undefined} />
           </ChartCard>
         </div>
       </SectionBlock>
@@ -448,7 +448,7 @@ export default function StatesTab({
         const total = usBarData.reduce((s, d) => s + d.value, 0)
         const pct = total > 0 && txRow ? ((txRow.value / total) * 100).toFixed(0) : 0
         const rank = txRow ? usBarData.findIndex((d) => d.label === 'Texas') + 1 : null
-        const texasPartners = ['Nuevo León', 'Chihuahua', 'Tamaulipas']
+        const texasPartners = ['Nuevo Leon', 'Chihuahua', 'Tamaulipas']
         const hasPartners = texasPartners.some(s => mxBarData.some(d => d.label === s))
         if (!txRow && !hasPartners) return null
         return (
@@ -480,7 +480,15 @@ export default function StatesTab({
             <LineChart data={usStateTrends} xKey="year" yKey="value" seriesKey="State" formatY={getAxisFormatter(usTrendMax, axisPrefix, axisSuffix)} annotations={HISTORICAL_ANNOTATIONS} colorOverrides={showTexas ? { Texas: TEXAS_COLOR } : undefined} />
           </ChartCard>
           <ChartCard title={`Top ${mxTrendTopN} Mexican State Trends`} subtitle={`Annual ${metricLabel.toLowerCase()} with the U.S.`} headerRight={<><TopNSelector value={mxTrendTopN} onChange={setMxTrendTopN} /><YearRangeFilter years={allMXYears} startYear={mxTrendYearRange.startYear} endYear={mxTrendYearRange.endYear} onChange={setMxTrendYearRange} /></>}>
-            <LineChart data={mxStateTrends} xKey="year" yKey="value" seriesKey="MexState" formatY={getAxisFormatter(mxTrendMax, axisPrefix, axisSuffix)} annotations={HISTORICAL_ANNOTATIONS} />
+            <LineChart
+              data={mxStateTrends}
+              xKey="year"
+              yKey="value"
+              seriesKey="MexState"
+              formatY={getAxisFormatter(mxTrendMax, axisPrefix, axisSuffix)}
+              annotations={HISTORICAL_ANNOTATIONS}
+              colorOverrides={showTexas ? { 'Nuevo Leon': TEXAS_COLOR, 'Chihuahua': TEXAS_COLOR, 'Tamaulipas': TEXAS_COLOR } : undefined}
+            />
           </ChartCard>
         </div>
       </SectionBlock>
@@ -502,6 +510,23 @@ export default function StatesTab({
           </div>
         </SectionBlock>
       )}
+
+      {/* Texas context for growth charts */}
+      {showTexas && usStateGrowth.length > 0 && (() => {
+        const txInGrowth = usStateGrowth.find((d) => d.label === 'Texas')
+        if (txInGrowth) return null // Texas appears, no need for explanation
+        return (
+          <SectionBlock>
+            <div className="max-w-7xl mx-auto">
+              <InsightCallout
+                finding="Texas doesn't appear in the fastest-growing list because it already ranked #1 from the earliest years of the data. Percentage growth from a dominant starting position looks modest — but Texas added more trade in absolute dollars than most states' entire total."
+                icon={Star}
+                variant="texas"
+              />
+            </div>
+          </SectionBlock>
+        )
+      })()}
 
       {/* State Commodity Specialization */}
       {stateSpecialization.data.length > 0 && (

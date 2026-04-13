@@ -509,6 +509,19 @@ export default function PortsTab({
         })
         const contTrend = Array.from(contByYear, ([year, value]) => ({ year, value })).sort((a, b) => a.year - b.year)
 
+        // Texas containerized trade trend
+        const txContTrend = showTexas
+          ? Array.from(
+              containerizationTrade
+                .filter((d) => d.ContCode === '1' && txPorts.has(d.Port) && d.Year)
+                .reduce((m, d) => {
+                  m.set(d.Year, (m.get(d.Year) || 0) + (d[valueField] || 0))
+                  return m
+                }, new Map()),
+              ([year, value]) => ({ year, value })
+            ).sort((a, b) => a.year - b.year)
+          : []
+
         return (
           <SectionBlock alt>
             <div className="max-w-7xl mx-auto">
@@ -527,7 +540,18 @@ export default function PortsTab({
               {contTrend.length > 2 && (
                 <div className="mt-6">
                   <ChartCard title="Containerized Trade Growth" subtitle={`${metricLabel} of containerized freight crossing the U.S.-Mexico border by year`}>
-                    <LineChart data={contTrend} xKey="year" yKey="value" formatValue={fmtValue} showArea annotations={HISTORICAL_ANNOTATIONS} />
+                    <LineChart
+                      data={showTexas && txContTrend.length > 0
+                        ? [...contTrend.map((d) => ({ ...d, Series: 'National' })), ...txContTrend.map((d) => ({ ...d, Series: 'Texas' }))]
+                        : contTrend}
+                      xKey="year"
+                      yKey="value"
+                      seriesKey={showTexas && txContTrend.length > 0 ? 'Series' : undefined}
+                      formatValue={fmtValue}
+                      showArea={!(showTexas && txContTrend.length > 0)}
+                      annotations={HISTORICAL_ANNOTATIONS}
+                      colorOverrides={showTexas && txContTrend.length > 0 ? { Texas: TEXAS_COLOR } : undefined}
+                    />
                   </ChartCard>
                 </div>
               )}
@@ -546,16 +570,28 @@ export default function PortsTab({
                 const txCont = containerizationTrade.filter((d) => txPorts.has(d.Port))
                 const txTotal = txCont.reduce((s, d) => s + (d[valueField] || 0), 0)
                 const natTotal = containerizationTrade.reduce((s, d) => s + (d[valueField] || 0), 0)
-                const pct = natTotal > 0 ? ((txTotal / natTotal) * 100).toFixed(0) : 0
-                return txTotal > 0 ? (
+                const sharePct = natTotal > 0 ? ((txTotal / natTotal) * 100).toFixed(0) : 0
+
+                // Texas containerization rate
+                const txContainerized = txCont.filter((d) => d.ContCode === '1').reduce((s, d) => s + (d[valueField] || 0), 0)
+                const txContRate = txTotal > 0 ? ((txContainerized / txTotal) * 100).toFixed(1) : 0
+
+                // Texas re-export share (exports only)
+                const txExports = txCont.filter((d) => d.TradeType === 'Export')
+                const txTotalExports = txExports.reduce((s, d) => s + (d[valueField] || 0), 0)
+                const txReExports = txExports.filter((d) => d.DF === '2').reduce((s, d) => s + (d[valueField] || 0), 0)
+                const txReExportPct = txTotalExports > 0 ? ((txReExports / txTotalExports) * 100).toFixed(0) : null
+
+                if (!txTotal) return null
+                return (
                   <div className="mt-4">
                     <InsightCallout
-                      finding={`Texas ports handle ${pct}% of all containerized and non-containerized U.S.-Mexico freight tracked in the logistics data.`}
+                      finding={`Texas ports handle ${sharePct}% of all U.S.-Mexico logistics freight. Only ${txContRate}% of Texas freight is containerized — even lower than the national average — reflecting truck and pipeline dominance.${txReExportPct !== null ? ` Texas's re-export share is ${txReExportPct}% (vs ~22% nationally), consistent with its role as a direct manufacturing and energy gateway.` : ''}`}
                       icon={Star}
                       variant="texas"
                     />
                   </div>
-                ) : null
+                )
               })()}
             </div>
           </SectionBlock>

@@ -58,12 +58,14 @@ function useGeoJSON(url) {
 function FitAndResetButton({ geojson, fallbackCenter, fallbackZoom }) {
   const map = useMap()
   const hasFit = useRef(false)
+  const boundsRef = useRef(null)
 
   useEffect(() => {
     if (!geojson || hasFit.current) return
     try {
       const bounds = L.geoJSON(geojson).getBounds()
       if (bounds.isValid()) {
+        boundsRef.current = bounds
         map.fitBounds(bounds, { padding: [20, 20] })
         hasFit.current = true
       }
@@ -72,14 +74,11 @@ function FitAndResetButton({ geojson, fallbackCenter, fallbackZoom }) {
 
   const handleReset = useCallback((e) => {
     e.stopPropagation()
-    if (geojson) {
-      try {
-        const bounds = L.geoJSON(geojson).getBounds()
-        if (bounds.isValid()) { map.fitBounds(bounds, { padding: [20, 20] }); return }
-      } catch { /* fall through */ }
+    if (boundsRef.current) {
+      map.fitBounds(boundsRef.current, { padding: [20, 20] }); return
     }
     map.setView(fallbackCenter, fallbackZoom)
-  }, [map, geojson, fallbackCenter, fallbackZoom])
+  }, [map, fallbackCenter, fallbackZoom])
 
   return (
     <div className="leaflet-top leaflet-left" style={{ pointerEvents: 'auto' }}>

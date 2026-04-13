@@ -91,10 +91,10 @@ export default function CommoditiesTab({
     }
   }, [allCommodityYears])
 
-  // Reset drill when switching to commodities view
+  // Reset drill when switching to commodities view OR when Texas Lens turns on
   useEffect(() => {
-    if (treemapView === 'commodities') setDrillGroup(null)
-  }, [treemapView])
+    if (treemapView === 'commodities' || showTexas) setDrillGroup(null)
+  }, [treemapView, showTexas])
 
   /* ── treemap data (groups with drill, or flat commodities) ──────── */
   const treemapData = useMemo(() => {
@@ -188,6 +188,42 @@ export default function CommoditiesTab({
     })
     return Array.from(byYearGroup.values()).sort((a, b) => a.year - b.year)
   }, [showTexas, stateCommodityTrade, groupTrends, tradeTypeFilter, modeFilter, trendYearRange, valueField])
+
+  /* ── Texas commodity group treemap data ──────────────────────────── */
+  const txTreemapData = useMemo(() => {
+    if (!showTexas || !stateCommodityTrade?.length) return null
+    const byGroup = new Map()
+    stateCommodityTrade.filter((d) => d.State === 'Texas').forEach((d) => {
+      if (yearFilter?.length && !yearFilter.includes(String(d.Year))) return
+      if (tradeTypeFilter && d.TradeType !== tradeTypeFilter) return
+      if (modeFilter?.length && !modeFilter.includes(d.Mode)) return
+      const grp = d.CommodityGroup || 'Other'
+      byGroup.set(grp, (byGroup.get(grp) || 0) + (d[valueField] || 0))
+    })
+    return Array.from(byGroup, ([name, value]) => ({ name, value }))
+      .filter((d) => d.value > 0)
+      .sort((a, b) => b.value - a.value)
+  }, [showTexas, stateCommodityTrade, yearFilter, tradeTypeFilter, modeFilter, valueField])
+
+  /* ── Texas cross-border manufacturing pattern (diverging bar) ─────── */
+  const txMaquiladoraData = useMemo(() => {
+    if (!showTexas || !stateCommodityTrade?.length) return null
+    const byGroup = new Map()
+    stateCommodityTrade.filter((d) => d.State === 'Texas').forEach((d) => {
+      if (!d.CommodityGroup) return
+      if (yearFilter?.length && !yearFilter.includes(String(d.Year))) return
+      if (modeFilter?.length && !modeFilter.includes(d.Mode)) return
+      const g = d.CommodityGroup
+      if (!byGroup.has(g)) byGroup.set(g, { label: g, exports: 0, imports: 0 })
+      const row = byGroup.get(g)
+      if (d.TradeType === 'Export') row.exports += d[valueField] || 0
+      else if (d.TradeType === 'Import') row.imports += d[valueField] || 0
+    })
+    return Array.from(byGroup.values())
+      .filter((d) => d.exports + d.imports > 0)
+      .sort((a, b) => (b.exports + b.imports) - (a.exports + a.imports))
+      .slice(0, divergingTopN)
+  }, [showTexas, stateCommodityTrade, yearFilter, modeFilter, valueField, divergingTopN])
 
   // Color overrides for Texas group lines
   const groupTrendColorOverrides = useMemo(() => {
@@ -296,36 +332,50 @@ export default function CommoditiesTab({
       {/* Treemap */}
       <SectionBlock alt>
         <ChartCard
-          title={drillGroup ? `${drillGroup} — HS Detail` : treemapView === 'commodities' ? 'Top 30 Commodities' : 'Commodity Groups'}
-          subtitle={drillGroup ? 'Individual commodities within group' : treemapView === 'commodities' ? `${metricLabel} by individual commodity (HS 2-digit)` : `${metricLabel} by commodity group — click to drill down`}
+          title={
+            showTexas && txTreemapData
+              ? 'Texas Commodity Groups'
+              : drillGroup
+              ? `${drillGroup} — HS Detail`
+              : treemapView === 'commodities'
+              ? 'Top 30 Commodities'
+              : 'Commodity Groups'
+          }
+          subtitle={
+            showTexas && txTreemapData
+              ? `Texas's ${metricLabel.toLowerCase()} breakdown by commodity group — toggle off to see national`
+              : drillGroup
+              ? 'Individual commodities within group'
+              : treemapView === 'commodities'
+              ? `${metricLabel} by individual commodity (HS 2-digit)`
+              : `${metricLabel} by commodity group — click to drill down`
+          }
           headerRight={
-            <div className="inline-flex rounded-lg border border-border-light overflow-hidden text-sm">
-              <button
-                onClick={() => setTreemapView('groups')}
-                className={`px-3 py-1.5 font-medium transition-colors ${treemapView === 'groups' ? 'bg-brand-blue text-white' : 'bg-white text-text-secondary hover:bg-surface-alt'}`}
-              >
-                Groups
-              </button>
-              <button
-                onClick={() => setTreemapView('commodities')}
-                className={`px-3 py-1.5 font-medium transition-colors ${treemapView === 'commodities' ? 'bg-brand-blue text-white' : 'bg-white text-text-secondary hover:bg-surface-alt'}`}
-              >
-                Commodities
-              </button>
-            </div>
+            showTexas && txTreemapData ? null : (
+              <div className="inline-flex rounded-lg border border-border-light overflow-hidden text-sm">
+                <button
+                  onClick={() => setTreemapView('groups')}
+                  className={`px-3 py-1.5 font-medium transition-colors ${treemapView === 'groups' ? 'bg-brand-blue text-white' : 'bg-white text-text-secondary hover:bg-surface-alt'}`}
+                >Groups</button>
+                <button
+                  onClick={() => setTreemapView('commodities')}
+                  className={`px-3 py-1.5 font-medium transition-colors ${treemapView === 'commodities' ? 'bg-brand-blue text-white' : 'bg-white text-text-secondary hover:bg-surface-alt'}`}
+                >Commodities</button>
+              </div>
+            )
           }
         >
-          {drillGroup && (
+          {!showTexas && drillGroup && (
             <button onClick={() => setDrillGroup(null)} className="mb-2 text-sm text-brand-blue hover:underline">
               &larr; Back to all groups
             </button>
           )}
           <TreemapChart
-            data={treemapData}
+            data={showTexas && txTreemapData ? txTreemapData : treemapData}
             nameKey="name"
             valueKey="value"
             formatValue={fmtValue}
-            onCellClick={treemapView === 'groups' && !drillGroup ? (name) => setDrillGroup(name) : undefined}
+            onCellClick={showTexas && txTreemapData ? undefined : (treemapView === 'groups' && !drillGroup ? (name) => setDrillGroup(name) : undefined)}
           />
         </ChartCard>
       </SectionBlock>
@@ -413,16 +463,18 @@ export default function CommoditiesTab({
       </SectionBlock>
 
       {/* Cross-Border Manufacturing Pattern */}
-      {maquiladoraData.length > 0 && (
+      {(maquiladoraData.length > 0 || (showTexas && (txMaquiladoraData?.length ?? 0) > 0)) && (
         <SectionBlock alt>
           <div className="max-w-7xl mx-auto">
             <ChartCard
-              title="Cross-Border Manufacturing Pattern"
-              subtitle={`Imports (left) vs. exports (right) by commodity group \u2014 reveals maquiladora (cross-border factory) supply chains`}
+              title={showTexas && txMaquiladoraData ? 'Texas Cross-Border Manufacturing Pattern' : 'Cross-Border Manufacturing Pattern'}
+              subtitle={showTexas && txMaquiladoraData
+                ? `Texas imports vs. exports by commodity group — Texas's role in cross-border supply chains`
+                : `Imports (left) vs. exports (right) by commodity group \u2014 reveals maquiladora (cross-border factory) supply chains`}
               headerRight={<TopNSelector value={divergingTopN} onChange={setDivergingTopN} />}
             >
               <DivergingBarChart
-                data={maquiladoraData}
+                data={showTexas && txMaquiladoraData ? txMaquiladoraData : maquiladoraData}
                 labelKey="label"
                 leftKey="imports"
                 rightKey="exports"

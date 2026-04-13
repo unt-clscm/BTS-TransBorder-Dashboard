@@ -205,7 +205,7 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
                     onKeyDown={handleDlTriggerKeyDown}
                     aria-expanded={dlOpen}
                     aria-haspopup="menu"
-                    aria-controls={dlOpen ? 'sidebar-dl-menu' : undefined}
+                    aria-controls="sidebar-dl-menu"
                     className="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-base font-medium
                                text-brand-blue border border-brand-blue/30 rounded-lg
                                hover:bg-brand-blue/5 transition-all duration-150"

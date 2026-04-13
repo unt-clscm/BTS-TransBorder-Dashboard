@@ -129,7 +129,7 @@ export default function DownloadButton({ summary, detail, size = 'default' }) {
         onKeyDown={handleKeyDown}
         aria-expanded={!singleOption ? open : false}
         aria-haspopup="menu"
-        aria-controls={open && !singleOption ? menuId : undefined}
+        aria-controls={!singleOption ? menuId : undefined}
         className={
           isFullscreen
             ? 'inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-base font-medium text-text-secondary bg-surface-alt hover:bg-gray-200 border border-border-light transition-all duration-150'

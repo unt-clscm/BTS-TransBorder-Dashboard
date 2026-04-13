@@ -374,7 +374,7 @@ export default function FilterMultiSelect({
           aria-labelledby={labelId}
           aria-expanded={open}
           aria-haspopup="listbox"
-          aria-controls={open ? listboxId : undefined}
+          aria-controls={listboxId}
           className="appearance-none w-full px-3 py-2 pr-8 rounded-lg border border-border
                      bg-white text-base text-text-primary text-left
                      focus:outline-none focus:ring-2 focus:ring-brand-blue/20 focus:border-brand-blue

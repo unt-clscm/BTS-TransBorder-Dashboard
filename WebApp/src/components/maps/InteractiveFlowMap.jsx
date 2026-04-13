@@ -20,8 +20,7 @@
  *   center, zoom, height, title
  */
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, useMap, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, GeoJSON, CircleMarker } from 'react-leaflet'
 import * as d3 from 'd3'
 import 'leaflet/dist/leaflet.css'
 
@@ -32,58 +31,17 @@ import {
   TooltipSync,
   formatCurrencyDefault,
 } from './mapHelpers'
+import {
+  useGeoJSON,
+  radiusScale as _radiusScaleBase,
+  makeStateStyle,
+  PortPane,
+  MapClickReset,
+  MapTooltip,
+} from './mapShared'
 
-/* ── GeoJSON cache ─────────────────────────────────────────────────────── */
-const geoCache = {}
-
-function useGeoJSON(url) {
-  const [geojson, setGeojson] = useState(geoCache[url] || null)
-  const [loading, setLoading] = useState(!geoCache[url])
-
-  useEffect(() => {
-    if (geoCache[url]) { setGeojson(geoCache[url]); setLoading(false); return }
-    let cancelled = false
-    setLoading(true)
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => { geoCache[url] = data; if (!cancelled) { setGeojson(data); setLoading(false) } })
-      .catch(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
-  }, [url])
-
-  return { geojson, loading }
-}
-
-/* ── Port radius helper ──────────────────────────────────────────────── */
-function radiusScale(value, maxValue) {
-  if (!maxValue || !value) return 5
-  return Math.max(5, Math.min(18, 5 + 13 * Math.sqrt(value / maxValue)))
-}
-
-/* ── Create a custom pane for port markers (above overlay) ───────────── */
-function PortPane() {
-  const map = useMap()
-  useEffect(() => {
-    if (!map.getPane('portMarkers')) {
-      const pane = map.createPane('portMarkers')
-      pane.style.zIndex = '650' // above overlayPane (400) and shadowPane (500)
-    }
-  }, [map])
-  return null
-}
-
-/* ── Click-away: reset selection when clicking empty map space ────────── */
-function MapClickReset({ setSelection }) {
-  useMapEvents({
-    click: (e) => {
-      // Only reset if the click was on the map background (tile layer),
-      // not on a GeoJSON feature or CircleMarker (those stop propagation)
-      if (e.originalEvent?._stopped) return
-      setSelection(null)
-    },
-  })
-  return null
-}
+/* Port bubble radius — local defaults: min=5, max=18, mult=13 */
+const radiusScale = (value, maxValue) => _radiusScaleBase(value, maxValue, 5, 18, 13)
 
 /* ── Selection info panel ────────────────────────────────────────────── */
 function SelectionPanel({ selection, connections, portData, formatValue }) {
@@ -217,38 +175,14 @@ export default function InteractiveFlowMap({
   const style = useCallback((feature) => {
     const name = feature.properties?.name
     const value = stateValueMap.get(name)
-
-    // If a selection is active, dim non-highlighted states
+    const fill = value != null && value > 0 ? colorScale(value) : emptyColor
+    const isOrigin = selection?.type === 'state' && name === selection.name
     if (highlightedStates) {
-      const isHighlighted = highlightedStates.has(name)
-      if (!isHighlighted) {
-        return {
-          fillColor: emptyColor,
-          weight: 0.8,
-          opacity: 0.4,
-          color: '#aaa',
-          fillOpacity: 0.25,
-        }
-      }
-      // Highlighted state: use dynamic color scale
-      return {
-        fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
-        weight: 2.5,
-        opacity: 1,
-        color: '#333',
-        fillOpacity: 0.85,
-      }
+      return makeStateStyle(name, fill, emptyColor, highlightedStates, isOrigin)
     }
-
     // Default (no selection)
-    return {
-      fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
-      weight: 1,
-      opacity: 0.8,
-      color: '#666',
-      fillOpacity: 0.75,
-    }
-  }, [stateValueMap, colorScale, emptyColor, highlightedStates])
+    return { fillColor: fill, weight: 1, opacity: 0.8, color: '#666', fillOpacity: 0.75 }
+  }, [stateValueMap, colorScale, emptyColor, highlightedStates, selection])
 
   /* ── GeoJSON interaction ───────────────────────────────────────────── */
   const onEachFeature = useCallback((feature, layer) => {
@@ -390,7 +324,7 @@ export default function InteractiveFlowMap({
             <MapResizeHandler />
             <TooltipSync mapRef={mapInstanceRef} tooltip={tooltip} setTooltip={setTooltip} />
             <PortPane />
-            <MapClickReset setSelection={setSelection} />
+            <MapClickReset onReset={() => setSelection(null)} />
 
             {/* Choropleth layer (underneath) */}
             {geojson && (
@@ -517,23 +451,7 @@ export default function InteractiveFlowMap({
         </div>
       </div>
 
-      {/* Portal tooltip */}
-      {tooltip &&
-        createPortal(
-          <div
-            style={{
-              position: 'fixed', left: tooltip.x, top: tooltip.y,
-              transform: 'translate(-50%, -100%)', zIndex: 10000, pointerEvents: 'none',
-              background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
-              padding: '6px 10px', fontSize: 13, lineHeight: 1.4,
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)', whiteSpace: 'nowrap',
-              fontFamily: 'var(--font-sans), system-ui, sans-serif',
-            }}
-          >
-            {tooltip.content}
-          </div>,
-          document.body,
-        )}
+      <MapTooltip tooltip={tooltip} />
     </>
   )
 }

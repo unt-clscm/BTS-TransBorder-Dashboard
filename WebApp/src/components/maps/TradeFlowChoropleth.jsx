@@ -20,10 +20,8 @@
  *   height       — CSS height
  */
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
 import {
   MapContainer, TileLayer, GeoJSON, CircleMarker, Polyline,
-  useMap, useMapEvents,
 } from 'react-leaflet'
 import * as d3 from 'd3'
 import 'leaflet/dist/leaflet.css'
@@ -33,108 +31,22 @@ import {
   ScrollWheelGuard, MapResizeHandler, ResetZoomButton, TooltipSync,
   formatCurrencyDefault,
 } from './mapHelpers'
+import {
+  useGeoJSON,
+  computeArc,
+  computeCentroids,
+  radiusScale as _radiusScaleBase,
+  makeStateStyle,
+  ArcPane,
+  PortPane,
+  MapClickReset,
+  MapTooltip,
+} from './mapShared'
 
 const BASE = import.meta.env.BASE_URL
 
-/* ═══════════════════════════════════════════════════════════════════
-   Helpers
-   ═══════════════════════════════════════════════════════════════════ */
-
-const geoCache = {}
-
-function useGeoJSON(url) {
-  const [geojson, setGeojson] = useState(geoCache[url] || null)
-  const [loading, setLoading] = useState(!geoCache[url])
-  useEffect(() => {
-    if (!url) { setLoading(false); return }
-    if (geoCache[url]) { setGeojson(geoCache[url]); setLoading(false); return }
-    let cancelled = false
-    setLoading(true)
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => { geoCache[url] = data; if (!cancelled) { setGeojson(data); setLoading(false) } })
-      .catch(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
-  }, [url])
-  return { geojson, loading }
-}
-
-/** Compute polygon centroids from a GeoJSON FeatureCollection */
-function computeCentroids(geojson, nameProperty = 'name') {
-  if (!geojson?.features) return {}
-  const out = {}
-  for (const f of geojson.features) {
-    const name = f.properties?.[nameProperty]
-    if (!name) continue
-    const coords = []
-    const g = f.geometry
-    if (g?.type === 'Polygon') g.coordinates[0].forEach((c) => coords.push(c))
-    else if (g?.type === 'MultiPolygon') g.coordinates.forEach((p) => p[0].forEach((c) => coords.push(c)))
-    if (coords.length) {
-      out[name] = [
-        coords.reduce((s, c) => s + c[1], 0) / coords.length,
-        coords.reduce((s, c) => s + c[0], 0) / coords.length,
-      ]
-    }
-  }
-  return out
-}
-
-/** Quadratic Bézier arc between two [lat,lng] points */
-function computeArc(start, end, curveOffset = 0.18, numPoints = 24) {
-  const dx = end[1] - start[1]
-  const dy = end[0] - start[0]
-  const dist = Math.sqrt(dx * dx + dy * dy)
-  if (dist < 0.01) return [start, end]
-  const midLat = (start[0] + end[0]) / 2 + (dx / dist) * dist * curveOffset
-  const midLng = (start[1] + end[1]) / 2 - (dy / dist) * dist * curveOffset
-  const pts = []
-  for (let i = 0; i <= numPoints; i++) {
-    const t = i / numPoints
-    const u = 1 - t
-    pts.push([
-      u * u * start[0] + 2 * u * t * midLat + t * t * end[0],
-      u * u * start[1] + 2 * u * t * midLng + t * t * end[1],
-    ])
-  }
-  return pts
-}
-
-function radiusScale(value, maxValue) {
-  if (!maxValue || !value) return 4
-  return Math.max(4, Math.min(18, 4 + 14 * Math.sqrt(value / maxValue)))
-}
-
-/* ═══════════════════════════════════════════════════════════════════
-   Leaflet sub-components
-   ═══════════════════════════════════════════════════════════════════ */
-
-function ArcPane() {
-  const map = useMap()
-  useEffect(() => {
-    if (!map.getPane('flowArcs')) {
-      const pane = map.createPane('flowArcs')
-      pane.style.zIndex = '620'
-    }
-  }, [map])
-  return null
-}
-
-function PortPane() {
-  const map = useMap()
-  useEffect(() => {
-    if (!map.getPane('portMarkers')) {
-      const pane = map.createPane('portMarkers')
-      pane.style.zIndex = '650'
-    }
-  }, [map])
-  return null
-}
-
-function MapClickReset({ setSelection }) {
-  useMapEvents({ click: (e) => { if (!e.originalEvent?._stopped) setSelection(null) } })
-  return null
-}
+/* Port bubble radius — local defaults differ from shared: max=18, mult=14 */
+const radiusScale = (value, maxValue) => _radiusScaleBase(value, maxValue, 4, 18, 14)
 
 /* ═══════════════════════════════════════════════════════════════════
    Selection info panel (top-right overlay)
@@ -280,21 +192,19 @@ function ChoroplethLayer({
     (feature) => {
       const name = feature.properties?.[nameProperty]
       const value = valueMap.get(name)
+      const fill = value != null && value > 0 ? colorScale(value) : emptyColor
+      const isOrigin = selection?.type === selectionType && name === selection?.name
       if (highlightedStates) {
-        if (!highlightedStates.has(name))
-          return { fillColor: emptyColor, weight: 0.8, opacity: 0.4, color: '#aaa', fillOpacity: 0.25 }
-        return {
-          fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
-          weight: 2.5, opacity: 1, color: '#333', fillOpacity: 0.85,
-        }
+        return makeStateStyle(name, fill, emptyColor, highlightedStates, isOrigin)
       }
+      // No active selection: apply optional highlight feature marker
       const isHL = highlightFeature && name === highlightFeature
       return {
-        fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
+        fillColor: fill,
         weight: isHL ? 3.5 : 1, opacity: isHL ? 1 : 0.7, color: isHL ? highlightColor : '#888', fillOpacity: 0.6,
       }
     },
-    [nameProperty, valueMap, colorScale, emptyColor, highlightedStates, highlightFeature, highlightColor],
+    [nameProperty, valueMap, colorScale, emptyColor, highlightedStates, selection, selectionType, highlightFeature, highlightColor],
   )
 
   const onEachFeature = useCallback(
@@ -375,6 +285,12 @@ export default function TradeFlowChoropleth({
   const [showHint, setShowHint] = useState(false)
   const hintTimer = useRef(null)
   const [selection, setSelection] = useState(null)
+  const [arcSelection, setArcSelection] = useState(null) // { originName, destName, usEndpoint, mxEndpoint } | null
+
+  const handleSetSelection = useCallback((sel) => {
+    setSelection(sel)
+    setArcSelection(null)
+  }, [])
 
   /* ── flow mode toggle ──────────────────────────────────────────── */
   const [flowMode, setFlowMode] = useState('direct') // 'direct' | 'via-ports'
@@ -545,43 +461,47 @@ export default function TradeFlowChoropleth({
     const none = { highlightedUS: null, highlightedMX: null, highlightedPorts: null, dynamicUSValues: null, dynamicMXValues: null }
     if (!selection) return none
 
+    let baseUS, baseMX, basePorts, baseDynUS, baseDynMX
+
     if (selection.type === 'us-state') {
       const mxP = stateFlows.usToMx.get(selection.name) || new Map()
       const ports = new Set()
       filtered.forEach((d) => { if (d.State === selection.name && d.PortCode) ports.add(d.PortCode.replace(/\D/g, '')) })
-      return {
-        highlightedUS: new Set([selection.name]),
-        highlightedMX: new Set(mxP.keys()),
-        highlightedPorts: ports,
-        dynamicUSValues: null,
-        dynamicMXValues: [...mxP.entries()].map(([name, value]) => ({ name, value })),
-      }
-    }
-    if (selection.type === 'mx-state') {
+      baseUS = new Set([selection.name])
+      baseMX = new Set(mxP.keys())
+      basePorts = ports
+      baseDynUS = null
+      baseDynMX = [...mxP.entries()].map(([name, value]) => ({ name, value }))
+    } else if (selection.type === 'mx-state') {
       const usP = stateFlows.mxToUs.get(selection.name) || new Map()
       const ports = new Set()
       filtered.forEach((d) => { if (d.MexState === selection.name && d.PortCode) ports.add(d.PortCode.replace(/\D/g, '')) })
-      return {
-        highlightedUS: new Set(usP.keys()),
-        highlightedMX: new Set([selection.name]),
-        highlightedPorts: ports,
-        dynamicUSValues: [...usP.entries()].map(([name, value]) => ({ name, value })),
-        dynamicMXValues: null,
-      }
-    }
-    if (selection.type === 'port') {
+      baseUS = new Set(usP.keys())
+      baseMX = new Set([selection.name])
+      basePorts = ports
+      baseDynUS = [...usP.entries()].map(([name, value]) => ({ name, value }))
+      baseDynMX = null
+    } else if (selection.type === 'port') {
       const us = portFlows.portToUs.get(selection.id) || new Map()
       const mx = portFlows.portToMx.get(selection.id) || new Map()
-      return {
-        highlightedUS: new Set(us.keys()),
-        highlightedMX: new Set(mx.keys()),
-        highlightedPorts: new Set([selection.id]),
-        dynamicUSValues: [...us.entries()].map(([name, value]) => ({ name, value })),
-        dynamicMXValues: [...mx.entries()].map(([name, value]) => ({ name, value })),
-      }
+      baseUS = new Set(us.keys())
+      baseMX = new Set(mx.keys())
+      basePorts = new Set([selection.id])
+      baseDynUS = [...us.entries()].map(([name, value]) => ({ name, value }))
+      baseDynMX = [...mx.entries()].map(([name, value]) => ({ name, value }))
+    } else {
+      return none
     }
-    return none
-  }, [selection, stateFlows, portFlows, filtered])
+
+    // When an arc is clicked, narrow the highlight to just that arc's state endpoints
+    if (arcSelection) {
+      const narrowUS = arcSelection.usEndpoint ? new Set([arcSelection.usEndpoint]) : baseUS
+      const narrowMX = arcSelection.mxEndpoint ? new Set([arcSelection.mxEndpoint]) : baseMX
+      return { highlightedUS: narrowUS, highlightedMX: narrowMX, highlightedPorts: basePorts, dynamicUSValues: baseDynUS, dynamicMXValues: baseDynMX }
+    }
+
+    return { highlightedUS: baseUS, highlightedMX: baseMX, highlightedPorts: basePorts, dynamicUSValues: baseDynUS, dynamicMXValues: baseDynMX }
+  }, [selection, arcSelection, stateFlows, portFlows, filtered])
 
   /* ── flow arc lines ────────────────────────────────────────────── */
   const flowArcs = useMemo(() => {
@@ -602,14 +522,14 @@ export default function TradeFlowChoropleth({
           const portCoord = portCentroidLookup[code]
           if (!portCoord) return
           // State → Port arc
-          arcs.push({ start: startCoord, end: portCoord, value: info.total, label: code, color: '#08519c', originName: selection.name, destName: code })
+          arcs.push({ start: startCoord, end: portCoord, value: info.total, label: code, color: '#08519c', originName: selection.name, destName: code, usEndpoint: selection.name, mxEndpoint: null })
           if (info.total > maxVal) maxVal = info.total
           // Port → top MX states
           const topMx = [...info.mxPartners.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
           topMx.forEach(([mxState, val]) => {
             const mxCoord = mxCentroids[mxState]
             if (!mxCoord) return
-            arcs.push({ start: portCoord, end: mxCoord, value: val, label: mxState, color: '#de2d26', originName: code, destName: mxState })
+            arcs.push({ start: portCoord, end: mxCoord, value: val, label: mxState, color: '#de2d26', originName: code, destName: mxState, usEndpoint: selection.name, mxEndpoint: mxState })
             if (val > maxVal) maxVal = val
           })
         })
@@ -620,7 +540,7 @@ export default function TradeFlowChoropleth({
         sorted.forEach(([mxState, value]) => {
           const endCoord = mxCentroids[mxState]
           if (!endCoord) return
-          arcs.push({ start: startCoord, end: endCoord, value, label: mxState, color: '#6b46c1', originName: selection.name, destName: mxState })
+          arcs.push({ start: startCoord, end: endCoord, value, label: mxState, color: '#6b46c1', originName: selection.name, destName: mxState, usEndpoint: selection.name, mxEndpoint: mxState })
           if (value > maxVal) maxVal = value
         })
       }
@@ -635,13 +555,13 @@ export default function TradeFlowChoropleth({
         topPorts.forEach(([code, info]) => {
           const portCoord = portCentroidLookup[code]
           if (!portCoord) return
-          arcs.push({ start: startCoord, end: portCoord, value: info.total, label: code, color: '#de2d26', originName: selection.name, destName: code })
+          arcs.push({ start: startCoord, end: portCoord, value: info.total, label: code, color: '#de2d26', originName: selection.name, destName: code, usEndpoint: null, mxEndpoint: selection.name })
           if (info.total > maxVal) maxVal = info.total
           const topUs = [...info.usPartners.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
           topUs.forEach(([usState, val]) => {
             const usCoord = usCentroids[usState]
             if (!usCoord) return
-            arcs.push({ start: portCoord, end: usCoord, value: val, label: usState, color: '#08519c', originName: code, destName: usState })
+            arcs.push({ start: portCoord, end: usCoord, value: val, label: usState, color: '#08519c', originName: code, destName: usState, usEndpoint: usState, mxEndpoint: selection.name })
             if (val > maxVal) maxVal = val
           })
         })
@@ -651,7 +571,7 @@ export default function TradeFlowChoropleth({
         sorted.forEach(([usState, value]) => {
           const endCoord = usCentroids[usState]
           if (!endCoord) return
-          arcs.push({ start: startCoord, end: endCoord, value, label: usState, color: '#6b46c1', originName: selection.name, destName: usState })
+          arcs.push({ start: startCoord, end: endCoord, value, label: usState, color: '#6b46c1', originName: selection.name, destName: usState, usEndpoint: usState, mxEndpoint: selection.name })
           if (value > maxVal) maxVal = value
         })
       }
@@ -663,13 +583,13 @@ export default function TradeFlowChoropleth({
       ;[...us.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).forEach(([state, value]) => {
         const c = usCentroids[state]
         if (!c) return
-        arcs.push({ start: pCoord, end: c, value, label: state, color: '#08519c', originName: selection.name, destName: state })
+        arcs.push({ start: pCoord, end: c, value, label: state, color: '#08519c', originName: selection.name, destName: state, usEndpoint: state, mxEndpoint: null })
         if (value > maxVal) maxVal = value
       })
       ;[...mx.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6).forEach(([state, value]) => {
         const c = mxCentroids[state]
         if (!c) return
-        arcs.push({ start: pCoord, end: c, value, label: state, color: '#de2d26', originName: selection.name, destName: state })
+        arcs.push({ start: pCoord, end: c, value, label: state, color: '#de2d26', originName: selection.name, destName: state, usEndpoint: null, mxEndpoint: state })
         if (value > maxVal) maxVal = value
       })
     }
@@ -763,7 +683,7 @@ export default function TradeFlowChoropleth({
           {selection && (
             <div className="absolute left-2.5 z-[1000] flex flex-col gap-1.5" style={{ top: 130 }}>
               <button
-                onClick={() => setSelection(null)}
+                onClick={() => { setSelection(null); setArcSelection(null) }}
                 className="bg-white/95 border border-border-light rounded-lg shadow-lg px-3 py-1.5 text-sm font-medium text-text-primary hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 Clear selection
@@ -787,7 +707,7 @@ export default function TradeFlowChoropleth({
             <TooltipSync mapRef={mapInstanceRef} tooltip={tooltip} setTooltip={setTooltip} />
             <ArcPane />
             <PortPane />
-            <MapClickReset setSelection={setSelection} />
+            <MapClickReset onReset={() => { setSelection(null); setArcSelection(null) }} />
 
             {/* US states choropleth */}
             <ChoroplethLayer
@@ -801,7 +721,7 @@ export default function TradeFlowChoropleth({
               formatValue={formatValue}
               metricLabel="Trade Value"
               selectionType="us-state"
-              setSelection={setSelection}
+              setSelection={handleSetSelection}
               setTooltip={setTooltip}
               mapInstanceRef={mapInstanceRef}
               highlightFeature={highlightFeature}
@@ -819,56 +739,66 @@ export default function TradeFlowChoropleth({
               formatValue={formatValue}
               metricLabel="Trade Value"
               selectionType="mx-state"
-              setSelection={setSelection}
+              setSelection={handleSetSelection}
               setTooltip={setTooltip}
               mapInstanceRef={mapInstanceRef}
             />
 
             {/* Flow arc polylines */}
-            {flowArcs.map((arc, i) => (
-              <Polyline
-                key={`arc-${i}-${arc.label}`}
-                positions={arc.points}
-                pathOptions={{
-                  color: arc.color,
-                  weight: arc.weight,
-                  opacity: arc.opacity,
-                  lineCap: 'round',
-                  pane: 'flowArcs',
-                }}
-                bubblingMouseEvents={false}
-                eventHandlers={{
-                  mouseover: (e) => {
-                    e.target.setStyle({ weight: arc.weight + 2, opacity: 1 })
-                    const map = mapInstanceRef.current
-                    if (!map) return
-                    const pt = map.latLngToContainerPoint(e.latlng)
-                    const rect = map.getContainer().getBoundingClientRect()
-                    setTooltip({
-                      content: (
-                        <>
-                          <strong>{arc.originName}</strong> &rarr; <strong>{arc.destName}</strong><br />
-                          {formatValue(arc.value)} Trade Value
-                        </>
-                      ),
-                      x: rect.left + pt.x, y: rect.top + pt.y - 12,
-                      latLng: [e.latlng.lat, e.latlng.lng], offsetY: -12,
-                    })
-                  },
-                  mousemove: (e) => {
-                    const map = mapInstanceRef.current
-                    if (!map) return
-                    const pt = map.latLngToContainerPoint(e.latlng)
-                    const rect = map.getContainer().getBoundingClientRect()
-                    setTooltip((prev) => prev ? { ...prev, x: rect.left + pt.x, y: rect.top + pt.y - 12, latLng: [e.latlng.lat, e.latlng.lng] } : null)
-                  },
-                  mouseout: (e) => {
-                    e.target.setStyle({ weight: arc.weight, opacity: arc.opacity })
-                    setTooltip(null)
-                  },
-                }}
-              />
-            ))}
+            {flowArcs.map((arc, i) => {
+              const isArcSelected = arcSelection &&
+                arcSelection.originName === arc.originName &&
+                arcSelection.destName === arc.destName
+              return (
+                <Polyline
+                  key={`arc-${i}-${arc.label}`}
+                  positions={arc.points}
+                  pathOptions={{
+                    color: arc.color,
+                    weight: isArcSelected ? arc.weight + 2.5 : arc.weight,
+                    opacity: isArcSelected ? 1 : arc.opacity,
+                    lineCap: 'round',
+                    pane: 'flowArcs',
+                  }}
+                  bubblingMouseEvents={false}
+                  eventHandlers={{
+                    mouseover: (e) => {
+                      e.target.setStyle({ weight: arc.weight + 2, opacity: 1 })
+                      const map = mapInstanceRef.current
+                      if (!map) return
+                      const pt = map.latLngToContainerPoint(e.latlng)
+                      const rect = map.getContainer().getBoundingClientRect()
+                      setTooltip({
+                        content: (
+                          <>
+                            <strong>{arc.originName}</strong> &rarr; <strong>{arc.destName}</strong><br />
+                            {formatValue(arc.value)} Trade Value
+                            {!isArcSelected && <><br /><span style={{ fontSize: 11, color: '#666' }}>Click to focus this flow</span></>}
+                          </>
+                        ),
+                        x: rect.left + pt.x, y: rect.top + pt.y - 12,
+                        latLng: [e.latlng.lat, e.latlng.lng], offsetY: -12,
+                      })
+                    },
+                    mousemove: (e) => {
+                      const map = mapInstanceRef.current
+                      if (!map) return
+                      const pt = map.latLngToContainerPoint(e.latlng)
+                      const rect = map.getContainer().getBoundingClientRect()
+                      setTooltip((prev) => prev ? { ...prev, x: rect.left + pt.x, y: rect.top + pt.y - 12, latLng: [e.latlng.lat, e.latlng.lng] } : null)
+                    },
+                    mouseout: (e) => {
+                      if (!isArcSelected) e.target.setStyle({ weight: arc.weight, opacity: arc.opacity })
+                      setTooltip(null)
+                    },
+                    click: (e) => {
+                      e.originalEvent._stopped = true
+                      setArcSelection(isArcSelected ? null : { originName: arc.originName, destName: arc.destName, usEndpoint: arc.usEndpoint, mxEndpoint: arc.mxEndpoint, value: arc.value })
+                    },
+                  }}
+                />
+              )
+            })}
 
             {/* Port bubbles */}
             {portData.filter((p) => p.lat != null && p.lng != null).map((p) => {
@@ -912,8 +842,8 @@ export default function TradeFlowChoropleth({
                     mouseout: () => setTooltip(null),
                     click: (e) => {
                       e.originalEvent._stopped = true
-                      if (selection?.type === 'port' && selection.id === code) setSelection(null)
-                      else setSelection({ type: 'port', name: p.name, id: code })
+                      if (selection?.type === 'port' && selection.id === code) handleSetSelection(null)
+                      else handleSetSelection({ type: 'port', name: p.name, id: code })
                     },
                   }}
                 />
@@ -977,23 +907,7 @@ export default function TradeFlowChoropleth({
         />
       </div>
 
-      {/* Portal tooltip */}
-      {tooltip &&
-        createPortal(
-          <div
-            style={{
-              position: 'fixed', left: tooltip.x, top: tooltip.y,
-              transform: 'translate(-50%, -100%)', zIndex: 10000, pointerEvents: 'none',
-              background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
-              padding: '6px 10px', fontSize: 13, lineHeight: 1.4,
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)', whiteSpace: 'nowrap',
-              fontFamily: 'var(--font-sans), system-ui, sans-serif',
-            }}
-          >
-            {tooltip.content}
-          </div>,
-          document.body,
-        )}
+      <MapTooltip tooltip={tooltip} />
     </>
   )
 }

@@ -288,6 +288,14 @@ function ChoroplethLayer({
       if (!isHighlighted) {
         return { fillColor: emptyColor, weight: 0.8, opacity: 0.4, color: '#aaa', fillOpacity: 0.25 }
       }
+      // Selected (origin) state gets a thicker amber border so it stands apart from destinations
+      const isOrigin = selection?.type === 'state' && name === selection.name
+      if (isOrigin) {
+        return {
+          fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
+          weight: 4, opacity: 1, color: '#d97706', fillOpacity: 0.9,
+        }
+      }
       return {
         fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
         weight: 2.5, opacity: 1, color: '#333', fillOpacity: 0.85,
@@ -297,7 +305,7 @@ function ChoroplethLayer({
       fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
       weight: 1, opacity: 0.7, color: '#888', fillOpacity: 0.6,
     }
-  }, [nameProperty, valueMap, colorScale, emptyColor, highlightedStates])
+  }, [nameProperty, valueMap, colorScale, emptyColor, highlightedStates, selection])
 
   const onEachFeature = useCallback((feature, layer) => {
     const name = feature.properties?.[nameProperty]
@@ -392,10 +400,21 @@ export default function ChoroplethPortMap({
     if (!selection) return { highlightedStates: null, highlightedPorts: null }
     if (selection.type === 'state') {
       const connPorts = connections.stateToPort.get(selection.name) || new Map()
-      // Only highlight the selected state itself — don't pull in every state
-      // that shares a port. The flow arcs already show the connections.
+      // Highlight the selected state plus its top destination states
+      // (same top-12 logic as flowArcs so highlighted states match visible arcs)
+      const foreignStates = new Map()
+      for (const portCode of connPorts.keys()) {
+        const portStates = connections.portToState.get(portCode) || new Map()
+        for (const [stateName, value] of portStates) {
+          if (stateName === selection.name) continue
+          foreignStates.set(stateName, (foreignStates.get(stateName) || 0) + value)
+        }
+      }
+      const topDests = [...foreignStates.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12)
+      const highlighted = new Set(topDests.map(([name]) => name))
+      highlighted.add(selection.name)
       return {
-        highlightedStates: new Set([selection.name]),
+        highlightedStates: highlighted,
         highlightedPorts: new Set(connPorts.keys()),
       }
     } else {

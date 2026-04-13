@@ -60,7 +60,7 @@ const BORDER_GROUPS = {
 }
 
 /* ── Selection info panel ────────────────────────────────────────────── */
-function SelectionPanel({ selection, connections, ports, formatValue, arcSelection = null }) {
+function SelectionPanel({ selection, connections, ports, formatValue, arcSelection = null, metricLabel = 'Trade Value' }) {
   if (arcSelection) {
     return (
       <div className="absolute top-0 right-0 bottom-0 z-[1000] w-[260px] bg-white/95 border-l border-border-light flex flex-col text-sm">
@@ -73,7 +73,7 @@ function SelectionPanel({ selection, connections, ports, formatValue, arcSelecti
           <div className="font-semibold text-text-primary truncate">{arcSelection.destName}</div>
           {arcSelection.value > 0 && (
             <div className="text-xs text-text-secondary mt-1">
-              {formatValue(arcSelection.value)}
+              {formatValue(arcSelection.value)} {metricLabel}
             </div>
           )}
         </div>
@@ -559,6 +559,7 @@ export default function ChoroplethPortMap({
               ports={ports}
               formatValue={formatValue}
               arcSelection={arcSelection}
+              metricLabel={metricLabel}
             />
           )}
 

@@ -35,6 +35,7 @@ export default function FilterMultiSelect({
 }) {
   const id = useId()
   const listboxId = `${id}-listbox`
+  const labelId = `${id}-label`
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [focusIdx, setFocusIdx] = useState(-1)
@@ -227,6 +228,7 @@ export default function FilterMultiSelect({
       // eslint-disable-next-line jsx-a11y/click-events-have-key-events -- keyboard handled by parent listbox per WAI-ARIA managed-focus pattern
       <div
         key={val}
+        id={idx >= 0 ? `${listboxId}-opt-${idx}` : undefined}
         ref={(el) => { if (idx >= 0) optionRefs.current[idx] = el }}
         role="option"
         aria-selected={checked}
@@ -295,6 +297,7 @@ export default function FilterMultiSelect({
       role="listbox"
       aria-multiselectable="true"
       aria-label={label}
+      aria-activedescendant={focusIdx >= 0 ? `${listboxId}-opt-${focusIdx}` : undefined}
       tabIndex={0}
       onKeyDown={handleKeyDown}
       className="fixed z-[9999] bg-white border border-border rounded-lg shadow-lg flex flex-col overflow-hidden"
@@ -310,6 +313,7 @@ export default function FilterMultiSelect({
       {/* All option */}
       {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events -- keyboard handled by parent listbox per WAI-ARIA managed-focus pattern */}
       <div
+        id={`${listboxId}-opt-0`}
         ref={(el) => { optionRefs.current[0] = el }}
         role="option"
         aria-selected={allSelected}
@@ -357,16 +361,16 @@ export default function FilterMultiSelect({
 
   return (
     <div className="flex flex-col gap-1 min-w-0 w-full" ref={ref}>
-      <label htmlFor={id} className="text-base font-medium text-text-secondary uppercase tracking-wider">
+      <label id={labelId} className="text-base font-medium text-text-secondary uppercase tracking-wider">
         {label}
       </label>
       <div className="relative">
         <button
-          id={id}
           ref={triggerRef}
           type="button"
           onClick={() => setOpen((o) => !o)}
           onKeyDown={handleKeyDown}
+          aria-labelledby={labelId}
           aria-expanded={open}
           aria-haspopup="listbox"
           aria-controls={open ? listboxId : undefined}

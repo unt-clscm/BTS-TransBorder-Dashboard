@@ -137,6 +137,7 @@ export default function FullscreenChart({
       {/* ── Filter sidebar (right) ── */}
       {filterCtx && (
         <aside
+          aria-label="Filters"
           className={`hidden md:flex flex-col flex-shrink-0 bg-[#edf1f7] border-l border-border-light
             ${sidebarWidth} transition-all duration-300 ease-in-out overflow-hidden`}
         >
@@ -159,6 +160,8 @@ export default function FullscreenChart({
             )}
             <button
               onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              aria-label={sidebarCollapsed ? 'Expand filters' : 'Collapse filters'}
+              aria-expanded={!sidebarCollapsed}
               className="p-1 rounded-md text-text-secondary hover:text-brand-blue
                          hover:bg-surface-alt transition-all duration-150"
               title={sidebarCollapsed ? 'Expand filters' : 'Collapse filters'}

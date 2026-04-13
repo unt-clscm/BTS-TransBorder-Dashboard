@@ -130,6 +130,7 @@ export default function DownloadButton({ summary, detail, size = 'default' }) {
             : 'p-1.5 rounded-md text-text-secondary hover:text-brand-blue hover:bg-surface-alt transition-all duration-150'
         }
         title="Download data"
+        aria-label={isFullscreen ? undefined : 'Download data'}
       >
         <Download size={isFullscreen ? 18 : 14} />
         {isFullscreen && <span>Download CSV</span>}
@@ -139,6 +140,7 @@ export default function DownloadButton({ summary, detail, size = 'default' }) {
         <div
           role="menu"
           tabIndex={-1}
+          aria-label="Download options"
           onKeyDown={handleKeyDown}
           className="absolute right-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-border-light py-1 min-w-[160px]"
         >

@@ -148,6 +148,7 @@ export default function DownloadButton({ summary, detail, size = 'default' }) {
           role="menu"
           tabIndex={-1}
           aria-label="Download options"
+          aria-orientation="vertical"
           onKeyDown={handleKeyDown}
           className="absolute right-0 top-full mt-1 z-50 bg-white rounded-lg shadow-lg border border-border-light py-1 min-w-[160px]"
         >

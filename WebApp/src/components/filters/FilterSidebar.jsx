@@ -205,6 +205,7 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
                     onKeyDown={handleDlTriggerKeyDown}
                     aria-expanded={dlOpen}
                     aria-haspopup="menu"
+                    aria-controls={dlOpen ? 'sidebar-dl-menu' : undefined}
                     className="flex items-center justify-center gap-2 w-full px-3 py-2.5 text-base font-medium
                                text-brand-blue border border-brand-blue/30 rounded-lg
                                hover:bg-brand-blue/5 transition-all duration-150"
@@ -214,9 +215,11 @@ export default function FilterSidebar({ children, onResetAll, activeCount = 0, a
                   </button>
                   {dlOpen && (
                     <div
+                      id="sidebar-dl-menu"
                       role="menu"
                       tabIndex={-1}
                       aria-label="Download options"
+                      aria-orientation="vertical"
                       onKeyDown={handleDlMenuKeyDown}
                       className="mt-1 bg-white rounded-lg shadow-lg border border-border-light py-1 z-50"
                     >

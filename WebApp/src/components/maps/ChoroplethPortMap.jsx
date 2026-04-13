@@ -60,7 +60,32 @@ const BORDER_GROUPS = {
 }
 
 /* ── Selection info panel ────────────────────────────────────────────── */
-function SelectionPanel({ selection, connections, ports, formatValue }) {
+function SelectionPanel({ selection, connections, ports, formatValue, arcSelection = null }) {
+  if (arcSelection) {
+    return (
+      <div className="absolute top-0 right-0 bottom-0 z-[1000] w-[260px] bg-white/95 border-l border-border-light flex flex-col text-sm">
+        <div className="px-3 pt-2.5 pb-1.5 border-b border-border-light flex-shrink-0">
+          <div className="font-semibold text-text-primary text-xs uppercase tracking-wide text-text-secondary mb-1">
+            Focused Flow
+          </div>
+          <div className="font-semibold text-text-primary truncate">{arcSelection.originName}</div>
+          <div className="text-xs text-text-secondary mt-0.5">↓</div>
+          <div className="font-semibold text-text-primary truncate">{arcSelection.destName}</div>
+          {arcSelection.value > 0 && (
+            <div className="text-xs text-text-secondary mt-1">
+              {formatValue(arcSelection.value)}
+            </div>
+          )}
+        </div>
+        <div className="flex-1 flex items-center justify-center px-3">
+          <span className="text-xs text-text-secondary italic text-center">
+            Click the arc again or click empty space to return to full view
+          </span>
+        </div>
+      </div>
+    )
+  }
+
   if (!selection) return null
 
   let title, subtitle, items, grouped
@@ -533,6 +558,7 @@ export default function ChoroplethPortMap({
               connections={connections}
               ports={ports}
               formatValue={formatValue}
+              arcSelection={arcSelection}
             />
           )}
 

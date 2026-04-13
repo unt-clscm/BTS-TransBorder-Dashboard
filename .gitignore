@@ -12,6 +12,9 @@
 # Claude Code
 .claude/
 
+# Git worktrees (kept inside the project folder)
+worktrees/
+
 # Large/generated data files (pre-commit hook also catches files >99MB)
 *.db
 02-Data-Staging/cleaned/
@@ -52,3 +55,20 @@ __pycache__/
 02-Data-Staging/transborder.db-wal
 02-Data-Staging/cleaned/dot2_state_commodity-P16.csv
 02-Data-Staging/cleaned/dot3_port_commodity-P16.csv
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2007/2007.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2008/2008.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2009/Revised2009PublicData.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2009/Revised2009PublicData.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2010/Revised2010PublicData.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2011/Revised2011PublicData.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2011/Revised2011PublicData.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2012/Revised2012PublicData.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2013/Revised2013PublicData.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2014/2014.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2015/2015.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2016/2016.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/download/modern/2017/2017.zip
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/unpacked/legacy/2006/DOT20117.DBF
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/unpacked/modern/2007/DOT1_07.DBF
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/unpacked/modern/2007/DOT2_07.DBF
+worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/unpacked/modern/2008/natfd.csv

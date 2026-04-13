@@ -191,6 +191,7 @@ function ChoroplethLayer({
   url, data, nameProperty = 'name', colorRange, emptyColor,
   selection, highlightedStates, connections, portToStateValues,
   formatValue, metricLabel, setSelection, setTooltip, mapInstanceRef,
+  arcSelection = null,
 }) {
   const { geojson, loading } = useGeoJSON(url)
   const geoJsonRef = useRef(null)
@@ -277,8 +278,9 @@ function ChoroplethLayer({
 
   const geoKey = useMemo(() => {
     const sel = selection ? `${selection.type}-${selection.id}` : 'none'
-    return `${url}-${data.length}-${data.reduce((s, d) => s + (d.value || 0), 0)}-${sel}`
-  }, [url, data, selection])
+    const arc = arcSelection ? `${arcSelection.originName}|${arcSelection.destName}` : 'no-arc'
+    return `${url}-${data.length}-${data.reduce((s, d) => s + (d.value || 0), 0)}-${sel}-${arc}`
+  }, [url, data, selection, arcSelection])
 
   if (loading || !geojson) return null
 
@@ -314,6 +316,8 @@ export default function ChoroplethPortMap({
   const hintTimer = useRef(null)
   const [selection, setSelection] = useState(null)
   const [arcSelection, setArcSelection] = useState(null) // { originName, destName, srcState, dstState } | null
+  const arcSelectionRef = useRef(null)
+  useEffect(() => { arcSelectionRef.current = arcSelection }, [arcSelection])
 
   // Wrapper: clears arc selection whenever the main selection changes
   const handleSetSelection = useCallback((sel) => {
@@ -619,6 +623,7 @@ export default function ChoroplethPortMap({
                 setSelection={handleSetSelection}
                 setTooltip={setTooltip}
                 mapInstanceRef={mapInstanceRef}
+                arcSelection={arcSelection}
               />
             ))}
 
@@ -733,7 +738,9 @@ export default function ChoroplethPortMap({
                       setTooltip((prev) => prev ? { ...prev, x: rect.left + pt.x, y: rect.top + pt.y - 12, latLng: [e.latlng.lat, e.latlng.lng] } : null)
                     },
                     mouseout: (e) => {
-                      if (!isArcSelected) e.target.setStyle({ weight: arc.weight, opacity: arc.opacity })
+                      const cur = arcSelectionRef.current
+                      const stillSelected = cur && cur.originName === arc.originName && cur.destName === arc.destName
+                      if (!stillSelected) e.target.setStyle({ weight: arc.weight, opacity: arc.opacity })
                       setTooltip(null)
                     },
                     click: (e) => {

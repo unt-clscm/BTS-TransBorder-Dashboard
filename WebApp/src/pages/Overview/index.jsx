@@ -532,7 +532,7 @@ export default function OverviewPage() {
                   if (val === 'mexico')  { setCountryFilter('Mexico'); setTradeTypeFilter(''); setModeFilterArr([]) }
                   if (val === 'canada')  { setCountryFilter('Canada'); setTradeTypeFilter(''); setModeFilterArr([]) }
                   if (val === 'truck')   { setCountryFilter(''); setTradeTypeFilter(''); setModeFilterArr(['Truck']) }
-                  if (val === 'exports') { setCountryFilter(''); setTradeTypeFilter('Export'); setModeFilterArr([]) }
+                  if (val === 'exports') { setCountryFilter(''); setTradeTypeFilter('Export'); setModeFilterArr([]); setMetric('value') }
                   if (val === 'reset')   { setCountryFilter(''); setTradeTypeFilter(''); setModeFilterArr([]); setMetric('value') }
                 }}
                 className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary

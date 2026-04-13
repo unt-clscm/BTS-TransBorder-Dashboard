@@ -167,6 +167,7 @@ function ChoroplethLayer({
   formatValue, metricLabel, selectionType,
   setSelection, setTooltip, mapInstanceRef,
   highlightFeature = null, highlightColor = '#bf5700',
+  arcSelection = null,
 }) {
   const { geojson, loading } = useGeoJSON(geojsonUrl)
   const geoJsonRef = useRef(null)
@@ -257,8 +258,9 @@ function ChoroplethLayer({
 
   const geoKey = useMemo(() => {
     const sel = selection ? `${selection.type}-${selection.id}` : 'none'
-    return `${geojsonUrl}-${data.length}-${data.reduce((s, d) => s + (d.value || 0), 0).toFixed(0)}-${sel}`
-  }, [geojsonUrl, data, selection])
+    const arc = arcSelection ? `${arcSelection.originName}|${arcSelection.destName}` : 'no-arc'
+    return `${geojsonUrl}-${data.length}-${data.reduce((s, d) => s + (d.value || 0), 0).toFixed(0)}-${sel}-${arc}`
+  }, [geojsonUrl, data, selection, arcSelection])
 
   if (loading || !geojson) return null
 
@@ -286,6 +288,8 @@ export default function TradeFlowChoropleth({
   const hintTimer = useRef(null)
   const [selection, setSelection] = useState(null)
   const [arcSelection, setArcSelection] = useState(null) // { originName, destName, usEndpoint, mxEndpoint } | null
+  const arcSelectionRef = useRef(null)
+  useEffect(() => { arcSelectionRef.current = arcSelection }, [arcSelection])
 
   const handleSetSelection = useCallback((sel) => {
     setSelection(sel)
@@ -725,6 +729,7 @@ export default function TradeFlowChoropleth({
               setTooltip={setTooltip}
               mapInstanceRef={mapInstanceRef}
               highlightFeature={highlightFeature}
+              arcSelection={arcSelection}
             />
 
             {/* Mexican states choropleth */}
@@ -742,6 +747,7 @@ export default function TradeFlowChoropleth({
               setSelection={handleSetSelection}
               setTooltip={setTooltip}
               mapInstanceRef={mapInstanceRef}
+              arcSelection={arcSelection}
             />
 
             {/* Flow arc polylines */}
@@ -788,7 +794,9 @@ export default function TradeFlowChoropleth({
                       setTooltip((prev) => prev ? { ...prev, x: rect.left + pt.x, y: rect.top + pt.y - 12, latLng: [e.latlng.lat, e.latlng.lng] } : null)
                     },
                     mouseout: (e) => {
-                      if (!isArcSelected) e.target.setStyle({ weight: arc.weight, opacity: arc.opacity })
+                      const cur = arcSelectionRef.current
+                      const stillSelected = cur && cur.originName === arc.originName && cur.destName === arc.destName
+                      if (!stillSelected) e.target.setStyle({ weight: arc.weight, opacity: arc.opacity })
                       setTooltip(null)
                     },
                     click: (e) => {

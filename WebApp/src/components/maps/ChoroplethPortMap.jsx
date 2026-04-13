@@ -22,8 +22,7 @@
  *   emptyColor
  */
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
-import { createPortal } from 'react-dom'
-import { MapContainer, TileLayer, GeoJSON, CircleMarker, Polyline, useMap, useMapEvents } from 'react-leaflet'
+import { MapContainer, TileLayer, GeoJSON, CircleMarker, Polyline } from 'react-leaflet'
 import * as d3 from 'd3'
 import 'leaflet/dist/leaflet.css'
 
@@ -34,105 +33,22 @@ import {
   TooltipSync,
   formatCurrencyDefault,
 } from './mapHelpers'
+import {
+  geoCache,
+  useGeoJSON,
+  computeArc,
+  computeCentroids,
+  radiusScale,
+  makeStateStyle,
+  ArcPane,
+  PortPane,
+  MapClickReset,
+  MapTooltip,
+} from './mapShared'
 
-/* ── GeoJSON cache ─────────────────────────────────────────────────────── */
-const geoCache = {}
-
-function useGeoJSON(url) {
-  const [geojson, setGeojson] = useState(geoCache[url] || null)
-  const [loading, setLoading] = useState(!geoCache[url])
-
-  useEffect(() => {
-    if (!url) { setLoading(false); return }
-    if (geoCache[url]) { setGeojson(geoCache[url]); setLoading(false); return }
-    let cancelled = false
-    setLoading(true)
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => { geoCache[url] = data; if (!cancelled) { setGeojson(data); setLoading(false) } })
-      .catch(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
-  }, [url])
-
-  return { geojson, loading }
-}
-
-/* ── Load multiple GeoJSON files ─────────────────────────────────────── */
-function _useMultiGeoJSON(urls) {
-  const results = urls.map(useGeoJSON)
-  const loading = results.some((r) => r.loading)
-  return { results, loading }
-}
-
-/* ── Port radius ─────────────────────────────────────────────────────── */
-function radiusScale(value, maxValue) {
-  if (!maxValue || !value) return 4
-  return Math.max(4, Math.min(20, 4 + 16 * Math.sqrt(value / maxValue)))
-}
-
-/* ── Quadratic Bézier arc between two [lat,lng] points ────────────────── */
-function computeArc(start, end, curveOffset = 0.18, numPoints = 24) {
-  const dx = end[1] - start[1]
-  const dy = end[0] - start[0]
-  const dist = Math.sqrt(dx * dx + dy * dy)
-  if (dist < 0.01) return [start, end]
-  const midLat = (start[0] + end[0]) / 2 + (dx / dist) * dist * curveOffset
-  const midLng = (start[1] + end[1]) / 2 - (dy / dist) * dist * curveOffset
-  const pts = []
-  for (let i = 0; i <= numPoints; i++) {
-    const t = i / numPoints
-    const u = 1 - t
-    pts.push([
-      u * u * start[0] + 2 * u * t * midLat + t * t * end[0],
-      u * u * start[1] + 2 * u * t * midLng + t * t * end[1],
-    ])
-  }
-  return pts
-}
-
-/* ── Compute polygon centroids from a GeoJSON FeatureCollection ──────── */
-function computeCentroids(geojson, nameProperty = 'name') {
-  if (!geojson?.features) return {}
-  const out = {}
-  for (const f of geojson.features) {
-    const name = f.properties?.[nameProperty]
-    if (!name) continue
-    const coords = []
-    const g = f.geometry
-    if (g?.type === 'Polygon') g.coordinates[0].forEach((c) => coords.push(c))
-    else if (g?.type === 'MultiPolygon') g.coordinates.forEach((p) => p[0].forEach((c) => coords.push(c)))
-    if (coords.length) {
-      out[name] = [
-        coords.reduce((s, c) => s + c[1], 0) / coords.length,
-        coords.reduce((s, c) => s + c[0], 0) / coords.length,
-      ]
-    }
-  }
-  return out
-}
-
-/* ── Custom pane for ports above choropleth ───────────────────────────── */
-function PortPane() {
-  const map = useMap()
-  useEffect(() => {
-    if (!map.getPane('portMarkers')) {
-      const pane = map.createPane('portMarkers')
-      pane.style.zIndex = '650'
-    }
-  }, [map])
-  return null
-}
-
-/* ── Click-away: reset selection ─────────────────────────────────────── */
-function MapClickReset({ setSelection }) {
-  useMapEvents({
-    click: (e) => {
-      if (e.originalEvent?._stopped) return
-      setSelection(null)
-    },
-  })
-  return null
-}
+/* ── Port radius (local alias with ChoroplethPortMap defaults) ───────── */
+// radiusScale imported from mapShared; wrap with this map's min/max/mult defaults
+const _radiusScale = (value, maxValue) => radiusScale(value, maxValue, 4, 20, 16)
 
 const DEFAULT_PORT_COLOR = { fill: '#0056a9', stroke: '#003d75' }
 
@@ -282,22 +198,10 @@ function ChoroplethLayer({
   const style = useCallback((feature) => {
     const name = feature.properties?.[nameProperty]
     const value = valueMap.get(name)
-
-    if (highlightedStates) {
-      const isHighlighted = highlightedStates.has(name)
-      if (!isHighlighted) {
-        return { fillColor: emptyColor, weight: 0.8, opacity: 0.4, color: '#aaa', fillOpacity: 0.25 }
-      }
-      return {
-        fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
-        weight: 2.5, opacity: 1, color: '#333', fillOpacity: 0.85,
-      }
-    }
-    return {
-      fillColor: value != null && value > 0 ? colorScale(value) : emptyColor,
-      weight: 1, opacity: 0.7, color: '#888', fillOpacity: 0.6,
-    }
-  }, [nameProperty, valueMap, colorScale, emptyColor, highlightedStates])
+    const fill = value != null && value > 0 ? colorScale(value) : emptyColor
+    const isOrigin = selection?.type === 'state' && name === selection.name
+    return makeStateStyle(name, fill, emptyColor, highlightedStates, isOrigin)
+  }, [nameProperty, valueMap, colorScale, emptyColor, highlightedStates, selection])
 
   const onEachFeature = useCallback((feature, layer) => {
     const name = feature.properties?.[nameProperty]
@@ -384,6 +288,13 @@ export default function ChoroplethPortMap({
   const [showHint, setShowHint] = useState(false)
   const hintTimer = useRef(null)
   const [selection, setSelection] = useState(null)
+  const [arcSelection, setArcSelection] = useState(null) // { originName, destName, srcState, dstState } | null
+
+  // Wrapper: clears arc selection whenever the main selection changes
+  const handleSetSelection = useCallback((sel) => {
+    setSelection(sel)
+    setArcSelection(null)
+  }, [])
 
   const portMax = useMemo(() => Math.max(1, ...ports.map((p) => p.value || 0)), [ports])
 
@@ -392,10 +303,32 @@ export default function ChoroplethPortMap({
     if (!selection) return { highlightedStates: null, highlightedPorts: null }
     if (selection.type === 'state') {
       const connPorts = connections.stateToPort.get(selection.name) || new Map()
-      // Only highlight the selected state itself — don't pull in every state
-      // that shares a port. The flow arcs already show the connections.
+
+      // When an arc is clicked, narrow highlight to just that arc's state endpoints
+      if (arcSelection) {
+        const stateNames = new Set()
+        if (arcSelection.srcState) stateNames.add(arcSelection.srcState)
+        if (arcSelection.dstState) stateNames.add(arcSelection.dstState)
+        return {
+          highlightedStates: stateNames.size ? stateNames : null,
+          highlightedPorts: new Set(connPorts.keys()),
+        }
+      }
+
+      // Full connection highlight (no arc selected)
+      const foreignStates = new Map()
+      for (const portCode of connPorts.keys()) {
+        const portStates = connections.portToState.get(portCode) || new Map()
+        for (const [stateName, value] of portStates) {
+          if (stateName === selection.name) continue
+          foreignStates.set(stateName, (foreignStates.get(stateName) || 0) + value)
+        }
+      }
+      const topDests = [...foreignStates.entries()].sort((a, b) => b[1] - a[1]).slice(0, 12)
+      const highlighted = new Set(topDests.map(([name]) => name))
+      highlighted.add(selection.name)
       return {
-        highlightedStates: new Set([selection.name]),
+        highlightedStates: highlighted,
         highlightedPorts: new Set(connPorts.keys()),
       }
     } else {
@@ -405,7 +338,7 @@ export default function ChoroplethPortMap({
         highlightedPorts: new Set([selection.id]),
       }
     }
-  }, [selection, connections])
+  }, [selection, arcSelection, connections])
 
   /* ── Port-to-state values for dynamic choropleth when a port is clicked */
   const portToStateValues = useMemo(() => {
@@ -528,17 +461,17 @@ export default function ChoroplethPortMap({
           if (!usedPorts.has(portCode)) {
             usedPorts.add(portCode)
             const portTotal = connPorts.get(portCode) || 0
-            arcs.push({ start: startCoord, end: portCoord, value: portTotal, group: port?.group, originName: selection.name, destName: portName })
+            arcs.push({ start: startCoord, end: portCoord, value: portTotal, group: port?.group, originName: selection.name, destName: portName, srcState: selection.name, dstState: null })
           }
           // Port → Destination arc
-          arcs.push({ start: portCoord, end: destCoord, value: portVal, group: null, originName: portName, destName })
+          arcs.push({ start: portCoord, end: destCoord, value: portVal, group: null, originName: portName, destName, srcState: selection.name, dstState: destName })
         }
       } else {
         // Direct: State → Destination (single arc, aggregated)
         for (const [stateName, value] of topDests) {
           const endCoord = allCentroids[stateName]
           if (!endCoord) continue
-          arcs.push({ start: startCoord, end: endCoord, value, group: null, originName: selection.name, destName: stateName })
+          arcs.push({ start: startCoord, end: endCoord, value, group: null, originName: selection.name, destName: stateName, srcState: selection.name, dstState: stateName })
         }
       }
     } else if (selection.type === 'port') {
@@ -550,7 +483,7 @@ export default function ChoroplethPortMap({
       for (const [stateName, value] of sorted) {
         const endCoord = allCentroids[stateName]
         if (!endCoord) continue
-        arcs.push({ start: startCoord, end: endCoord, value, group: null, originName: selection.name, destName: stateName })
+        arcs.push({ start: startCoord, end: endCoord, value, group: null, originName: selection.name, destName: stateName, srcState: null, dstState: stateName })
       }
     }
 
@@ -606,7 +539,7 @@ export default function ChoroplethPortMap({
           {selection && (
             <div className="absolute top-[130px] left-[10px] z-[1000] flex flex-col gap-1.5">
               <button
-                onClick={() => setSelection(null)}
+                onClick={() => { setSelection(null); setArcSelection(null) }}
                 className="bg-white/95 border border-border-light rounded-lg shadow-lg px-3 py-1.5 text-sm font-medium text-text-primary hover:bg-gray-50 transition-colors cursor-pointer"
               >
                 Clear selection
@@ -637,8 +570,9 @@ export default function ChoroplethPortMap({
             <ResetZoomButton center={center} zoom={zoom} />
             <MapResizeHandler />
             <TooltipSync mapRef={mapInstanceRef} tooltip={tooltip} setTooltip={setTooltip} />
+            <ArcPane />
             <PortPane />
-            <MapClickReset setSelection={setSelection} />
+            <MapClickReset onReset={() => { setSelection(null); setArcSelection(null) }} />
 
             {/* Choropleth layers */}
             {layers.map((layer, i) => (
@@ -655,7 +589,7 @@ export default function ChoroplethPortMap({
                 portToStateValues={portToStateValues}
                 formatValue={formatValue}
                 metricLabel={metricLabel}
-                setSelection={setSelection}
+                setSelection={handleSetSelection}
                 setTooltip={setTooltip}
                 mapInstanceRef={mapInstanceRef}
               />
@@ -717,9 +651,9 @@ export default function ChoroplethPortMap({
                       click: (e) => {
                         e.originalEvent._stopped = true
                         if (selection?.type === 'port' && selection.id === p.portCode) {
-                          setSelection(null)
+                          handleSetSelection(null)
                         } else {
-                          setSelection({ type: 'port', name: p.name, id: p.portCode })
+                          handleSetSelection({ type: 'port', name: p.name, id: p.portCode })
                         }
                       },
                     }}
@@ -728,50 +662,61 @@ export default function ChoroplethPortMap({
               })}
 
             {/* Flow arcs */}
-            {flowArcs.map((arc, i) => (
-              <Polyline
-                key={`arc-${i}`}
-                positions={arc.points}
-                pathOptions={{
-                  color: ARC_COLORS[arc.group] || ARC_COLORS.default,
-                  weight: arc.weight,
-                  opacity: arc.opacity,
-                  lineCap: 'round',
-                  dashArray: selection?.type === 'port' ? '6 4' : null,
-                }}
-                bubblingMouseEvents={false}
-                eventHandlers={{
-                  mouseover: (e) => {
-                    e.target.setStyle({ weight: arc.weight + 2, opacity: 1 })
-                    const map = mapInstanceRef.current
-                    if (!map) return
-                    const pt = map.latLngToContainerPoint(e.latlng)
-                    const rect = map.getContainer().getBoundingClientRect()
-                    setTooltip({
-                      content: (
-                        <>
-                          <strong>{arc.originName}</strong> &rarr; <strong>{arc.destName}</strong><br />
-                          {formatValue(arc.value)} {metricLabel}
-                        </>
-                      ),
-                      x: rect.left + pt.x, y: rect.top + pt.y - 12,
-                      latLng: [e.latlng.lat, e.latlng.lng], offsetY: -12,
-                    })
-                  },
-                  mousemove: (e) => {
-                    const map = mapInstanceRef.current
-                    if (!map) return
-                    const pt = map.latLngToContainerPoint(e.latlng)
-                    const rect = map.getContainer().getBoundingClientRect()
-                    setTooltip((prev) => prev ? { ...prev, x: rect.left + pt.x, y: rect.top + pt.y - 12, latLng: [e.latlng.lat, e.latlng.lng] } : null)
-                  },
-                  mouseout: (e) => {
-                    e.target.setStyle({ weight: arc.weight, opacity: arc.opacity })
-                    setTooltip(null)
-                  },
-                }}
-              />
-            ))}
+            {flowArcs.map((arc, i) => {
+              const isArcSelected = arcSelection &&
+                arcSelection.originName === arc.originName &&
+                arcSelection.destName === arc.destName
+              return (
+                <Polyline
+                  key={`arc-${i}`}
+                  positions={arc.points}
+                  pathOptions={{
+                    color: ARC_COLORS[arc.group] || ARC_COLORS.default,
+                    weight: isArcSelected ? arc.weight + 2.5 : arc.weight,
+                    opacity: isArcSelected ? 1 : arc.opacity,
+                    lineCap: 'round',
+                    dashArray: selection?.type === 'port' ? '6 4' : null,
+                    pane: 'flowArcs',
+                  }}
+                  bubblingMouseEvents={false}
+                  eventHandlers={{
+                    mouseover: (e) => {
+                      e.target.setStyle({ weight: arc.weight + 2, opacity: 1 })
+                      const map = mapInstanceRef.current
+                      if (!map) return
+                      const pt = map.latLngToContainerPoint(e.latlng)
+                      const rect = map.getContainer().getBoundingClientRect()
+                      setTooltip({
+                        content: (
+                          <>
+                            <strong>{arc.originName}</strong> &rarr; <strong>{arc.destName}</strong><br />
+                            {formatValue(arc.value)} {metricLabel}
+                            {!isArcSelected && <><br /><span style={{ fontSize: 11, color: '#666' }}>Click to focus this flow</span></>}
+                          </>
+                        ),
+                        x: rect.left + pt.x, y: rect.top + pt.y - 12,
+                        latLng: [e.latlng.lat, e.latlng.lng], offsetY: -12,
+                      })
+                    },
+                    mousemove: (e) => {
+                      const map = mapInstanceRef.current
+                      if (!map) return
+                      const pt = map.latLngToContainerPoint(e.latlng)
+                      const rect = map.getContainer().getBoundingClientRect()
+                      setTooltip((prev) => prev ? { ...prev, x: rect.left + pt.x, y: rect.top + pt.y - 12, latLng: [e.latlng.lat, e.latlng.lng] } : null)
+                    },
+                    mouseout: (e) => {
+                      if (!isArcSelected) e.target.setStyle({ weight: arc.weight, opacity: arc.opacity })
+                      setTooltip(null)
+                    },
+                    click: (e) => {
+                      e.originalEvent._stopped = true
+                      setArcSelection(isArcSelected ? null : { originName: arc.originName, destName: arc.destName, srcState: arc.srcState, dstState: arc.dstState, value: arc.value })
+                    },
+                  }}
+                />
+              )
+            })}
           </MapContainer>
         </div>
 
@@ -847,23 +792,7 @@ export default function ChoroplethPortMap({
         </div>
       </div>
 
-      {/* Portal tooltip */}
-      {tooltip &&
-        createPortal(
-          <div
-            style={{
-              position: 'fixed', left: tooltip.x, top: tooltip.y,
-              transform: 'translate(-50%, -100%)', zIndex: 10000, pointerEvents: 'none',
-              background: 'white', border: '1px solid #d1d5db', borderRadius: 6,
-              padding: '6px 10px', fontSize: 13, lineHeight: 1.4,
-              boxShadow: '0 2px 6px rgba(0,0,0,0.15)', whiteSpace: 'nowrap',
-              fontFamily: 'var(--font-sans), system-ui, sans-serif',
-            }}
-          >
-            {tooltip.content}
-          </div>,
-          document.body,
-        )}
+      <MapTooltip tooltip={tooltip} />
     </>
   )
 }

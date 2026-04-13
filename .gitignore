@@ -72,3 +72,9 @@ worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/unpacked/legacy/2006/DOT20117.
 worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/unpacked/modern/2007/DOT1_07.DBF
 worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/unpacked/modern/2007/DOT2_07.DBF
 worktrees/BTS-worktree-fix-arc-geokey/01-Raw-Data/unpacked/modern/2008/natfd.csv
+worktrees/BTS-worktree-fix-arc-geokey/02-Data-Staging/cleaned/dot1_state_port.csv
+worktrees/BTS-worktree-fix-arc-geokey/02-Data-Staging/cleaned/dot2_state_commodity-P16.csv
+worktrees/BTS-worktree-fix-arc-geokey/02-Data-Staging/cleaned/dot2_state_commodity.csv
+worktrees/BTS-worktree-fix-arc-geokey/02-Data-Staging/cleaned/dot3_port_commodity-P16.csv
+worktrees/BTS-worktree-fix-arc-geokey/02-Data-Staging/cleaned/dot3_port_commodity.csv
+worktrees/BTS-worktree-fix-arc-geokey/02-Data-Staging/transborder.db

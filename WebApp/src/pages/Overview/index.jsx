@@ -520,6 +520,32 @@ export default function OverviewPage() {
               </select>
             </div>
             <MetricToggle value={metric} onChange={setMetric} />
+            <div className="flex items-center gap-3">
+              <label htmlFor="quick-view-select" className="text-base font-semibold text-text-primary whitespace-nowrap">
+                Quick View
+              </label>
+              <select
+                id="quick-view-select"
+                value=""
+                onChange={(e) => {
+                  const val = e.target.value
+                  if (val === 'mexico')  { setCountryFilter('Mexico'); setTradeTypeFilter(''); setModeFilterArr([]) }
+                  if (val === 'canada')  { setCountryFilter('Canada'); setTradeTypeFilter(''); setModeFilterArr([]) }
+                  if (val === 'truck')   { setCountryFilter(''); setTradeTypeFilter(''); setModeFilterArr(['Truck']) }
+                  if (val === 'exports') { setCountryFilter(''); setTradeTypeFilter('Export'); setModeFilterArr([]) }
+                  if (val === 'reset')   { setCountryFilter(''); setTradeTypeFilter(''); setModeFilterArr([]); setMetric('value') }
+                }}
+                className="rounded-lg border border-border-light bg-white px-3 py-1.5 text-base text-text-primary
+                           shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-blue/40 focus:border-brand-blue"
+              >
+                <option value="" disabled>— apply preset —</option>
+                <option value="mexico">Mexico only</option>
+                <option value="canada">Canada only</option>
+                <option value="truck">Truck only</option>
+                <option value="exports">Exports only</option>
+                <option value="reset">Reset all</option>
+              </select>
+            </div>
           </div>
 
           {stats && (

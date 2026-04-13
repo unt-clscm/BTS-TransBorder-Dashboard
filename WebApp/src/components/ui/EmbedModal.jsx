@@ -166,8 +166,10 @@ export default function EmbedModal({ isOpen, onClose, chartTitle, embedId, pageI
         </div>
 
         {/* Tab buttons */}
-        <div className="flex gap-2 mb-4">
+        <div role="tablist" aria-label="Export format" className="flex gap-2 mb-4">
           <button
+            role="tab"
+            aria-selected={tab === 'iframe'}
             onClick={() => handleTabSwitch('iframe')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors
               ${tab === 'iframe' ? 'bg-brand-blue text-white' : 'bg-gray-100 text-text-secondary hover:bg-gray-200'}`}
@@ -175,6 +177,8 @@ export default function EmbedModal({ isOpen, onClose, chartTitle, embedId, pageI
             <Code size={14} /> Iframe
           </button>
           <button
+            role="tab"
+            aria-selected={tab === 'svg'}
             onClick={() => handleTabSwitch('svg')}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors
               ${tab === 'svg' ? 'bg-brand-blue text-white' : 'bg-gray-100 text-text-secondary hover:bg-gray-200'}`}

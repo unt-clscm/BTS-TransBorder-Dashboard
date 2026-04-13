@@ -125,7 +125,7 @@ export default function DownloadButton({ summary, detail, size = 'default' }) {
         ref={triggerRef}
         onClick={() => (singleOption ? handleClick(singleOption) : setOpen((o) => !o))}
         onKeyDown={handleKeyDown}
-        aria-expanded={!singleOption ? open : undefined}
+        aria-expanded={!singleOption ? open : false}
         aria-haspopup="menu"
         className={
           isFullscreen

@@ -49,7 +49,7 @@ export default function CommoditiesTab({
   /* ── Texas commodity group shares (from stateCommodityTrade) ──────── */
   const txCommodityGroupData = useMemo(() => {
     if (!showTexas || !stateCommodityTrade?.length) return null
-    let data = stateCommodityTrade.filter((d) => d.Country === 'Mexico')
+    let data = stateCommodityTrade
     if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
@@ -173,7 +173,7 @@ export default function CommoditiesTab({
     if (!showTexas || !stateCommodityTrade?.length || !groupTrends.length) return []
     // Get the same top N groups that the national trends show
     const nationalGroups = new Set(groupTrends.map((d) => d.CommodityGroup))
-    let data = stateCommodityTrade.filter((d) => d.Country === 'Mexico' && d.State === 'Texas')
+    let data = stateCommodityTrade.filter((d) => d.State === 'Texas')
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
 

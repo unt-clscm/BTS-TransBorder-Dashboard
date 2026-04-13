@@ -301,7 +301,7 @@ export default function StatesTab({
   /* ── State-by-commodity specialization ── must be above early return for hook order */
   const stateSpecialization = useMemo(() => {
     if (!stateCommodityTrade?.length) return { data: [], keys: [] }
-    let data = stateCommodityTrade.filter((d) => d.Country === 'Mexico')
+    let data = stateCommodityTrade
     if (yearFilter?.length) data = data.filter((d) => yearFilter.includes(String(d.Year)))
     if (tradeTypeFilter) data = data.filter((d) => d.TradeType === tradeTypeFilter)
     if (modeFilter?.length) data = data.filter((d) => modeFilter.includes(d.Mode))
@@ -442,39 +442,32 @@ export default function StatesTab({
         </div>
       </SectionBlock>
 
-      {/* Texas context callout for state rankings */}
-      {showTexas && usBarData.length > 0 && (() => {
+      {/* Texas callouts for state rankings — grouped into one block to avoid excess spacing */}
+      {showTexas && (usBarData.length > 0 || mxBarData.length > 0) && (() => {
         const txRow = usBarData.find((d) => d.label === 'Texas')
-        if (!txRow) return null
         const total = usBarData.reduce((s, d) => s + d.value, 0)
-        const pct = total > 0 ? ((txRow.value / total) * 100).toFixed(0) : 0
-        const rank = usBarData.findIndex((d) => d.label === 'Texas') + 1
-        return (
-          <SectionBlock>
-            <div className="max-w-7xl mx-auto">
-              <InsightCallout
-                finding={`Texas ranks #${rank} among U.S. states for trade with Mexico, handling ${fmtValue(txRow.value)} — ${pct}% of the total across the top ${usBarData.length} states (highlighted in burnt orange).`}
-                icon={Star}
-                variant="texas"
-              />
-            </div>
-          </SectionBlock>
-        )
-      })()}
-
-      {/* Mexican state context for Texas Lens */}
-      {showTexas && mxBarData.length > 0 && (() => {
+        const pct = total > 0 && txRow ? ((txRow.value / total) * 100).toFixed(0) : 0
+        const rank = txRow ? usBarData.findIndex((d) => d.label === 'Texas') + 1 : null
         const texasPartners = ['Nuevo León', 'Chihuahua', 'Tamaulipas']
-        const partnersInData = texasPartners.filter(s => mxBarData.some(d => d.label === s))
-        if (!partnersInData.length) return null
+        const hasPartners = texasPartners.some(s => mxBarData.some(d => d.label === s))
+        if (!txRow && !hasPartners) return null
         return (
           <SectionBlock>
-            <div className="max-w-7xl mx-auto">
-              <InsightCallout
-                finding={`Nuevo León, Chihuahua, and Tamaulipas (highlighted in orange on the Mexican chart) are Texas's primary trading partners — together they carry the bulk of Texas's cross-border commerce. Nuevo León alone, home to Monterrey's industrial hub, anchors the Laredo corridor.`}
-                icon={Star}
-                variant="texas"
-              />
+            <div className="max-w-7xl mx-auto flex flex-col gap-3">
+              {txRow && (
+                <InsightCallout
+                  finding={`Texas ranks #${rank} among U.S. states for trade with Mexico, handling ${fmtValue(txRow.value)} — ${pct}% of the total across the top ${usBarData.length} states (highlighted in burnt orange).`}
+                  icon={Star}
+                  variant="texas"
+                />
+              )}
+              {hasPartners && (
+                <InsightCallout
+                  finding={`Nuevo León, Chihuahua, and Tamaulipas (highlighted in orange on the Mexican chart) are Texas's primary trading partners — together they carry the bulk of Texas's cross-border commerce. Nuevo León alone, home to Monterrey's industrial hub, anchors the Laredo corridor.`}
+                  icon={Star}
+                  variant="texas"
+                />
+              )}
             </div>
           </SectionBlock>
         )

@@ -125,27 +125,47 @@ function DivergingBarChartInner({
       .attr('width', (d) => xRight(d[rightKey] || 0) - halfW)
 
     // Value labels — left side
+    // If the bar is so long that placing the label outside would push it into the
+    // category-label margin, flip it inside the bar instead.
+    const leftLabelProps = (d) => {
+      const val = d[leftKey] || 0
+      const barEnd = xLeft(val)
+      const labelText = val > 0 ? formatValue(val) : ''
+      const estimatedLabelW = labelText.length * FS * 0.495
+      const fitsOutside = barEnd > estimatedLabelW + 8
+      return { x: fitsOutside ? barEnd - 4 : barEnd + 4, anchor: fitsOutside ? 'end' : 'start', fill: fitsOutside ? 'var(--color-text-secondary)' : '#ffffff' }
+    }
     g.selectAll('.val-left').data(displayData).enter()
       .append('text')
       .attr('y', (d) => y(d[labelKey]) + y.bandwidth() / 2)
       .attr('dy', '0.35em')
       .attr('font-size', `${FS * 0.9}px`)
-      .attr('fill', 'var(--color-text-secondary)')
-      .attr('text-anchor', 'end')
-      .attr('x', (d) => xLeft(d[leftKey] || 0) - 4)
+      .attr('fill', (d) => leftLabelProps(d).fill)
+      .attr('text-anchor', (d) => leftLabelProps(d).anchor)
+      .attr('x', (d) => leftLabelProps(d).x)
       .text((d) => (d[leftKey] || 0) > 0 ? formatValue(d[leftKey]) : '')
       .attr('opacity', 0)
       .transition().delay(animate ? 400 : 0).duration(300).attr('opacity', 1)
 
     // Value labels — right side
+    // Same logic as left: if the bar is so long that the label would overflow the
+    // right margin, flip it inside the bar.
+    const rightLabelProps = (d) => {
+      const val = d[rightKey] || 0
+      const barEnd = xRight(val)
+      const labelText = val > 0 ? formatValue(val) : ''
+      const estimatedLabelW = labelText.length * FS * 0.495
+      const fitsOutside = barEnd + estimatedLabelW + 8 < innerW
+      return { x: fitsOutside ? barEnd + 4 : barEnd - 4, anchor: fitsOutside ? 'start' : 'end', fill: fitsOutside ? 'var(--color-text-secondary)' : '#ffffff' }
+    }
     g.selectAll('.val-right').data(displayData).enter()
       .append('text')
       .attr('y', (d) => y(d[labelKey]) + y.bandwidth() / 2)
       .attr('dy', '0.35em')
       .attr('font-size', `${FS * 0.9}px`)
-      .attr('fill', 'var(--color-text-secondary)')
-      .attr('text-anchor', 'start')
-      .attr('x', (d) => xRight(d[rightKey] || 0) + 4)
+      .attr('fill', (d) => rightLabelProps(d).fill)
+      .attr('text-anchor', (d) => rightLabelProps(d).anchor)
+      .attr('x', (d) => rightLabelProps(d).x)
       .text((d) => (d[rightKey] || 0) > 0 ? formatValue(d[rightKey]) : '')
       .attr('opacity', 0)
       .transition().delay(animate ? 400 : 0).duration(300).attr('opacity', 1)

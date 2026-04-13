@@ -19,13 +19,13 @@
 import { useMemo, useState, useRef, useEffect, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { MapContainer, TileLayer, GeoJSON, useMap } from 'react-leaflet'
+import L from 'leaflet'
 import * as d3 from 'd3'
 import 'leaflet/dist/leaflet.css'
 
 import {
   ScrollWheelGuard,
   MapResizeHandler,
-  ResetZoomButton,
   TooltipSync,
   formatCurrencyDefault,
 } from './mapHelpers'
@@ -54,20 +54,50 @@ function useGeoJSON(url) {
   return { geojson, loading }
 }
 
-/** Fits map bounds to GeoJSON extent on first load */
-function FitBounds({ geojson }) {
+/** Fits map to GeoJSON bounds on first load, and provides a home button that re-fits */
+function FitAndResetButton({ geojson, fallbackCenter, fallbackZoom }) {
   const map = useMap()
+  const hasFit = useRef(false)
+
   useEffect(() => {
-    if (!geojson) return
-    const L = window.L || map.options?.L
-    if (!L) return
+    if (!geojson || hasFit.current) return
     try {
-      const layer = L.geoJSON(geojson)
-      const bounds = layer.getBounds()
-      if (bounds.isValid()) map.fitBounds(bounds, { padding: [20, 20] })
-    } catch { /* ignore invalid geojson */ }
+      const bounds = L.geoJSON(geojson).getBounds()
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [20, 20] })
+        hasFit.current = true
+      }
+    } catch { /* ignore */ }
   }, [geojson, map])
-  return null
+
+  const handleReset = useCallback((e) => {
+    e.stopPropagation()
+    if (geojson) {
+      try {
+        const bounds = L.geoJSON(geojson).getBounds()
+        if (bounds.isValid()) { map.fitBounds(bounds, { padding: [20, 20] }); return }
+      } catch { /* fall through */ }
+    }
+    map.setView(fallbackCenter, fallbackZoom)
+  }, [map, geojson, fallbackCenter, fallbackZoom])
+
+  return (
+    <div className="leaflet-top leaflet-left" style={{ pointerEvents: 'auto' }}>
+      <div className="leaflet-control" style={{ marginTop: 80, marginLeft: 10 }}>
+        <button
+          onClick={handleReset}
+          title="Reset view"
+          style={{
+            background: '#fff', border: '2px solid rgba(0,0,0,0.2)', borderRadius: 4,
+            width: 34, height: 34, cursor: 'pointer', display: 'flex',
+            alignItems: 'center', justifyContent: 'center', fontSize: 18, lineHeight: 1, color: '#333',
+          }}
+        >
+          &#8962;
+        </button>
+      </div>
+    </div>
+  )
 }
 
 export default function ChoroplethMap({
@@ -207,11 +237,11 @@ export default function ChoroplethMap({
     <>
       <div
         style={{ minHeight: height, width: '100%' }}
-        className="port-map-container h-full flex flex-col rounded-lg overflow-hidden border border-border-light isolate"
+        className="port-map-container h-full flex flex-col rounded-lg border border-border-light isolate"
         role="region"
         aria-label={`Choropleth map showing ${metricLabel} by ${title}`}
       >
-        <div className="flex-1 relative" style={{ minHeight: 0 }} onWheel={handleWheel}>
+        <div className="flex-1 relative rounded-t-lg overflow-hidden" style={{ minHeight: 0 }} onWheel={handleWheel}>
           {showHint && (
             <div
               style={{
@@ -244,7 +274,7 @@ export default function ChoroplethMap({
               url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             <ScrollWheelGuard onActiveChange={setMapActive} />
-            <ResetZoomButton center={center} zoom={zoom} />
+            <FitAndResetButton geojson={geojson} fallbackCenter={center} fallbackZoom={zoom} />
             <MapResizeHandler />
             <TooltipSync mapRef={mapInstanceRef} tooltip={tooltip} setTooltip={setTooltip} />
 
@@ -262,7 +292,7 @@ export default function ChoroplethMap({
 
         {/* Gradient legend */}
         <div
-          className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 bg-white/90 text-base text-text-secondary border-t border-border-light flex-shrink-0"
+          className="flex flex-wrap items-center gap-x-4 gap-y-1 px-3 py-2 bg-white/90 text-base text-text-secondary border-t border-border-light flex-shrink-0 rounded-b-lg"
           style={{ height: 'auto' }}
         >
           <span className="font-medium text-text-primary">{title}</span>

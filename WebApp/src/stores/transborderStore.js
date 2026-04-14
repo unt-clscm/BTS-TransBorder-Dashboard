@@ -160,7 +160,10 @@ export const useTransborderStore = create((set, get) => ({
         }
       })
     } catch (err) {
-      if (err.name === 'AbortError') return // silently ignore cancelled requests
+      if (err.name === 'AbortError') {
+        set((s) => ({ datasetLoading: { ...s.datasetLoading, [name]: false } }))
+        return
+      }
       console.error(`Failed to load dataset ${name}:`, err)
       set((s) => ({
         datasetLoading: { ...s.datasetLoading, [name]: false },

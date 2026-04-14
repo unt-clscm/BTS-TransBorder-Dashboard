@@ -24,26 +24,9 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear, 
     loadDataset('monthlyTrends')
   }, [loadDataset])
 
-  if (datasetError) {
-    return <DatasetError datasetName="Monthly Trends" error={datasetError} onRetry={() => loadDataset('monthlyTrends')} />
-  }
-
-  /* ── spinner while loading ───────────────────────────────────────── */
-  if (!filteredMonthly) {
-    return (
-      <div className="flex items-center justify-center min-h-[40vh]">
-        <div className="text-center">
-          <div className="w-10 h-10 border-3 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-base text-text-secondary">Loading monthly trend data...</p>
-        </div>
-      </div>
-    )
-  }
-
-  /* eslint-disable react-hooks/rules-of-hooks */
-
   /* ── Continuous monthly time series ──────────────────────────────── */
   const monthlyTimeSeries = useMemo(() => {
+    if (!filteredMonthly) return []
     const byYM = new Map()
     filteredMonthly.forEach((d) => {
       if (!d.Year || !d.Month) return
@@ -68,6 +51,7 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear, 
 
   /* ── Seasonal pattern: month x year stacked bar ──────────────────── */
   const seasonalData = useMemo(() => {
+    if (!filteredMonthly) return { data: [], keys: [] }
     const years = new Set()
     const byMonth = new Map()
     filteredMonthly.forEach((d) => {
@@ -92,6 +76,7 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear, 
 
   /* ── Monthly detail table ────────────────────────────────────────── */
   const tableData = useMemo(() => {
+    if (!filteredMonthly) return []
     const byKey = new Map()
     filteredMonthly.forEach((d) => {
       const key = `${d.Year}|${d.Month}|${d.Mode}|${d.TradeType}`
@@ -111,6 +96,23 @@ export default function MonthlyTab({ filteredMonthly, loadDataset, _latestYear, 
       return b.TradeValue - a.TradeValue
     })
   }, [filteredMonthly])
+
+  /* ── early returns AFTER all hooks ──────────────────────────────── */
+  if (datasetError) {
+    return <DatasetError datasetName="Monthly Trends" error={datasetError} onRetry={() => loadDataset('monthlyTrends')} />
+  }
+
+  /* ── spinner while loading ───────────────────────────────────────── */
+  if (!filteredMonthly) {
+    return (
+      <div className="flex items-center justify-center min-h-[40vh]">
+        <div className="text-center">
+          <div className="w-10 h-10 border-3 border-brand-blue border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p className="text-base text-text-secondary">Loading monthly trend data...</p>
+        </div>
+      </div>
+    )
+  }
 
   const tableColumns = [
     { key: 'Year', label: 'Year' },

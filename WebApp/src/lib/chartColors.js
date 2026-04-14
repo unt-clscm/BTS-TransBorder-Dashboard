@@ -120,6 +120,7 @@ export const getAxisFormatter = (maxValue, prefix = '', suffix = '') => {
  * Example: 1234567 → "1,234,567"
  */
 export const formatNumber = (value) => {
+  if (value == null || isNaN(value)) return '0'
   return new Intl.NumberFormat('en-US').format(Math.round(value))
 }
 
@@ -128,6 +129,7 @@ export const formatNumber = (value) => {
  * Example: 0.125 → "12.5%"
  */
 export const formatPercent = (value) => {
+  if (value == null || isNaN(value)) return '—'
   return `${(value * 100).toFixed(1)}%`
 }
 

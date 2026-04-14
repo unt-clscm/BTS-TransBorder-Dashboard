@@ -340,7 +340,7 @@ export default function TexasMexicoPage() {
   const resetFilters = useCallback(() => {
     setMetric('value'); setYearFilter([]); setTradeTypeFilter(''); setModeFilter([])
     setRegionFilter([]); setPortFilter([]); setCommodityGroupFilter([]); setCommodityFilter([]); setStateFilter([]); setMexStateFilter([])
-  }, [])
+  }, [setMetric])
 
   /* ── render ────────────────────────────────────────────────────── */
   if (datasetErrors.texasMexicoPorts) {

@@ -119,8 +119,7 @@ function BarChartRaceInner({
     const t = d3.transition().duration(dur)
 
     // ── Scales ───────────────────────────────────────────────────────────
-    const frameMax = d3.max(displayData, (d) => d.value) || 1
-    const x = d3.scaleLinear().domain([0, frameMax]).nice().range([0, innerW])
+    const x = d3.scaleLinear().domain([0, globalMax || 1]).nice().range([0, innerW])
 
     const y = d3.scaleBand()
       .domain(displayData.map((d) => d.route))

@@ -225,7 +225,7 @@ function HeatmapTableInner({
                         const cellRect = e.currentTarget.getBoundingClientRect()
                         const boxRect = containerRef.current.getBoundingClientRect()
                         const x = cellRect.left - boxRect.left + cellRect.width / 2 + containerRef.current.scrollLeft
-                        const yAbove = cellRect.top - boxRect.top + containerRef.current.scrollTop
+                        const yAbove = cellRect.top - boxRect.top
                         const spaceAbove = cellRect.top - boxRect.top
                         const below = spaceAbove < 60 // flip below if near top
                         const y = below

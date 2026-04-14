@@ -41,9 +41,13 @@ export default function TradeFlowsTab({
     return [...new Set(texasOdStateFlows.map((d) => d.Year).filter(Boolean))].sort((a, b) => a - b)
   }, [texasOdStateFlows])
   const [mapYear, setMapYear] = useState('')
-  // default to latest year once data loads
+  // default to latest year once data loads; reset if current selection is no longer valid
   useEffect(() => {
-    if (mapYears.length && !mapYear) setMapYear(String(mapYears[mapYears.length - 1]))
+    if (!mapYears.length) return
+    const strYears = mapYears.map(String)
+    if (!mapYear || !strYears.includes(String(mapYear))) {
+      setMapYear(strYears[strYears.length - 1])
+    }
   }, [mapYears])
 
   /* ── filter without year (for map animation) ──────────────────────── */

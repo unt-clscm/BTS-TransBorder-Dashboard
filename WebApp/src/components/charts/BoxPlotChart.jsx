@@ -42,6 +42,7 @@ function BoxPlotChartInner({
 }) {
   const containerRef = useRef(null)
   const svgRef = useRef(null)
+  const tipIdRef = useRef(`box-chart-tooltip-${Math.random().toString(36).slice(2, 9)}`)
   const { width, height: containerHeight, isFullscreen } = useChartResize(containerRef)
 
   useEffect(() => {
@@ -184,7 +185,7 @@ function BoxPlotChartInner({
     })
 
     // ── Tooltip ────────────────────────────────────────────────────
-    const tipId = `box-chart-tooltip-${Math.random().toString(36).slice(2, 9)}`
+    const tipId = tipIdRef.current
     let tipDiv = document.getElementById(tipId)
     if (!tipDiv) {
       tipDiv = document.createElement('div')

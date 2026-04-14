@@ -182,7 +182,7 @@ export default function SankeyDiagram({
         .attr('fill', '#666')
         .text(label)
     })
-  }, [nodes, links, width, chartHeight])
+  }, [nodes, links, width, chartHeight, highlightNodes, highlightColor])
 
   // Hover highlight
   useEffect(() => {

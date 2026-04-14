@@ -273,7 +273,7 @@ export default function PortsTab({
       row.TradeValue += d.TradeValue || 0
       if (d.WeightLb != null) row.WeightLb = (row.WeightLb || 0) + d.WeightLb
     })
-    return Array.from(byKey.values()).sort((a, b) => b.TradeValue - a.TradeValue)
+    return Array.from(byKey.values()).sort((a, b) => (b[valueField] ?? b.TradeValue) - (a[valueField] ?? a.TradeValue))
   }, [filteredPorts, valueField])
 
   /* ── Trade balance by year ─────────────────────────────────────── */

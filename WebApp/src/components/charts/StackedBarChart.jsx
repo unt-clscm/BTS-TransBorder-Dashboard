@@ -70,6 +70,7 @@ function StackedBarChart({
 }) {
   const containerRef = useRef(null)
   const svgRef = useRef(null)
+  const tipIdRef = useRef(`stacked-bar-tooltip-${Math.random().toString(36).slice(2, 9)}`)
   const { width, height: containerHeight, isFullscreen } = useChartResize(containerRef)
 
   useEffect(() => {
@@ -199,7 +200,7 @@ function StackedBarChart({
     })
 
     // ── HTML Tooltip (fixed to viewport, escapes overflow-hidden) ──
-    const tipId = `stacked-bar-tooltip-${Math.random().toString(36).slice(2, 9)}`
+    const tipId = tipIdRef.current
     let tipDiv = document.getElementById(tipId)
     if (!tipDiv) {
       tipDiv = document.createElement('div')

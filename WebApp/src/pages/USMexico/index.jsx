@@ -36,8 +36,8 @@ const TAB_CONFIG = [
 
 export default function USMexicoPage() {
   const {
-    usTransborder, usMexicoPorts, commodityDetail, stateCommodityTrade, containerizationTrade,
-    usStateTrade, mexicanStateTrade, odStateFlows,
+    usTransborder, usMexicoPorts, commodityDetail, stateCommodityTrade, texasMexicoCommodities,
+    containerizationTrade, usStateTrade, mexicanStateTrade, odStateFlows,
     loading, datasetErrors, loadDataset,
   } = useTransborderStore()
 
@@ -71,7 +71,10 @@ export default function USMexicoPage() {
     if (activeTab === 'ports') loadDataset('containerizationTrade')
     if (activeTab === 'commodities') {
       loadDataset('commodityDetail')
-      if (showTexas) loadDataset('stateCommodityTrade')
+      if (showTexas) {
+        loadDataset('stateCommodityTrade')
+        loadDataset('texasMexicoCommodities')
+      }
     }
     if (activeTab === 'states') {
       loadDataset('usStateTrade')
@@ -224,7 +227,7 @@ export default function USMexicoPage() {
   /* ── latest year ───────────────────────────────────────────────────── */
   const latestYear = useMemo(() => {
     if (!filteredSummary.length) return null
-    return Math.max(...filteredSummary.map((d) => d.Year).filter(Number.isFinite))
+    return filteredSummary.reduce((max, d) => Number.isFinite(d.Year) ? Math.max(max, d.Year) : max, 0) || null
   }, [filteredSummary])
   const prevYear = latestYear ? latestYear - 1 : null
 
@@ -504,6 +507,7 @@ export default function USMexicoPage() {
             metric={metric}
             showTexas={showTexas}
             stateCommodityTrade={stateCommodityTrade}
+            texasMexicoCommodities={texasMexicoCommodities}
             yearFilter={yearFilter}
             tradeTypeFilter={tradeTypeFilter}
             modeFilter={modeFilter}

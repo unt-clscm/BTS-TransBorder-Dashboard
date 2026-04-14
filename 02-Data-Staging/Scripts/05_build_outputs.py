@@ -653,15 +653,17 @@ def build_commodity_mexstate_trade(conn):
 
 
 def build_containerization_trade(conn):
-    """Dataset 17: Containerization and domestic/foreign status. Source: DOT1, Mexico only, 2007+.
+    """Dataset 17: Containerization and domestic/foreign status. Source: DOT1, Mexico only.
 
     Charts: Containerized vs non-containerized trade by mode over time.
     DF field: 1=domestic origin, 2=foreign origin/re-export (exports only; NULL for imports).
     ContCode: 0=not containerized, 1=containerized, X=not applicable (pipeline, other).
-    Aggregated by Year/Mode/TradeType/ContCode/DF to keep size small.
+    Aggregated by Year/Mode/TradeType/ContCode/DF with Scope='National' for all states
+    and Scope='Texas' for Texas-origin trade, enabling Texas Lens comparisons.
     """
     sql = f"""
         SELECT
+            'National' AS "Scope",
             "Year",
             "Mode",
             COALESCE("TradeType", 'Unknown') AS "TradeType",
@@ -674,7 +676,26 @@ def build_containerization_trade(conn):
         WHERE "Country" = 'Mexico' AND "Year" >= {MODERN_START_YEAR}
         GROUP BY "Year", "Mode", COALESCE("TradeType", 'Unknown'),
                  COALESCE("ContCode", 'U'), COALESCE("DF", 'U')
-        ORDER BY "Year", "Mode", "TradeType", "ContCode", "DF"
+
+        UNION ALL
+
+        SELECT
+            'Texas' AS "Scope",
+            "Year",
+            "Mode",
+            COALESCE("TradeType", 'Unknown') AS "TradeType",
+            COALESCE("ContCode", 'U') AS "ContCode",
+            COALESCE("DF", 'U') AS "DF",
+            ROUND(SUM("TradeValue"), 2) AS "TradeValue",
+            CASE WHEN SUM(CASE WHEN "Weight" IS NOT NULL THEN 1 ELSE 0 END) > 0
+                 THEN ROUND(SUM("Weight"), 2) ELSE NULL END AS "Weight"
+        FROM dot1_state_port
+        WHERE "Country" = 'Mexico' AND "Year" >= {MODERN_START_YEAR}
+          AND "State" = 'Texas'
+        GROUP BY "Year", "Mode", COALESCE("TradeType", 'Unknown'),
+                 COALESCE("ContCode", 'U'), COALESCE("DF", 'U')
+
+        ORDER BY "Scope", "Year", "Mode", "TradeType", "ContCode", "DF"
     """
     return run_query(conn, sql)
 

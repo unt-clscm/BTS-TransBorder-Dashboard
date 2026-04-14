@@ -43,6 +43,7 @@ export default function PortsTab({
   const weightPartial = !weightAllNA && metric === 'weight' && hasSurfaceExports(filteredPorts)
 
   /* ── Texas overlay data ─────────────────────────────────────────────── */
+  const overlayLabel = 'Texas'
   const _txOverlay = useTexasOverlay(filteredPorts, valueField, showTexas)
   const txPorts = useTexasPorts(filteredPorts, showTexas)
 
@@ -411,19 +412,21 @@ export default function PortsTab({
             />
           </ChartCard>
           <ChartCard
-            title={showTexas && txModeByYearData ? 'Texas Mode Composition by Year' : 'Mode Composition by Year'}
+            title="Mode Composition by Year"
             subtitle={showTexas && txModeByYearData
-              ? `How Texas's ${metricLabel.toLowerCase()} is split across modes — toggle off to see national`
+              ? `${overlayLabel}'s share (solid) within U.S. total (faded) by transport mode`
               : `How ${metricLabel.toLowerCase()} is distributed across modes over time`}
             headerRight={<YearRangeFilter years={allYears} startYear={trendYearRange.startYear} endYear={trendYearRange.endYear} onChange={setTrendYearRange} />}
-            downloadData={{ summary: { data: (showTexas && txModeByYearData ? txModeByYearData.data : modeByYearData.data), filename: showTexas ? 'texas-mode-by-year' : 'us-mexico-mode-by-year' } }}
+            downloadData={{ summary: { data: modeByYearData.data, filename: 'us-mexico-mode-by-year' } }}
           >
             <StackedBarChart
-              data={showTexas && txModeByYearData ? txModeByYearData.data : modeByYearData.data}
+              data={modeByYearData.data}
               xKey="year"
-              stackKeys={showTexas && txModeByYearData ? txModeByYearData.stackKeys : modeByYearData.stackKeys}
+              stackKeys={modeByYearData.stackKeys}
               formatY={getAxisFormatter(tradeMax, metric === 'weight' ? '' : '$')}
               formatValue={fmtValue}
+              overlayData={showTexas && txModeByYearData ? txModeByYearData.data : []}
+              overlayLabel={overlayLabel}
             />
           </ChartCard>
         </div>

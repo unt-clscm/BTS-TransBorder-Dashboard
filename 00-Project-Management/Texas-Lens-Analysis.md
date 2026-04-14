@@ -28,6 +28,8 @@
 | **Texas mode handling callout** | Hidden | Appears: states Texas's % share for Truck mode and specialized modes (energy/geography context) | Callout shown/hidden |
 | **Top Ports bar chart — bar colors** | All bars uniform blue | Texas ports are orange; non-Texas ports are blue | Color coding |
 | **Top Ports — "X of top Y ports are Texas" callout** | Hidden | Appears: count and % of top-ranked ports that are in Texas | Callout shown/hidden |
+| **Containerization Status donut** | Single national donut | Side-by-side "National" and "Texas" comparison donuts with labels | Chart comparison |
+| **Export Origin donut** | Single national donut | Side-by-side "National" and "Texas" comparison donuts with labels | Chart comparison |
 | **Containerization trend chart** | National containerization line only | Adds "Texas" line overlay in orange | Overlay series added |
 | **Containerization callout** | Hidden | Appears: Texas's share of logistics freight, containerization rate vs. national average, re-export share | Callout shown/hidden |
 | **Port Detail table — row highlighting** | No highlighting | Texas rows get a light orange background and medium font weight | Row highlighting |
@@ -89,6 +91,7 @@
 |---|---|---|
 | Callout shown/hidden | ~15 callouts | The most common Texas Lens effect — adds contextual insight text blocks |
 | Color coding (bars, lines, markers, nodes) | ~12 instances | Colors Texas elements orange, non-Texas blue/green |
+| Chart comparison (side-by-side) | 2 charts | Containerization Status donut, Export Origin donut (Ports) |
 | Chart data switched | 3 charts | Treemap (Commodities), Maquiladora chart (Commodities), Mode Composition by Year (Ports) |
 | Chart shown/hidden | 3 charts | Texas Contribution by Commodity Group table, Texas Trade Over Time, Texas's Top Mexican State Partners |
 | Overlay series added (trend lines) | 5 line charts | Ports: trade trends + balance + containerization; Commodities: group trends; Trade Flows: none (replaced by dedicated chart) |
